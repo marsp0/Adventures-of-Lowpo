@@ -1,7 +1,8 @@
 #include "Game.hpp"
 #include <GL/glew.h>
 
-Game::Game()
+Game::Game(unsigned int width, unsigned int height) :
+    width(width), height(height)
 {
 
 }
@@ -11,7 +12,7 @@ Game::~Game()
 
 }
 
-void Game::Init(unsigned int width, unsigned int height)
+void Game::Init()
 {
 
 }

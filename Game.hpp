@@ -10,10 +10,10 @@ enum GameState
 class Game
 {
     public:
-        Game();
+        Game(unsigned int width, unsigned int height);
         ~Game();
 
-        void Init(unsigned int width, unsigned int height);
+        void Init();
         void HandleInput(float deltaTime);
         void Update(float deltaTime);
         void Render();
