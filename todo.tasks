@@ -1,0 +1,2 @@
+☐ Implement the loader to load textures/meshes
+☐ Figure out where to store IDs so we can reuse meshes, models

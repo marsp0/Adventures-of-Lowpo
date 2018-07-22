@@ -14,9 +14,22 @@ Mesh::Mesh(const std::string& filePath)
     glGenBuffers(1,&this->vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, this->vertexBuffer);
 
-    for (int i = 0; i < loader.LoadedMeshes[0].Vertices.size(); i++)
+    // float max= 0.0f;
+    // for (int i = 0; i < this->vertexCount; i++)
+    // {
+    //     if (loader.LoadedMeshes[0].Vertices[i].Position.X > max)
+    //         max = loader.LoadedMeshes[0].Vertices[i].Position.X;
+    //     if (loader.LoadedMeshes[0].Vertices[i].Position.Y > max)
+    //         max = loader.LoadedMeshes[0].Vertices[i].Position.Y;
+    //     if (loader.LoadedMeshes[0].Vertices[i].Position.Z > max)
+    //         max = loader.LoadedMeshes[0].Vertices[i].Position.Z;
+    // }
+    // std::cout<<max<<std::endl;
+
+    for (int i = 0; i < this->vertexCount; i++)
     {
         // positions
+        // std::cout << loader.LoadedMeshes[0].Vertices[i].Position.X/max << std::endl;
         data.push_back(loader.LoadedMeshes[0].Vertices[i].Position.X);
         data.push_back(loader.LoadedMeshes[0].Vertices[i].Position.Y);
         data.push_back(loader.LoadedMeshes[0].Vertices[i].Position.Z);
@@ -29,14 +42,19 @@ Mesh::Mesh(const std::string& filePath)
         data.push_back(loader.LoadedMeshes[0].Vertices[i].TextureCoordinate.Y);
     }
 
-    for (int i=0; i < data.size(); i++)
-    {
-        std::cout << data[i] << std::endl;
-    }
+    // data = {
+    //     -0.5f, -0.5f, 0.0f, 
+    //     0.5f, -0.5f, 0.0f,  
+    //     0.5f,  0.5f, 0.0f,  
+    //     -0.5f, -0.5f, 0.0f, 
+    //     -0.5f,  0.5f, 0.0f, 
+    //     0.5f,  0.5f, 0.0f
+    // };
+    // this->vertexCount = 6.0f;
 
     // send data to the video memory
-    glBufferData(GL_ARRAY_BUFFER,loader.LoadedMeshes[0].Vertices.size() * 8 * sizeof(float), &data, GL_STATIC_DRAW);
-    
+    glBufferData(GL_ARRAY_BUFFER,loader.LoadedMeshes[0].Vertices.size() * 8 * sizeof(float), &data[0], GL_STATIC_DRAW);
+    glGetError();
     // shader attributes
     // position
     glEnableVertexAttribArray(0);
