@@ -1,5 +1,9 @@
 #pragma once
 
+#include <memory>
+#include "Scene.hpp"
+
+
 enum GameState
 {
     GAME_ACTIVE,
@@ -14,12 +18,23 @@ class Game
         ~Game();
 
         void Init();
+        void Run();
         void HandleInput(float deltaTime);
         void Update(float deltaTime);
         void Render();
 
         // data
         GameState state;
+
+        // Input
         bool keys[1024];
+        double lastPositionX;
+        double lastPositionY;
+
         unsigned int width, height;
+        GLFWwindow* window;
+
+        float deltaTime;
+        
+        std::unique_ptr<Scene> scene;
 };

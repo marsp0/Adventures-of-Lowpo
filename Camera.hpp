@@ -21,7 +21,7 @@ class Camera
                 GLfloat     yaw         = 0.0f,
                 GLfloat     pitch       = 90.0f,
                 GLfloat     sensitivity = 0.1f,
-                GLfloat     speed       = 2.5f
+                GLfloat     speed       = .5f
                 );
 
         void        Update();

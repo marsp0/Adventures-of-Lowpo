@@ -12,11 +12,13 @@ Texture::Texture(const std::string& fileName)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER , GL_LINEAR);
 
     int nrChannels;
+    stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(fileName.c_str(),&this->width, &this->height,&nrChannels,0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,this->width,this->height,0,GL_RGB,GL_UNSIGNED_BYTE,data);
         glGenerateMipmap(GL_TEXTURE_2D);
+        
     }
     else
     {
