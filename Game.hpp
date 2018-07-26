@@ -1,7 +1,11 @@
 #pragma once
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 #include <memory>
 #include "Scene.hpp"
+#include "Renderer.hpp"
 
 
 enum GameState
@@ -14,8 +18,7 @@ enum GameState
 class Game
 {
     public:
-        Game(unsigned int width, unsigned int height);
-        ~Game();
+        Game(int width,int height);
 
         void Init();
         void Run();
@@ -31,10 +34,11 @@ class Game
         double lastPositionX;
         double lastPositionY;
 
-        unsigned int width, height;
+        int width, height;
         GLFWwindow* window;
 
         float deltaTime;
         
         std::unique_ptr<Scene> scene;
+        std::unique_ptr<Renderer> renderer;
 };

@@ -9,7 +9,7 @@ class Scene
 {
     public:
 
-        Scene();
+        Scene(float width, float height);
 
         void AddGameObject(std::shared_ptr<GameObject> gameObject);
         void DeleteGameObject(std::shared_ptr<GameObject> gameObject);

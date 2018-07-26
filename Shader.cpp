@@ -15,7 +15,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     vertexStringStream << vertexFile.rdbuf();
     vertexStringSource = vertexStringStream.str();
     vertexSource = vertexStringSource.c_str();
-    
+
     const GLchar* fragmentSource;
     std::ifstream framgentFile(fragmentPath);
     std::stringstream fragmentStringStream;
@@ -23,12 +23,11 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     fragmentStringStream << framgentFile.rdbuf();
     fragmentStringSource = fragmentStringStream.str();
     fragmentSource = fragmentStringSource.c_str();
-
     GLint success;
     GLchar infoLog[512];
 
     // compile vertex shader
-    unsigned int vertexID;
+    int vertexID;
     vertexID = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexID,1,&vertexSource,NULL);
     glCompileShader(vertexID);
@@ -38,8 +37,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
         glGetShaderInfoLog(vertexID,512,NULL,infoLog);
         std::cout << "VERTEX SHADER :: COMPILE ERROR :: " << infoLog << std::endl;
     }
-
-    unsigned int fragmentID;
+    int fragmentID;
     fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentID,1,&fragmentSource,NULL);
     glCompileShader(fragmentID);
@@ -49,9 +47,10 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
         glGetShaderInfoLog(fragmentID,512,NULL, infoLog);
         std::cout << "FRAGMENT SHADER :: COMPILE ERROR :: " << infoLog << std::endl;
     }
-
+    
     // program
     this->ID = glCreateProgram();
+    
     glUseProgram(this->ID);
     glAttachShader(this->ID,vertexID);
     glAttachShader(this->ID,fragmentID);
@@ -62,7 +61,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
         glGetProgramInfoLog(this->ID, 512,NULL, infoLog);
         std::cout << "PROGRAM SHADER :: LINK ERROR :: " << infoLog << std::endl;
     }
-
+    
     glDeleteShader(vertexID);
     glDeleteShader(fragmentID);
 }

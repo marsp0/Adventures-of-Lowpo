@@ -1,5 +1,7 @@
 #include "Mesh.hpp"
 #include "OBJ_Loader.hpp"
+#include <GL/glew.h>
+
 
 Mesh::Mesh(const std::string& filePath)
 {
@@ -13,18 +15,6 @@ Mesh::Mesh(const std::string& filePath)
 
     glGenBuffers(1,&this->vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, this->vertexBuffer);
-
-    // float max= 0.0f;
-    // for (int i = 0; i < this->vertexCount; i++)
-    // {
-    //     if (loader.LoadedMeshes[0].Vertices[i].Position.X > max)
-    //         max = loader.LoadedMeshes[0].Vertices[i].Position.X;
-    //     if (loader.LoadedMeshes[0].Vertices[i].Position.Y > max)
-    //         max = loader.LoadedMeshes[0].Vertices[i].Position.Y;
-    //     if (loader.LoadedMeshes[0].Vertices[i].Position.Z > max)
-    //         max = loader.LoadedMeshes[0].Vertices[i].Position.Z;
-    // }
-    // std::cout<<max<<std::endl;
 
     for (int i = 0; i < this->vertexCount; i++)
     {
@@ -41,16 +31,6 @@ Mesh::Mesh(const std::string& filePath)
         data.push_back(loader.LoadedMeshes[0].Vertices[i].TextureCoordinate.X);
         data.push_back(loader.LoadedMeshes[0].Vertices[i].TextureCoordinate.Y);
     }
-
-    // data = {
-    //     -0.5f, -0.5f, 0.0f, 
-    //     0.5f, -0.5f, 0.0f,  
-    //     0.5f,  0.5f, 0.0f,  
-    //     -0.5f, -0.5f, 0.0f, 
-    //     -0.5f,  0.5f, 0.0f, 
-    //     0.5f,  0.5f, 0.0f
-    // };
-    // this->vertexCount = 6.0f;
 
     // send data to the video memory
     glBufferData(GL_ARRAY_BUFFER,loader.LoadedMeshes[0].Vertices.size() * 8 * sizeof(float), &data[0], GL_STATIC_DRAW);
@@ -72,9 +52,7 @@ Mesh::Mesh(const std::string& filePath)
 
 void Mesh::Draw()
 {
-    this->Bind();
     glDrawArrays(GL_TRIANGLES,0,this->vertexCount);
-    this->Unbind();
 }
 
 void Mesh::Bind()

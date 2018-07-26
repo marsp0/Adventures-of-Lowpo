@@ -2,7 +2,9 @@
 #include <glm/gtx/transform.hpp>
 #include <iostream>
 
-Camera::Camera( glm::vec3   position,
+Camera::Camera( float       width,
+                float       height,
+                glm::vec3   position,
                 glm::vec3   direction,
                 glm::vec3   worldUp,
                 GLfloat     yaw,
@@ -12,10 +14,12 @@ Camera::Camera( glm::vec3   position,
                 ) : 
                 position(position), direction(direction),
                 worldUp(worldUp), yaw(yaw), pitch(pitch),
-                sensitivity(sensitivity), speed(speed)
+                sensitivity(sensitivity), speed(speed),
+                width(width), height(height)
 {
     this->right = glm::normalize(glm::cross(this->direction, this->worldUp));
     this->up = glm::normalize(glm::cross(this->direction, this->right));
+    this->projectionMatrix = glm::perspective(glm::radians(45.0f), this->width / this->height,.01f,200.f);
 }
 
 glm::mat4 Camera::GetViewMatrix()
@@ -23,10 +27,9 @@ glm::mat4 Camera::GetViewMatrix()
     return glm::lookAt(this->position,this->position + this->direction,this->up);
 }
 
-void Camera::HandleInput(float deltaTime, float xoffset, float yoffset, CameraMovement direction)
+glm::mat4 Camera::GetProjectionMatrix()
 {
-    this->HandleMouseInput(deltaTime, xoffset, yoffset);
-    this->HandleKeyboardInput(deltaTime, direction);
+    return this->projectionMatrix;
 }
 
 void Camera::HandleMouseInput(float deltaTime, float xoffset, float yoffset)

@@ -25,11 +25,12 @@ Texture::Texture(const std::string& fileName)
         std::cout << "Texture was not loaded : " << fileName << std::endl;
     }
     stbi_image_free(data);
+    this->Unbind();
 }
 
 Texture::~Texture()
 {
-    glDeleteTextures(1,&this->ID);
+    // glDeleteTextures(1,&this->ID);
 }
 
 void Texture::Bind() const

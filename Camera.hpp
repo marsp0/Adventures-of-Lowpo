@@ -15,7 +15,9 @@ class Camera
 {
     public:
         
-        Camera( glm::vec3   position    = glm::vec3(0.0f,0.0f,0.0f),
+        Camera( float       width,
+                float       height,
+                glm::vec3   position    = glm::vec3(0.0f,0.0f,0.0f),
                 glm::vec3   direction   = glm::vec3(0.0f,0.0f,3.0f),
                 glm::vec3   worldUp     = glm::vec3(0.0f,1.0f,0.0f),
                 GLfloat     yaw         = 0.0f,
@@ -24,12 +26,11 @@ class Camera
                 GLfloat     speed       = .5f
                 );
 
-        void        Update();
         glm::mat4   GetViewMatrix();
-
-        void HandleInput(float deltaTime, float xoffset, float yoffset, CameraMovement direction);
-        void HandleMouseInput(float deltaTime,float xoffset, float yoffset);
-        void HandleKeyboardInput(float deltaTime,CameraMovement direction);
+        glm::mat4   GetProjectionMatrix();
+        void        Update();
+        void        HandleMouseInput(float deltaTime,float xoffset, float yoffset);
+        void        HandleKeyboardInput(float deltaTime,CameraMovement direction);
 
     private:
 
@@ -42,4 +43,7 @@ class Camera
         GLfloat     pitch;
         GLfloat     sensitivity;
         GLfloat     speed;
+        glm::mat4   projectionMatrix;
+        float       width;
+        float       height;
 };
