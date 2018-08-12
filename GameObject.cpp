@@ -5,7 +5,11 @@ GameObject::GameObject(Transform transform, std::shared_ptr<Texture> texture, st
     transform(transform)
 {
     this->mesh = mesh;
-    this->texture = texture;
+    if (texture != NULL)
+    {
+        this->texture = texture;
+    }
+    
 }
 
 void GameObject::HandleInput()
@@ -20,10 +24,10 @@ void GameObject::Update(float deltaTime)
 
 void GameObject::Render()
 {
-    this->texture->Bind();
+    // this->texture->Bind();
     this->mesh->Bind();
     this->mesh->Draw();
-    this->texture->Unbind();
     this->mesh->Unbind();
+    // this->texture->Unbind();
 
 }

@@ -13,7 +13,7 @@ class Texture
         void Bind() const;
         void Unbind() const;
     private:
-        GLuint ID;
+        GLuint  ID;
         GLsizei width;
         GLsizei height;
 };

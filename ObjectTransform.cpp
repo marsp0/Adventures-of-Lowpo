@@ -13,14 +13,12 @@ glm::mat4 Transform::getWorldMatrix()
         0, 0, this->scale.z, 0,
         0, 0, 0, 1
     );
-
     glm::mat4 translation = glm::mat4(
-        1, 0, 0, this->position.x,
-        0, 1, 0, this->position.y,
-        0, 0, 1, this->position.z,
-        0, 0, 0, 1
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        this->position.x, this->position.y, this->position.z, 1
     );
-
     glm::mat4 result = glm::mat4_cast(this->rotation) * scale * translation;
     return result;
 }

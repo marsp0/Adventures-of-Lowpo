@@ -47,11 +47,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
         glGetShaderInfoLog(fragmentID,512,NULL, infoLog);
         std::cout << "FRAGMENT SHADER :: COMPILE ERROR :: " << infoLog << std::endl;
     }
-    
     // program
     this->ID = glCreateProgram();
-    
-    glUseProgram(this->ID);
     glAttachShader(this->ID,vertexID);
     glAttachShader(this->ID,fragmentID);
     glLinkProgram(this->ID);
@@ -61,7 +58,6 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
         glGetProgramInfoLog(this->ID, 512,NULL, infoLog);
         std::cout << "PROGRAM SHADER :: LINK ERROR :: " << infoLog << std::endl;
     }
-    
     glDeleteShader(vertexID);
     glDeleteShader(fragmentID);
 }

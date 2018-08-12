@@ -50,16 +50,16 @@ void Camera::HandleMouseInput(float deltaTime, float xoffset, float yoffset)
 
 void Camera::HandleKeyboardInput(float deltaTime, CameraMovement direction)
 {
-    // std::cout << this->position.x << std::endl;
     float velocity = this->speed * deltaTime;
     if (direction == FORWARD)
-        this->position += this->direction * velocity;
+        // Projection of direction/right onto the flat XZ plane plane
+        this->position += (this->direction - (glm::dot(this->direction,this->worldUp) * this->worldUp)) * velocity;
     if (direction == BACKWARD)
-        this->position -= this->direction * velocity;
+        this->position -= (this->direction - (glm::dot(this->direction,this->worldUp) * this->worldUp)) * velocity;
     if (direction == LEFT)
-        this->position -= this->right * velocity;
+        this->position -= (this->right - (glm::dot(this->right,this->worldUp) * this->worldUp)) * velocity;
     if (direction == RIGHT)
-        this->position += this->right * velocity;
+        this->position += (this->right - (glm::dot(this->right,this->worldUp) * this->worldUp)) * velocity;
 }
 
 void Camera::Update()

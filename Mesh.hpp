@@ -6,9 +6,8 @@
 class Mesh
 {
     public:
-
-        Mesh(const std::string& filePath);
-
+    
+        Mesh(GLuint vertexArray, GLuint vertexBuffer, GLuint vertexCount);
         void Draw();
 
         void Bind();

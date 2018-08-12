@@ -16,8 +16,8 @@ class Scene
 
         void Update(float deltaTime);
 
-        Camera camera;
-        std::vector<std::shared_ptr<GameObject>> gameObjects;
+        Camera                                      camera;
+        std::vector<std::shared_ptr<GameObject>>    gameObjects;
 
     private:
 

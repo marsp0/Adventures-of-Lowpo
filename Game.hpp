@@ -6,6 +6,7 @@
 #include <memory>
 #include "Scene.hpp"
 #include "Renderer.hpp"
+#include "ResourceManager.hpp"
 
 
 enum GameState
@@ -30,15 +31,18 @@ class Game
         GameState state;
 
         // Input
-        bool keys[1024];
-        double lastPositionX;
-        double lastPositionY;
+        bool                        keys[1024];
+        double                      lastPositionX;
+        double                      lastPositionY;
 
-        int width, height;
-        GLFWwindow* window;
+        int                         width;
+        int                         height;
+        GLFWwindow*                 window;
 
-        float deltaTime;
+        float                       deltaTime;
         
-        std::unique_ptr<Scene> scene;
-        std::unique_ptr<Renderer> renderer;
+        std::unique_ptr<Scene>      scene;
+        std::unique_ptr<Renderer>   renderer;
+
+        ResourceManager             resourseManager;
 };

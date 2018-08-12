@@ -13,11 +13,9 @@ Game::Game(int width, int height) :
     this->deltaTime = 0.016f;
     this->scene = std::make_unique<Scene>(Scene((float)this->width, (float)this->height));
     this->renderer = std::make_unique<Renderer>(Renderer("vertexShader.glsl","fragmentShader.glsl"));
-    std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh("/home/suburbanfilth/Downloads/house/house_obj.obj"));
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(Texture("/home/suburbanfilth/Downloads/house/house_diffuse.tga"));
-    std::shared_ptr<GameObject> gameobject = std::make_shared<GameObject>(GameObject(Transform(), texture,mesh));
-    gameobject->transform.Scale(glm::vec3(.1f,.1f,.1f));
-    this->scene->gameObjects.push_back(gameobject);
+    this->resourseManager = ResourceManager();
+    this->resourseManager.LoadMesh("/home/suburbanfilth/Downloads/low_poly_terrain.obj",this->scene->gameObjects);
+    std::cout << this->scene->gameObjects.size() << std::endl;
 }
 
 void Game::Init()
