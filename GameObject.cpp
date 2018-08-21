@@ -9,7 +9,6 @@ GameObject::GameObject(Transform transform, std::shared_ptr<Texture> texture, st
     {
         this->texture = texture;
     }
-    
 }
 
 void GameObject::HandleInput()
@@ -19,7 +18,7 @@ void GameObject::HandleInput()
 
 void GameObject::Update(float deltaTime)
 {
-
+    // this->transform.SetPosition(this->physicsComponent.position);
 }
 
 void GameObject::Render()

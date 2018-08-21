@@ -7,6 +7,7 @@
 #include "Scene.hpp"
 #include "Renderer.hpp"
 #include "ResourceManager.hpp"
+#include "PhysicsEngine.hpp"
 
 
 enum GameState
@@ -43,6 +44,7 @@ class Game
         
         std::unique_ptr<Scene>      scene;
         std::unique_ptr<Renderer>   renderer;
-
+        std::shared_ptr<Terrain>    terrain;
+        PhysicsEngine               physicsEngine;
         ResourceManager             resourseManager;
 };

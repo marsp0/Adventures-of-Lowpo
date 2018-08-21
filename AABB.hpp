@@ -6,7 +6,7 @@ class AABB
 {
     public:
     
-        AABB();
+        AABB(glm::vec3 min, glm::vec3 max);
         bool HandleCollision(const AABB& other);
     
     private:

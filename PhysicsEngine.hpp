@@ -2,8 +2,7 @@
 
 #include <vector>
 #include <memory>
-
-#include <PhysicsObject.hpp>
+#include "GameObject.hpp"
 
 class PhysicsEngine
 {
@@ -11,11 +10,7 @@ class PhysicsEngine
         
         PhysicsEngine();
 
-        void AddPhysicsObject();
-        void Step(float deltaTime);
-        void HandleCollisions();
+        void Step(float deltaTime, std::vector<std::shared_ptr<GameObject>>& gameObjects);
+        void HandleCollisions(std::vector<std::shared_ptr<GameObject>>& gameObjects);
 
-    private:
-
-        std::vector<std::shared_ptr<PhysicsObject>> objects;
 };

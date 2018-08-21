@@ -2,28 +2,31 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <memory>
 
 #include "Game.hpp"
-#include <memory>
+#include "Terrain.hpp"
 
 Game::Game(int width, int height) :
     width(width), height(height)
 {
     this->Init();
-    this->deltaTime = 0.016f;
-    this->scene = std::make_unique<Scene>(Scene((float)this->width, (float)this->height));
-    this->renderer = std::make_unique<Renderer>(Renderer("vertexShader.glsl","fragmentShader.glsl"));
-    this->resourseManager = ResourceManager();
-    this->resourseManager.LoadMesh("/home/suburbanfilth/Downloads/low_poly_terrain.obj",this->scene->gameObjects);
-    std::cout << this->scene->gameObjects.size() << std::endl;
+    this->deltaTime         = 0.016f;
+    this->scene             = std::make_unique<Scene>(Scene((float)this->width, (float)this->height));
+    this->renderer          = std::make_unique<Renderer>(Renderer("vertexShader.glsl","fragmentShader.glsl"));
+    this->resourseManager   = ResourceManager();
+    // this->physicsEngine     = PhysicsEngine();
+    
+    this->terrain = this->resourseManager.LoadTerrain("/home/suburbanfilth/Downloads/heightmap.png");
+    std::cout << glGetError() << std::endl;
 }
 
 void Game::Init()
 {
     // Initialize GLFW
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     // Create window
@@ -69,11 +72,14 @@ void Game::HandleInput(float deltaTime)
 
 void Game::Update(float deltaTime)
 {
+    // this->physicsEngine.Step(deltaTime, this->scene->gameObjects);
+    // this->physicsEngine.HandleCollisions(this->scene->gameObjects);
 }
 
 void Game::Render()
 {
-    this->renderer->Draw(this->scene);
+    this->renderer->Draw(this->scene, terrain);
+    std::cout << glGetError() << std::endl;
 }
 
 void Game::Run()
@@ -90,11 +96,11 @@ void Game::Run()
         // Render
         this->Render();
         glfwSwapBuffers(window);
-        unsigned int error = glGetError();
-        if (error != 0)
-        {
-            std::cout << error << std::endl;
-        }
+        // unsigned int error = glGetError();
+        // if (error != 0)
+        // {
+        //     std::cout << error << std::endl;
+        // }
 
     }
 

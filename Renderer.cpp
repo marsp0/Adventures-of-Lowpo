@@ -5,18 +5,21 @@ Renderer::Renderer(const char* vertexFile, const char* fragmentFile) :
 {
 }
 
-void Renderer::Draw(std::unique_ptr<Scene>& scene)
+void Renderer::Draw(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terrain)
 {
     glm::mat4 projection = scene->camera.GetProjectionMatrix();
     glm::mat4 view = scene->camera.GetViewMatrix();
     this->shader.Use();
     this->shader.SetMat4("projection", projection);
     this->shader.SetMat4("view", view);
+
+    this->shader.SetMat4("model", terrain->transform.getWorldMatrix());
+    std::cout << glGetError() << std::endl;
+    terrain->Render();
+    std::cout << glGetError() << "after render" << std::endl;
     for (int i = 0 ; i < scene->gameObjects.size(); i++)
-    {
-        
-        glm::mat4 model = scene->gameObjects[i]->transform.getWorldMatrix();
-        
+    {   
+        glm::mat4 model = scene->gameObjects[i]->transform.getWorldMatrix();   
         this->shader.SetMat4("model", model);
         scene->gameObjects[i]->Render();
     }
