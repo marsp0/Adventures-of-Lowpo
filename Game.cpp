@@ -7,6 +7,57 @@
 #include "Game.hpp"
 #include "Terrain.hpp"
 
+void APIENTRY openglCallbackFunction(GLenum source,
+                                           GLenum type,
+                                           GLuint id,
+                                           GLenum severity,
+                                           GLsizei length,
+                                           const GLchar* message,
+                                           const void* userParam)
+{
+    using namespace std;
+    cout << "---------------------opengl-callback-start------------" << endl;
+    cout << "message: "<< message << endl;
+    cout << "type: ";
+    switch (type) {
+    case GL_DEBUG_TYPE_ERROR:
+        cout << "ERROR";
+        break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        cout << "DEPRECATED_BEHAVIOR";
+        break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        cout << "UNDEFINED_BEHAVIOR";
+        break;
+    case GL_DEBUG_TYPE_PORTABILITY:
+        cout << "PORTABILITY";
+        break;
+    case GL_DEBUG_TYPE_PERFORMANCE:
+        cout << "PERFORMANCE";
+        break;
+    case GL_DEBUG_TYPE_OTHER:
+        cout << "OTHER";
+        break;
+    }
+    cout << endl;
+ 
+    cout << "id: " << id << endl;
+    cout << "severity: ";
+    switch (severity){
+    case GL_DEBUG_SEVERITY_LOW:
+        cout << "LOW";
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        cout << "MEDIUM";
+        break;
+    case GL_DEBUG_SEVERITY_HIGH:
+        cout << "HIGH";
+        break;
+    }
+    cout << endl;
+    cout << "---------------------opengl-callback-end--------------" << endl;
+}
+
 Game::Game(int width, int height) :
     width(width), height(height)
 {
@@ -17,8 +68,7 @@ Game::Game(int width, int height) :
     this->resourseManager   = ResourceManager();
     // this->physicsEngine     = PhysicsEngine();
     
-    this->terrain = this->resourseManager.LoadTerrain("/home/suburbanfilth/Downloads/heightmap.png");
-    std::cout << glGetError() << std::endl;
+    this->terrain = this->resourseManager.LoadTerrain("/home/martin/Downloads/heightmap.jpg");
 }
 
 void Game::Init()
@@ -41,6 +91,19 @@ void Game::Init()
     glewInit();
     glGetError();
     glViewport(0, 0, this->width, this->height);
+    
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(openglCallbackFunction, nullptr);
+    GLuint unusedIds = 0;
+    glDebugMessageControl(GL_DONT_CARE,
+            GL_DONT_CARE,
+            GL_DONT_CARE,
+            0,
+            &unusedIds,
+            true);
 }
 
 void Game::HandleInput(float deltaTime)
@@ -74,12 +137,12 @@ void Game::Update(float deltaTime)
 {
     // this->physicsEngine.Step(deltaTime, this->scene->gameObjects);
     // this->physicsEngine.HandleCollisions(this->scene->gameObjects);
+    std::cout << this->terrain->GetHeight(this->scene->camera.position.x, this->scene->camera.position.z) << std::endl;
 }
 
 void Game::Render()
 {
     this->renderer->Draw(this->scene, terrain);
-    std::cout << glGetError() << std::endl;
 }
 
 void Game::Run()
@@ -87,7 +150,7 @@ void Game::Run()
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(1.f, 1.f, 1.f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Handle Player Input
         this->HandleInput(deltaTime);

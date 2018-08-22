@@ -31,10 +31,12 @@ class Camera
         void        Update();
         void        HandleMouseInput(float deltaTime,float xoffset, float yoffset);
         void        HandleKeyboardInput(float deltaTime,CameraMovement direction);
+        
+        
+        glm::vec3   position;
 
     private:
 
-        glm::vec3   position;
         glm::vec3   direction;
         glm::vec3   up;
         glm::vec3   right;

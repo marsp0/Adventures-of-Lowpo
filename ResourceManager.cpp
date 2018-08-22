@@ -17,7 +17,6 @@ GLuint ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::s
     std::vector<float> data;
     objl::Loader loader;
     loader.LoadFile(filePath);
-    std::cout << loader.LoadedMeshes.size() << std::endl;
     for (int j = 0 ; j < loader.LoadedMeshes.size(); j++)
     {
         
@@ -80,51 +79,61 @@ GLuint ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::s
         std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(vertexArrayID, vertexBufferID, loader.LoadedMeshes[j].Vertices.size()));
         // std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>(GameObject(Transform(), NULL, mesh, PhysicsComponent(min,max, glm::vec3(0.f,0.f,0.f))));
         std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>(GameObject(Transform(), NULL, mesh));
-        gameObject->transform.Scale(glm::vec3(20.f,22.f,22.f));
+        gameObject->transform.Scale(glm::vec3(1.f,1.f,1.f));
         gameObject->transform.SetPosition(glm::vec3(0.0f,0.5f,0.0f));
         gameObjects.push_back(gameObject);
         
     }
-    // std::cout << loader.LoadedMeshes.size() << std::endl;
     
 }
 
 std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePath)
 {
+    // RGBA / RGB etc
     int nrChannels;
     unsigned int vertexCount;
     int width;
     int length;
-    float w = 10.0f, l = 10.0f;
+    float worldWidth = 20.0f, worldLength = 20.0f, worldHeight = 2.0f;
     unsigned char* data = stbi_load(filePath.c_str(),&width, &length,&nrChannels,0);
-    std::vector<glm::vec3> vertices(width * length);
+    std::vector<float> vertices;
     std::vector<unsigned int> triangles;
+    std::shared_ptr<std::vector<std::vector<float>>> heightmap = std::make_shared<std::vector<std::vector<float>>>(std::vector<std::vector<float>>());
     
     if (data == NULL)
     {
         std::cout << "Cannot load the heightmap!" << std::endl;
     }
-
     for (int z = 0; z < length; z++)
     {
+        heightmap->push_back(std::vector<float>());
         for (int x = 0; x < width; x++)
         {
             // normalizing the x and z of the vector
             glm::vec3 vertex = glm::vec3(x/(float)width,0,z/(float)length);
 
             // multiplying by the width and length
-            vertex.x *= w;
-            vertex.z *= l;
+            unsigned char* pixel = data + vertexCount * nrChannels;
+            unsigned int temporary_y = static_cast<unsigned int>(pixel[0]);
+            vertex.y = (float)temporary_y/255.0f;
+
+            vertex.x *= worldWidth;
+            vertex.y *= worldHeight;
+            vertex.z *= worldLength;
             // shifting the center to be in the center of the object.
-            vertex.x -= width/2;
-            vertex.z -= length/2;
-
-            vertices[vertexCount] = vertex;
-
-            // unsigned char* pixelOffset = data + (z + this->length * x) * nrChannels;
-            // std::cout << "red " << static_cast<unsigned int>(pixelOffset[0]) << std::endl;
+            vertex.x -= worldWidth/2;
+            vertex.z -= worldLength/2;
+            // std::cout <<vertex.y << std::endl;
+            vertices.push_back(vertex.x);
+            vertices.push_back(vertex.y);
+            vertices.push_back(vertex.z);
+            if ((vertex.x == 0.f) && (vertex.z == 0.f))
+            {
+                std::cout << "found one " << vertex.y << std::endl;
+            }
+            // std::cout << vertex.y << std::endl;
             
-            if ((vertexCount+1 % width) != 0 && z+1 < length)
+            if ((vertexCount+1 % width) != 0 && z < length-1)
             {
                 triangles.push_back(vertexCount);
                 triangles.push_back(vertexCount + width);
@@ -134,24 +143,33 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
                 triangles.push_back(vertexCount + width + 1);
                 triangles.push_back(vertexCount + 1);
             }
+
+            (*heightmap)[z].push_back(vertex.y);
+
             vertexCount++;
         }
     }
     stbi_image_free(data);
-
     // OPENGL Part
-    GLuint IBO, VBO;
+    GLuint IBO, VBO, VAO;
+
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+
 
     glGenBuffers(1, &IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,IBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * triangles.size(), triangles.data(), GL_STATIC_DRAW);
 
-    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(VBO, IBO, triangles.size(), Transform()));
-    terrain->transform.SetScale(glm::vec3(1.0f,1.0f,1.0f));
-    terrain->transform.SetPosition(glm::vec3(0.0f,0.0f,0.0f));
-    std::cout << triangles.size() << std::endl;
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,12,(void*)0);
+
+    
+    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(VAO, VBO, IBO, triangles.size(), Transform(), heightmap, worldWidth, worldHeight, worldLength));
+    terrain->transform.SetPosition(glm::vec3(0.0f,-2.0f,0.0f));
     return terrain;
 }

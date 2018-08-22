@@ -5,7 +5,6 @@ AABB::AABB(glm::vec3 min, glm::vec3 max)
 {
     this->min = min;
     this->max = max;
-    std::cout << "dsa" << std::endl;
 }
 
 bool AABB::HandleCollision(const AABB& other)

@@ -2,25 +2,31 @@
 
 #include <vector>
 #include <glm/glm.hpp>
-
+#include <memory>
 #include "ObjectTransform.hpp"
 
 class Terrain
 {
     public:
-        Terrain(unsigned int vbo, unsigned int ibo, int indexCount, Transform transform);
+        Terrain(unsigned int vao, unsigned int vbo, unsigned int ibo, int indexCount, 
+                Transform transform, 
+                std::shared_ptr<std::vector<std::vector<float>>> heightmap,
+                float worldWidth, float worldHeight, float worldLength);
         
         void    Render();
-        float   GetPosition(int x, int z);
         void    Bind();
         void    Unbind();
+        float   GetHeight(float x, float z);
 
         Transform       transform;
     private:
         int             indexCount;
         unsigned int    vertexBuffer;
-        // GLuint  vertexArray;
+        unsigned int    vertexArray;
         unsigned int    indexBuffer;
+        float           worldWidth;
+        float           worldHeight;
+        float           worldLength;
 
-        std::vector<std::vector<float>> map;
+        std::shared_ptr<std::vector<std::vector<float>>> heightmap;
 };

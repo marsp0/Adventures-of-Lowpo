@@ -14,9 +14,7 @@ void Renderer::Draw(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terr
     this->shader.SetMat4("view", view);
 
     this->shader.SetMat4("model", terrain->transform.getWorldMatrix());
-    std::cout << glGetError() << std::endl;
     terrain->Render();
-    std::cout << glGetError() << "after render" << std::endl;
     for (int i = 0 ; i < scene->gameObjects.size(); i++)
     {   
         glm::mat4 model = scene->gameObjects[i]->transform.getWorldMatrix();   
