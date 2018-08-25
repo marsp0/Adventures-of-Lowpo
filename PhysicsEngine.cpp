@@ -9,7 +9,7 @@ void PhysicsEngine::Step(float deltaTime, std::vector<std::shared_ptr<GameObject
 {
     for (int i = 0 ; i < gameObjects.size() ; i++)
     {
-        // gameObjects[i]->physicsComponent.Integrate(deltaTime);
+        gameObjects[i]->physicsComponent.Integrate(deltaTime);
     }
 }
 

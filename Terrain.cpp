@@ -9,9 +9,11 @@
 Terrain::Terrain(unsigned int vao, unsigned int vbo, 
                 unsigned int ibo, int indexCount, 
                 Transform transform, std::shared_ptr<std::vector<std::vector<float>>> heightmap,
-                float worldWidth, float worldHeight, float worldLength) : 
+                float worldWidth, float worldHeight, float worldLength,
+                glm::vec3 position) : 
                 worldWidth(worldWidth), worldHeight(worldHeight), 
-                worldLength(worldLength), transform(transform)
+                worldLength(worldLength), transform(transform),
+                position(position)
 {
     this->vertexArray = vao;
     this->vertexBuffer = vbo;
@@ -70,4 +72,9 @@ float Terrain::GetHeight(float x, float z)
     else
         resultZ = zUp;
     return (*(this->heightmap))[resultZ][resultX];
+}
+
+glm::vec3 Terrain::GetPosition()
+{
+    return this->position;
 }

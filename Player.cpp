@@ -4,9 +4,10 @@
 Player::Player( Transform                   transform,
                 std::shared_ptr<Texture>    texture,
                 std::shared_ptr<Mesh>       mesh,
+                PhysicsComponent physicsComponent,
                 float cameraWidth,
                 float cameraHeight) :
-                GameObject(transform, texture, mesh),
+                GameObject(transform, texture, mesh,physicsComponent),
                 camera(cameraWidth, cameraHeight)
 {
 
