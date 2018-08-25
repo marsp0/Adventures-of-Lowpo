@@ -34,17 +34,17 @@ class Camera
         
         
         glm::vec3   position;
-
-    private:
-
         glm::vec3   direction;
         glm::vec3   up;
         glm::vec3   right;
         glm::vec3   worldUp;
-        GLfloat     yaw;
-        GLfloat     pitch;
-        GLfloat     sensitivity;
-        GLfloat     speed;
+        float       speed;
+
+    private:
+
+        float       yaw;
+        float       pitch;
+        float       sensitivity;
         glm::mat4   projectionMatrix;
         float       width;
         float       height;

@@ -1,7 +1,8 @@
 #include "GameObject.hpp"
-#include "GLFW/glfw3.h"
 
-GameObject::GameObject(Transform transform, std::shared_ptr<Texture> texture, std::shared_ptr<Mesh> mesh) :
+GameObject::GameObject( Transform                   transform, 
+                        std::shared_ptr<Texture>    texture, 
+                        std::shared_ptr<Mesh>       mesh) :
     transform(transform)
 {
     this->mesh = mesh;
@@ -11,7 +12,7 @@ GameObject::GameObject(Transform transform, std::shared_ptr<Texture> texture, st
     }
 }
 
-void GameObject::HandleInput()
+void GameObject::HandleInput(GLFWwindow* window)
 {
 
 }
@@ -29,4 +30,14 @@ void GameObject::Render()
     this->mesh->Unbind();
     // this->texture->Unbind();
 
+}
+
+void GameObject::SetVelocity(glm::vec3 velocity)
+{
+    // this->physicsComponent.SetVelocity(velocity);
+}
+
+glm::vec3 GetVelocity()
+{
+    // return this->physicsComponent.GetVelocity();
 }

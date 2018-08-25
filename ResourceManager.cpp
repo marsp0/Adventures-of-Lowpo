@@ -127,12 +127,6 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
             vertices.push_back(vertex.x);
             vertices.push_back(vertex.y);
             vertices.push_back(vertex.z);
-            if ((vertex.x == 0.f) && (vertex.z == 0.f))
-            {
-                std::cout << "found one " << vertex.y << std::endl;
-            }
-            // std::cout << vertex.y << std::endl;
-            
             if ((vertexCount+1 % width) != 0 && z < length-1)
             {
                 triangles.push_back(vertexCount);
@@ -173,3 +167,4 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
     terrain->transform.SetPosition(glm::vec3(0.0f,-2.0f,0.0f));
     return terrain;
 }
+

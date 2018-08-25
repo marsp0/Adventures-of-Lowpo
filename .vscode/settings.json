@@ -36,6 +36,7 @@
         "deque": "cpp",
         "numeric": "cpp",
         "cinttypes": "cpp",
-        "cstdarg": "cpp"
+        "cstdarg": "cpp",
+        "string": "cpp"
     }
 }

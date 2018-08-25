@@ -68,7 +68,7 @@ Game::Game(int width, int height) :
     this->resourseManager   = ResourceManager();
     // this->physicsEngine     = PhysicsEngine();
     
-    this->terrain = this->resourseManager.LoadTerrain("/home/martin/Downloads/heightmap.jpg");
+    this->terrain = this->resourseManager.LoadTerrain("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/heightmap.jpg");
 }
 
 void Game::Init()
@@ -108,6 +108,11 @@ void Game::Init()
 
 void Game::HandleInput(float deltaTime)
 {
+    for (int i = 0; i < this->scene->gameObjects.size() ; i++)
+    {
+        this->scene->gameObjects[i]->HandleInput(this->window);
+    }
+
     // KEYBOARD
     if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(this->window, true);
@@ -135,9 +140,14 @@ void Game::HandleInput(float deltaTime)
 
 void Game::Update(float deltaTime)
 {
+    for (int i = 0; i < this->scene->gameObjects.size() ; i++)
+    {
+        this->scene->gameObjects[i]->Update(deltaTime);
+    }
+
     // this->physicsEngine.Step(deltaTime, this->scene->gameObjects);
     // this->physicsEngine.HandleCollisions(this->scene->gameObjects);
-    std::cout << this->terrain->GetHeight(this->scene->camera.position.x, this->scene->camera.position.z) << std::endl;
+    // std::cout << this->terrain->GetHeight(this->scene->camera.position.x, this->scene->camera.position.z) << std::endl;
 }
 
 void Game::Render()

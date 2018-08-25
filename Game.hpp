@@ -31,11 +31,6 @@ class Game
         // data
         GameState state;
 
-        // Input
-        bool                        keys[1024];
-        double                      lastPositionX;
-        double                      lastPositionY;
-
         int                         width;
         int                         height;
         GLFWwindow*                 window;
@@ -47,4 +42,7 @@ class Game
         std::shared_ptr<Terrain>    terrain;
         PhysicsEngine               physicsEngine;
         ResourceManager             resourseManager;
+
+        float lastPositionX;
+        float lastPositionY;
 };
