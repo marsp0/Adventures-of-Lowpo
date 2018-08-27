@@ -2,7 +2,7 @@
 #include <memory>
 #include <vector>
 
-#include "GameObject.hpp"
+#include "Player.hpp"
 #include "Mesh.hpp"
 #include "ResourceManager.hpp"
 #include "OBJ_Loader.hpp"
@@ -12,28 +12,17 @@ ResourceManager::ResourceManager()
     
 }
 
-GLuint ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::shared_ptr<GameObject>>& gameObjects)
+void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::shared_ptr<GameObject>>& gameObjects)
 {
-    std::vector<float> data;
     objl::Loader loader;
     loader.LoadFile(filePath);
-    for (int j = 0 ; j < loader.LoadedMeshes.size(); j++)
+    for (int j = 0; j < loader.LoadedMeshes.size(); j++)
     {
-        
-        GLuint vertexArrayID;
-        glGenVertexArrays(1, &vertexArrayID);
-        glBindVertexArray(vertexArrayID);
-
-        GLuint vertexBufferID;
-        glGenBuffers(1, &vertexBufferID);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
-
         std::vector<float> data;
-        glm::vec3 min;
-        glm::vec3 max;
+        glm::vec3 min, max;
         for (int i = 0; i < loader.LoadedMeshes[j].Vertices.size(); i++)
         {
-            if (i = 0)
+            if (i == 0)
             {
                 max.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
                 max.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
@@ -42,44 +31,45 @@ GLuint ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::s
                 min.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
                 min.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
                 min.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
+
+            } else {
+                if (max.x < loader.LoadedMeshes[j].Vertices[i].Position.X)
+                    max.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
+                if (max.y < loader.LoadedMeshes[j].Vertices[i].Position.Y)
+                    max.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
+                if (max.z < loader.LoadedMeshes[j].Vertices[i].Position.Z)
+                    max.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
+
+                if (min.x > loader.LoadedMeshes[j].Vertices[i].Position.X)
+                    min.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
+                if (min.y > loader.LoadedMeshes[j].Vertices[i].Position.Y)
+                    min.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
+                if (min.z > loader.LoadedMeshes[j].Vertices[i].Position.Z)
+                    min.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
             }
-
-            if (min.x > loader.LoadedMeshes[j].Vertices[i].Position.X)
-                min.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
-            if (min.y > loader.LoadedMeshes[j].Vertices[i].Position.Y)
-                min.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
-            if (min.z > loader.LoadedMeshes[j].Vertices[i].Position.Z)
-                min.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
-
-            if (max.x > loader.LoadedMeshes[j].Vertices[i].Position.X)
-                max.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
-            if (max.y > loader.LoadedMeshes[j].Vertices[i].Position.Y)
-                max.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
-            if (max.z > loader.LoadedMeshes[j].Vertices[i].Position.Z)
-                max.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
 
             data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.X);
             data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.Y);
             data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.Z);
-            // normals - not sure if needed as jf now.
-            // data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.X);
-            // data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.Y);
-            // data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.Z);
         }
-        glBufferData(GL_ARRAY_BUFFER,loader.LoadedMeshes[j].Vertices.size() * 6 * sizeof(float), &data[0], GL_STATIC_DRAW);
+
+        unsigned int VAO,VBO;
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+        std::cout << glGetError() << std::endl;
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER,VBO);
+        glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float),data.data(),GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,24,(void*)0);
-        // normals
-        // glEnableVertexAttribArray(1);
-        // glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,24,(void*)(3 * sizeof(float)));
-        // glBindVertexArray(0);
-        
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12, (void*)0);
 
-        std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(vertexArrayID, vertexBufferID, loader.LoadedMeshes[j].Vertices.size()));
-        std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>(GameObject(Transform(gameObject.get()), NULL, mesh, PhysicsComponent(min,max, glm::vec3(0.f,0.f,0.f))));
+        std::cout << "starting the mesh" << std::endl;
+        std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(VAO, VBO, loader.LoadedMeshes[j].Vertices.size()));
+        std::cout << "finished the mesh" << std::endl;
+        std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>(GameObject(Transform(), NULL, mesh, PhysicsComponent(min,max, glm::vec3(0.f,0.f,0.f))));
+        std::cout << "finished the game object" << std::endl;
         gameObjects.push_back(gameObject);
-        
     }
     
 }
@@ -160,9 +150,70 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,12,(void*)0);
 
     
-    glm::vec3 position = glm::vec3(0.0f,-1.0f,0.0f);
-    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(VAO, VBO, IBO, triangles.size(), Transform(terrain.get()), heightmap, worldWidth, worldHeight, worldLength, position));
+    glm::vec3 position = glm::vec3(0.0f,-2.0f,0.0f);
+    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(VAO, VBO, IBO, triangles.size(), Transform(), heightmap, worldWidth, worldHeight, worldLength, position));
     
     return terrain;
 }
 
+void ResourceManager::LoadPlayer(const std::string& filePath, std::vector<std::shared_ptr<GameObject>>& gameObjects)
+{
+    objl::Loader loader;
+    loader.LoadFile(filePath);
+    for (int j = 0; j < loader.LoadedMeshes.size(); j++)
+    {
+        std::vector<float> data;
+        glm::vec3 min, max;
+        for (int i = 0; i < loader.LoadedMeshes[j].Vertices.size(); i++)
+        {
+            if (i == 0)
+            {
+                max.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
+                max.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
+                max.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
+
+                min.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
+                min.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
+                min.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
+
+            } else {
+                if (max.x < loader.LoadedMeshes[j].Vertices[i].Position.X)
+                    max.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
+                if (max.y < loader.LoadedMeshes[j].Vertices[i].Position.Y)
+                    max.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
+                if (max.z < loader.LoadedMeshes[j].Vertices[i].Position.Z)
+                    max.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
+
+                if (min.x > loader.LoadedMeshes[j].Vertices[i].Position.X)
+                    min.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
+                if (min.y > loader.LoadedMeshes[j].Vertices[i].Position.Y)
+                    min.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
+                if (min.z > loader.LoadedMeshes[j].Vertices[i].Position.Z)
+                    min.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
+            }
+
+            data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.X);
+            data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.Y);
+            data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.Z);
+        }
+
+        unsigned int VAO,VBO;
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+        std::cout << glGetError() << std::endl;
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER,VBO);
+        glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float),data.data(),GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12, (void*)0);
+
+        std::cout << "starting the mesh" << std::endl;
+        std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(VAO, VBO, loader.LoadedMeshes[j].Vertices.size()));
+        std::cout << "finished the mesh" << std::endl;
+        std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), NULL, mesh, PhysicsComponent(min,max, glm::vec3(0.f,0.f,0.f)),(float)800, (float)600));
+        std::cout << "finished the game object" << std::endl;
+        gameObjects.push_back(player);
+    }
+    
+}

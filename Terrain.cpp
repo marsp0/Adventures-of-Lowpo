@@ -20,6 +20,7 @@ Terrain::Terrain(unsigned int vao, unsigned int vbo,
     this->indexBuffer = ibo;
     this->indexCount = indexCount;
     this->heightmap = heightmap;
+    this->transform.SetPosition(position);
 }
 
 void Terrain::Render()
@@ -31,12 +32,12 @@ void Terrain::Render()
 
 void Terrain::Bind()
 {
-    glBindBuffer(GL_ARRAY_BUFFER, this->vertexArray);
+    glBindVertexArray(this->vertexArray);
 }
 
 void Terrain::Unbind()
 {
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
 float Terrain::GetHeight(float x, float z)

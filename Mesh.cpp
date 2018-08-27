@@ -1,8 +1,7 @@
-#include "Mesh.hpp"
-// #include "OBJ_Loader.hpp"
 #include <GL/glew.h>
+#include "Mesh.hpp"
 
-Mesh::Mesh(GLuint vertexArray, GLuint vertexBuffer, GLuint vertexCount)
+Mesh::Mesh(unsigned int vertexArray, unsigned int vertexBuffer, unsigned int vertexCount)
 {
     this->vertexArray = vertexArray;
     this->vertexBuffer = vertexBuffer;

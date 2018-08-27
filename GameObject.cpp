@@ -15,12 +15,12 @@ GameObject::GameObject( Transform                   transform,
 
 void GameObject::HandleInput(GLFWwindow* window)
 {
-
+    std::cout << "called Gameobject HandleInput" << std::endl;
 }
 
 void GameObject::Update(float deltaTime)
 {
-    // this->transform.SetPosition(this->physicsComponent.position);
+    this->transform.SetPosition(this->physicsComponent.GetPosition());
 }
 
 void GameObject::Render()
@@ -35,15 +35,16 @@ void GameObject::Render()
 
 void GameObject::SetVelocity(glm::vec3 velocity)
 {
-    // this->physicsComponent.SetVelocity(velocity);
+    std::cout << "Velocity is being set" << std::endl;
+    this->physicsComponent.SetVelocity(velocity);
 }
 
 glm::vec3 GameObject::GetVelocity()
 {
-    // return this->physicsComponent.GetVelocity();
+    return this->physicsComponent.GetVelocity();
 }
 
 glm::vec3 GameObject::GetPosition()
 {
-    // return this->physicsComponent.GetPosition();
+    return this->physicsComponent.GetPosition();
 }

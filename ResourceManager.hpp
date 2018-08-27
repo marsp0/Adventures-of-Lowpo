@@ -11,7 +11,8 @@ class ResourceManager
     public:
         ResourceManager();
 
-        GLuint LoadMesh( const std::string& filePath, std::vector<std::shared_ptr<GameObject>>& gameObjects);
+        void LoadMesh( const std::string& filePath, std::vector<std::shared_ptr<GameObject>>& gameObjects);
+        void LoadPlayer( const std::string& filePath, std::vector<std::shared_ptr<GameObject>>& gameObjects);
         
         std::shared_ptr<Terrain> LoadTerrain(const std::string& filePath);
 };

@@ -7,7 +7,7 @@ class Mesh
 {
     public:
     
-        Mesh(GLuint vertexArray, GLuint vertexBuffer, GLuint vertexCount);
+        Mesh(unsigned int vertexArray, unsigned int vertexBuffer, unsigned int vertexCount);
         void Draw();
 
         void Bind();

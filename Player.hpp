@@ -22,7 +22,7 @@ class Player : public GameObject
                 float cameraWidth,
                 float cameraHeight);
 
-        void HandleInput(GLFWwindow* window);
+        virtual void HandleInput(GLFWwindow* window);
         void Update(float deltaTime);
 
     private:

@@ -5,21 +5,16 @@
 #include <memory>
 #include <iostream>
 
-// #include "Terrain.hpp"
-// #include "GameObject.hpp"
 
-class Terrain;
-class GameObject;
 class Transform
 {
     public:
-        Transform(GameObject* parent);
-        Transform(Terrain* parent);
-        // Transform(const Transform& transform);
+        Transform();
 
         glm::mat4   getWorldMatrix();
-        glm::vec3   GetPosition();
 
+        void   SetPosition(glm::vec3 position);
+        
         // TODO : Add Euler angles and axis-angle rotations
         void        SetRotation(glm::quat rotation);
         glm::quat   GetRotation();
@@ -31,8 +26,7 @@ class Transform
 
     private:
 
+        glm::vec3 position;
         glm::vec3 scale;
         glm::quat rotation;
-        GameObject* parentGameObject;
-        Terrain* parentTerrain;
 };

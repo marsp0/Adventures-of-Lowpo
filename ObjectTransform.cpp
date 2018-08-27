@@ -1,16 +1,7 @@
 #include "ObjectTransform.hpp"
-#include "Terrain.hpp"
-#include "GameObject.hpp"
 
-Transform::Transform(GameObject* parent)
+Transform::Transform()
 {
-    this->parentGameObject = parent;
-    this->scale = glm::vec3(1.0f,1.0f,1.0f);
-}
-
-Transform::Transform(Terrain* parent)
-{
-    this->parentTerrain = parent;
     this->scale = glm::vec3(1.0f,1.0f,1.0f);
 }
 
@@ -29,29 +20,19 @@ glm::mat4 Transform::getWorldMatrix()
         0, 0, this->scale.z, 0,
         0, 0, 0, 1
     );
-    glm::vec3 position = this->GetPosition();
-    std::cout << position.x << std::endl;
-    std::cout << position.y << std::endl;
-    std::cout << position.z << std::endl;
-    std::cout << std::endl;
     glm::mat4 translation = glm::mat4(
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
-        position.x, position.y, position.z, 1
+        this->position.x, this->position.y, this->position.z, 1
     );
     glm::mat4 result = glm::mat4_cast(this->rotation) * scale * translation;
     return result;
 }
 
-glm::vec3 Transform::GetPosition()
+void Transform::SetPosition(glm::vec3 position)
 {
-    // TODO : Fix this mess - is it ok to use weak ptrs ? is the way i am doing this correct?
-    // IMPORTANT
-    if (this->parentGameObject != nullptr)
-        return this->parentGameObject->GetPosition();
-    if (this->parentTerrain != nullptr)
-        return this->parentTerrain->GetPosition();
+    this->position = position;
 }
 
 void Transform::SetRotation(glm::quat rotation)

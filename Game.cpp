@@ -66,8 +66,8 @@ Game::Game(int width, int height) :
     this->scene             = std::make_unique<Scene>(Scene((float)this->width, (float)this->height));
     this->renderer          = std::make_unique<Renderer>(Renderer("vertexShader.glsl","fragmentShader.glsl"));
     this->resourseManager   = ResourceManager();
-    // this->physicsEngine     = PhysicsEngine();
-    
+    this->physicsEngine     = PhysicsEngine();
+    this->resourseManager.LoadPlayer("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/player.obj",this->scene->gameObjects);
     this->terrain = this->resourseManager.LoadTerrain("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/heightmap.jpg");
 }
 
@@ -92,7 +92,7 @@ void Game::Init()
     glGetError();
     glViewport(0, 0, this->width, this->height);
     
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -116,25 +116,25 @@ void Game::HandleInput(float deltaTime)
     // KEYBOARD
     if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(this->window, true);
-    if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS)
-        this->scene->camera.HandleKeyboardInput(deltaTime,FORWARD);
-    if (glfwGetKey(this->window, GLFW_KEY_S) == GLFW_PRESS)
-        this->scene->camera.HandleKeyboardInput(deltaTime,BACKWARD);
-    if (glfwGetKey(this->window, GLFW_KEY_A) == GLFW_PRESS)
-        this->scene->camera.HandleKeyboardInput(deltaTime,LEFT);
-    if (glfwGetKey(this->window, GLFW_KEY_D) == GLFW_PRESS)
-        this->scene->camera.HandleKeyboardInput(deltaTime,RIGHT);
+    // if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS)
+    //     this->scene->camera.HandleKeyboardInput(deltaTime,FORWARD);
+    // if (glfwGetKey(this->window, GLFW_KEY_S) == GLFW_PRESS)
+    //     this->scene->camera.HandleKeyboardInput(deltaTime,BACKWARD);
+    // if (glfwGetKey(this->window, GLFW_KEY_A) == GLFW_PRESS)
+    //     this->scene->camera.HandleKeyboardInput(deltaTime,LEFT);
+    // if (glfwGetKey(this->window, GLFW_KEY_D) == GLFW_PRESS)
+    //     this->scene->camera.HandleKeyboardInput(deltaTime,RIGHT);
 
-    // MOUSE
-    double xpos, ypos;
-    glfwGetCursorPos(this->window, &xpos, &ypos);
-    float xoffset = xpos - this->lastPositionX;
-    float yoffset = this->lastPositionY - ypos;
+    // // MOUSE
+    // double xpos, ypos;
+    // glfwGetCursorPos(this->window, &xpos, &ypos);
+    // float xoffset = xpos - this->lastPositionX;
+    // float yoffset = this->lastPositionY - ypos;
 
-    this->lastPositionX = xpos;
-    this->lastPositionY = ypos;
+    // this->lastPositionX = xpos;
+    // this->lastPositionY = ypos;
 
-    this->scene->camera.HandleMouseInput(deltaTime,xoffset,yoffset);
+    // this->scene->camera.HandleMouseInput(deltaTime,xoffset,yoffset);
 
 }
 
@@ -145,8 +145,8 @@ void Game::Update(float deltaTime)
         this->scene->gameObjects[i]->Update(deltaTime);
     }
 
-    // this->physicsEngine.Step(deltaTime, this->scene->gameObjects);
-    // this->physicsEngine.HandleCollisions(this->scene->gameObjects);
+    this->physicsEngine.Step(deltaTime, this->scene->gameObjects);
+    this->physicsEngine.HandleCollisions(this->scene->gameObjects);
     // std::cout << this->terrain->GetHeight(this->scene->camera.position.x, this->scene->camera.position.z) << std::endl;
 }
 
