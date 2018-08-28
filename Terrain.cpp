@@ -51,10 +51,6 @@ float Terrain::GetHeight(float x, float z)
     x *= (*(this->heightmap))[0].size();
     z *= this->heightmap->size();
 
-    // std::cout << "x and z are "<< std::endl;
-    // std::cout << x << std::endl;
-    // std::cout << z << std::endl;
-
     float xUp = std::ceil(x);
     float xDown = std::round(x);
 

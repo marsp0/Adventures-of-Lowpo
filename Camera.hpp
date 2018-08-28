@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 
+
 enum CameraMovement
 {
     FORWARD,
@@ -10,15 +11,15 @@ enum CameraMovement
     LEFT,
     RIGHT
 };
-
+class Player;
 class Camera
 {
     public:
         
         Camera( float       width,
                 float       height,
-                glm::vec3   position    = glm::vec3(0.0f,10.0f,0.0f),
-                glm::vec3   direction   = glm::vec3(0.0f,0.0f,0.0f),
+                glm::vec3   position ,
+                glm::vec3   direction,
                 glm::vec3   worldUp     = glm::vec3(0.0f,1.0f,0.0f),
                 GLfloat     yaw         = 0.0f,
                 GLfloat     pitch       = 89.0f,
@@ -28,12 +29,9 @@ class Camera
 
         glm::mat4   GetViewMatrix();
         glm::mat4   GetProjectionMatrix();
-        void        Update();
-        void        HandleMouseInput(float deltaTime,float xoffset, float yoffset);
-        void        HandleKeyboardInput(float deltaTime,CameraMovement direction);
+        void        Update(Player* parent);
         
         
-        glm::vec3   position;
         glm::vec3   direction;
         glm::vec3   up;
         glm::vec3   right;
@@ -41,6 +39,8 @@ class Camera
         float       speed;
 
     private:
+        
+        glm::vec3   position;
 
         float       yaw;
         float       pitch;

@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "Terrain.hpp"
+#include "Scene.hpp"
 
 class ResourceManager
 {
@@ -12,7 +13,7 @@ class ResourceManager
         ResourceManager();
 
         void LoadMesh( const std::string& filePath, std::vector<std::shared_ptr<GameObject>>& gameObjects);
-        void LoadPlayer( const std::string& filePath, std::vector<std::shared_ptr<GameObject>>& gameObjects);
+        void LoadPlayer( const std::string& filePath, std::unique_ptr<Scene>& scene);
         
         std::shared_ptr<Terrain> LoadTerrain(const std::string& filePath);
 };

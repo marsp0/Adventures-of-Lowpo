@@ -7,8 +7,8 @@ Renderer::Renderer(const char* vertexFile, const char* fragmentFile) :
 
 void Renderer::Draw(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terrain)
 {
-    glm::mat4 projection = scene->camera.GetProjectionMatrix();
-    glm::mat4 view = scene->camera.GetViewMatrix();
+    glm::mat4 projection = scene->camera->GetProjectionMatrix();
+    glm::mat4 view = scene->camera->GetViewMatrix();
     this->shader.Use();
     this->shader.SetMat4("projection", projection);
     this->shader.SetMat4("view", view);

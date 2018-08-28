@@ -14,11 +14,12 @@ class Scene
         void AddGameObject(std::shared_ptr<GameObject> gameObject);
         void DeleteGameObject(std::shared_ptr<GameObject> gameObject);
 
+        void AddCamera(std::shared_ptr<Camera> camera);
+
         void Update(float deltaTime);
 
-        Camera                                      camera;
         std::vector<std::shared_ptr<GameObject>>    gameObjects;
-
+        std::shared_ptr<Camera>                     camera;
     private:
 
         

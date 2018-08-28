@@ -3,14 +3,8 @@
 Transform::Transform()
 {
     this->scale = glm::vec3(1.0f,1.0f,1.0f);
+    this->position = glm::vec3(1.0f,1.0f,1.0f);
 }
-
-// Transform::Transform(const Transform& transform)
-// {
-//     this->parent = parent;
-//     this->scale = transform.scale;
-//     this->rotation = transform.rotation;
-// }
 
 glm::mat4 Transform::getWorldMatrix()
 {
@@ -32,7 +26,11 @@ glm::mat4 Transform::getWorldMatrix()
 
 void Transform::SetPosition(glm::vec3 position)
 {
-    this->position = position;
+    this->position.x = position.x;
+    this->position.y = position.y;
+    this->position.z = position.z;
+
+    
 }
 
 void Transform::SetRotation(glm::quat rotation)

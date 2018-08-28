@@ -7,10 +7,13 @@ Player::Player( Transform                   transform,
                 PhysicsComponent physicsComponent,
                 float cameraWidth,
                 float cameraHeight) :
-                GameObject(transform, texture, mesh,physicsComponent),
-                camera(cameraWidth, cameraHeight)
+                GameObject(transform, texture, mesh,physicsComponent)
+                
 {
+    this->direction = glm::vec3(0.0f,0.0f,-1.0f);
+    this->speed = 2.5f;
 
+    this->camera = std::make_shared<Camera>(Camera(cameraWidth, cameraHeight, glm::vec3(0.f,0.f, 50.f), glm::vec3(0.f,0.f,0.f)));
 }
 
 void Player::HandleInput(GLFWwindow* window)
@@ -18,63 +21,59 @@ void Player::HandleInput(GLFWwindow* window)
     // KEYBOARD
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        this->actions[PlayerActions::MOVE_FOREWARD] = true;
-        std::cout << "Annie are you ok? " << glfwGetKey(window, GLFW_KEY_W) << std::endl;
+        this->actions[MOVE_FOREWARD] = true;
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        this->actions[PlayerActions::MOVE_BACKWARD] = true;
+        this->actions[MOVE_BACKWARD] = true;
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        this->actions[PlayerActions::MOVE_LEFT] = true;
+        this->actions[MOVE_LEFT] = true;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        this->actions[PlayerActions::MOVE_RIGHT] = true;
+        this->actions[MOVE_RIGHT] = true;
     }
-    
-    // // MOUSE
-    // double xpos, ypos;
-    // glfwGetCursorPos(window, &xpos, &ypos);
-    // float xoffset = xpos - this->lastPositionX;
-    // float yoffset = this->lastPositionY - ypos;
-
-    // this->lastPositionX = xpos;
-    // this->lastPositionY = ypos;
-
-    // this->camera.HandleMouseInput(deltaTime,xoffset,yoffset);
 }
 
 void Player::Update(float deltaTime)
 {
-    if (this->actions[PlayerActions::MOVE_FOREWARD])
+    // NOTE : Implement diagonal walk
+    // Try : temp vector and add the different velocities before setting their total
+    // to the physics component
+
+    // The 0 velocity check is at the beginning because
+    // otherwise we cant move ; dont move the code.
+    if (!this->actions[MOVE_FOREWARD] && !this->actions[MOVE_BACKWARD] && !this->actions[MOVE_LEFT] && !this->actions[MOVE_RIGHT])
     {
-        // Proj of cam dir on xz plane
-        std::cout << "it is true" << std::endl;
-        this->SetVelocity(this->camera.direction - glm::dot(this->camera.direction,this->camera.worldUp)*this->camera.worldUp);
-        this->actions[PlayerActions::MOVE_FOREWARD] = false;
-        std::cout << this->physicsComponent.position.x << std::endl;
-        std::cout << this->physicsComponent.position.y << std::endl;
-        std::cout << this->physicsComponent.position.z << std::endl;
-        std::cout << std::endl;
+        this->SetVelocity(glm::vec3(0.f,0.f,0.f));
     }
-    if (this->actions[PlayerActions::MOVE_BACKWARD])
+    if (this->actions[MOVE_FOREWARD])
     {
-        // negate proj cam dir on zn plane
-        this->actions[PlayerActions::MOVE_BACKWARD] = false;
-        this->SetVelocity(-(this->camera.direction - glm::dot(this->camera.direction,this->camera.worldUp)*this->camera.worldUp));
+        this->SetVelocity(this->direction*this->speed);
+        this->actions[MOVE_FOREWARD] = false;
     }
-    if (this->actions[PlayerActions::MOVE_LEFT])
+    if (this->actions[MOVE_BACKWARD])
     {
-        // rotate velocity by 90 degrees
-        this->actions[PlayerActions::MOVE_LEFT] = false;
-        this->SetVelocity(glm::rotate(this->GetVelocity(),glm::radians(90.f),this->camera.worldUp));
+        this->actions[MOVE_BACKWARD] = false;
+        this->SetVelocity(-this->direction*this->speed);
     }
-    if (this->actions[PlayerActions::MOVE_RIGHT])
+    if (this->actions[MOVE_LEFT])
     {
-        // rotate velocity by -90 degrees
-        this->actions[PlayerActions::MOVE_RIGHT] = false;
-        this->SetVelocity(glm::rotate(this->GetVelocity(),glm::radians(-90.f),this->camera.worldUp));
+        this->actions[MOVE_LEFT] = false;
+        this->SetVelocity(glm::rotate(this->direction * this->speed,glm::radians(90.f),this->camera->worldUp));
     }
+    if (this->actions[MOVE_RIGHT])
+    {
+        this->actions[MOVE_RIGHT] = false;
+        this->SetVelocity(glm::rotate(this->direction * this->speed,glm::radians(-90.f),this->camera->worldUp));
+    }
+    this->camera->Update(this);
+    this->transform.SetPosition(this->physicsComponent.GetPosition());
+}
+
+std::shared_ptr<Camera> Player::GetCamera()
+{
+    return this->camera;
 }

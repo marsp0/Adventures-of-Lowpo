@@ -15,7 +15,6 @@ GameObject::GameObject( Transform                   transform,
 
 void GameObject::HandleInput(GLFWwindow* window)
 {
-    std::cout << "called Gameobject HandleInput" << std::endl;
 }
 
 void GameObject::Update(float deltaTime)
@@ -35,7 +34,6 @@ void GameObject::Render()
 
 void GameObject::SetVelocity(glm::vec3 velocity)
 {
-    std::cout << "Velocity is being set" << std::endl;
     this->physicsComponent.SetVelocity(velocity);
 }
 
