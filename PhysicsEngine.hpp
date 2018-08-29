@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include "GameObject.hpp"
+#include "Terrain.hpp"
 
 class PhysicsEngine
 {
@@ -11,6 +12,6 @@ class PhysicsEngine
         PhysicsEngine();
 
         void Step(float deltaTime, std::vector<std::shared_ptr<GameObject>>& gameObjects);
-        void HandleCollisions(std::vector<std::shared_ptr<GameObject>>& gameObjects);
+        void HandleCollisions(std::vector<std::shared_ptr<GameObject>>& gameObjects, std::shared_ptr<Terrain> terrain);
 
 };

@@ -26,11 +26,7 @@ glm::mat4 Transform::getWorldMatrix()
 
 void Transform::SetPosition(glm::vec3 position)
 {
-    this->position.x = position.x;
-    this->position.y = position.y;
-    this->position.z = position.z;
-
-    
+    this->position = position;
 }
 
 void Transform::SetRotation(glm::quat rotation)

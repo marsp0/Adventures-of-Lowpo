@@ -37,10 +37,10 @@ class Camera
         glm::vec3   right;
         glm::vec3   worldUp;
         float       speed;
+        glm::vec3   position;
 
     private:
         
-        glm::vec3   position;
 
         float       yaw;
         float       pitch;

@@ -83,7 +83,7 @@ void Game::Init()
     this->window = glfwCreateWindow(this->width, this->height, "Shootemup", nullptr, nullptr);
     glfwMakeContextCurrent(this->window);
     // Disable mouse within window
-    glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Initialize GLEW
     glewExperimental = GL_TRUE;
@@ -126,7 +126,7 @@ void Game::Update(float deltaTime)
     }
 
     this->physicsEngine.Step(deltaTime, this->scene->gameObjects);
-    this->physicsEngine.HandleCollisions(this->scene->gameObjects);
+    this->physicsEngine.HandleCollisions(this->scene->gameObjects, terrain);
 }
 
 void Game::Render()

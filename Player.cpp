@@ -10,7 +10,7 @@ Player::Player( Transform                   transform,
                 GameObject(transform, texture, mesh,physicsComponent)
                 
 {
-    this->direction = glm::vec3(0.0f,0.0f,-1.0f);
+    this->direction = glm::vec3(0.f,0.f,-1.f);
     this->speed = 2.5f;
 
     this->camera = std::make_shared<Camera>(Camera(cameraWidth, cameraHeight, glm::vec3(0.f,0.f, 50.f), glm::vec3(0.f,0.f,0.f)));
@@ -30,6 +30,7 @@ void Player::HandleInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
         this->actions[MOVE_LEFT] = true;
+        
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
@@ -39,6 +40,7 @@ void Player::HandleInput(GLFWwindow* window)
 
 void Player::Update(float deltaTime)
 {
+    this->transform.SetPosition(this->physicsComponent.GetPosition());
     // NOTE : Implement diagonal walk
     // Try : temp vector and add the different velocities before setting their total
     // to the physics component
@@ -62,7 +64,7 @@ void Player::Update(float deltaTime)
     if (this->actions[MOVE_LEFT])
     {
         this->actions[MOVE_LEFT] = false;
-        this->SetVelocity(glm::rotate(this->direction * this->speed,glm::radians(90.f),this->camera->worldUp));
+        this->SetVelocity(glm::rotate(this->direction,glm::radians(90.f),this->camera->worldUp) * this->speed);
     }
     if (this->actions[MOVE_RIGHT])
     {
@@ -70,7 +72,7 @@ void Player::Update(float deltaTime)
         this->SetVelocity(glm::rotate(this->direction * this->speed,glm::radians(-90.f),this->camera->worldUp));
     }
     this->camera->Update(this);
-    this->transform.SetPosition(this->physicsComponent.GetPosition());
+    
 }
 
 std::shared_ptr<Camera> Player::GetCamera()

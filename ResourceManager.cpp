@@ -143,7 +143,7 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,12,(void*)0);
 
-    glm::vec3 position = glm::vec3(0.0f,1.0f,0.0f);
+    glm::vec3 position = glm::vec3(0.0f,0.0f,0.0f);
     std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(VAO, VBO, IBO, triangles.size(), Transform(), heightmap, worldWidth, worldHeight, worldLength, position));
     
     return terrain;
@@ -201,7 +201,7 @@ void ResourceManager::LoadPlayer(const std::string& filePath, std::unique_ptr<Sc
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12, (void*)0);
 
         std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(VAO, VBO, loader.LoadedMeshes[j].Vertices.size()));
-        std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), NULL, mesh, PhysicsComponent(min,max, glm::vec3(0.f,1.f,0.f)),(float)800, (float)600));
+        std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), NULL, mesh, PhysicsComponent(min,max, glm::vec3(0.f,-10.f,0.f)),(float)800, (float)600));
         std::shared_ptr<Camera> camera = player->GetCamera();
         scene->AddCamera(camera);
         scene->gameObjects.push_back(player);
