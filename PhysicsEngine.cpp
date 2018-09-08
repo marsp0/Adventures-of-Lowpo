@@ -20,6 +20,7 @@ void PhysicsEngine::HandleCollisions(std::vector<std::shared_ptr<GameObject>>& g
     for (int i = 0 ; i < gameObjects.size(); i++)
     {
         glm::vec3 objectPosition = gameObjects[i]->physicsComponent.GetPosition();
+        // std::cout << objectPosition.x << std::endl;
         gameObjects[i]->physicsComponent.position.y = terrain->GetHeight(objectPosition.x, objectPosition.z);        
     }
 }

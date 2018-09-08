@@ -42,20 +42,12 @@ void Terrain::Unbind()
 
 float Terrain::GetHeight(float x, float z)
 {
-    x += this->worldWidth/2;
-    z += this->worldLength/2;
 
-    x /= this->worldWidth;
-    z /= this->worldLength;
+    int xUp = std::ceil(x);
+    int xDown = std::round(x);
 
-    x *= (*(this->heightmap))[0].size();
-    z *= this->heightmap->size();
-
-    float xUp = std::ceil(x);
-    float xDown = std::round(x);
-
-    float zUp = std::ceil(z);
-    float zDown = std::round(z);
+    int zUp = std::ceil(z);
+    int zDown = std::round(z);
 
     int resultX, resultZ;
 

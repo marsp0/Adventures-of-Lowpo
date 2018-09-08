@@ -1,11 +1,14 @@
 #include <GL/glew.h>
 #include <memory>
 #include <vector>
+#include <fstream>
+#include <sstream>
 
 #include "Player.hpp"
 #include "Mesh.hpp"
 #include "ResourceManager.hpp"
 #include "OBJ_Loader.hpp"
+#include "ofbx.hpp"
 
 ResourceManager::ResourceManager()
 {
@@ -79,118 +82,57 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
 
 std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePath)
 {
-    // RGBA / RGB etc
-    int nrChannels;
-    int vertexCount(0);
-    int width;
-    int length;
-    float worldWidth = 20.0f, worldLength = 20.0f, worldHeight = 2.0f;
-    unsigned char* data = stbi_load(filePath.c_str(),&width, &length,&nrChannels,0);
-    std::vector<float> vertices;
-    std::vector<unsigned int> triangles;
-    std::shared_ptr<std::vector<std::vector<float>>> heightmap = std::make_shared<std::vector<std::vector<float>>>(std::vector<std::vector<float>>());
-    if (data == NULL)
+
+    // load the obj file
+    // iterate over the 16k vertices and create the heightmap
+
+    // build the heightmap
+    std::shared_ptr<std::vector<std::vector<float>>> map = std::make_shared<std::vector<std::vector<float>>>(128);
+    for (int i = 0; i < 128; i++)
     {
-        std::cout << "Cannot load the heightmap!" << std::endl;
+        (*map)[i] = std::vector<float>(128);
     }
-    for (int z = 0; z < length; z++)
+    objl::Loader loader;
+    loader.LoadFile(filePath);
+
+    std::vector<float> data;
+    std::vector<unsigned int> indices;
+    int currentVertex = 0;
+    for (int i = 0; i < loader.LoadedMeshes[0].Vertices.size(); i++)
     {
-        heightmap->push_back(std::vector<float>());
-        for (int x = 0; x < width; x++)
+        // std::cout << i << std::endl;
+        int z = -((int)loader.LoadedMeshes[0].Vertices[i].Position.Z);
+        int x = (int)loader.LoadedMeshes[0].Vertices[i].Position.X;
+        (*map)[z][x] = loader.LoadedMeshes[0].Vertices[i].Position.Y;
+    }   
+
+    for (int i = 0; i < 128; i++)
+    {
+        for (int j = 0; j < 128; j++)
         {
-            // normalizing the x and z of the vector
-            glm::vec3 vertex = glm::vec3(x/(float)width,0,z/(float)length);
+            data.push_back((float)j);
+            data.push_back((*map)[i][j]);
+            data.push_back((float)i);
 
-            // multiplying by the width and length
-            unsigned char* pixel = data + vertexCount * nrChannels;
-            unsigned int temporary_y = static_cast<unsigned int>(pixel[0]);
-            vertex.y = (float)temporary_y/255.0f;
-
-            vertex.x *= worldWidth;
-            vertex.y *= worldHeight;
-            vertex.z *= worldLength;
-            // shifting the center to be in the center of the object.
-            vertex.x -= worldWidth/2;
-            vertex.z -= worldLength/2;
-            vertices.push_back(vertex.x);
-            vertices.push_back(vertex.y);
-            vertices.push_back(vertex.z);
-            if ((vertexCount+1 % width) != 0 && z < length-1)
+            if (j < 127 && i < 127)
             {
-                triangles.push_back(vertexCount);
-                triangles.push_back(vertexCount + width);
-                triangles.push_back(vertexCount + width + 1);
+                indices.push_back(currentVertex);
+                indices.push_back(currentVertex + 128);
+                indices.push_back(currentVertex + 128 + 1);
 
-                triangles.push_back(vertexCount);
-                triangles.push_back(vertexCount + width + 1);
-                triangles.push_back(vertexCount + 1);
+                indices.push_back(currentVertex);
+                indices.push_back(currentVertex + 128 + 1);
+                indices.push_back(currentVertex + 1);
             }
 
-            (*heightmap)[z].push_back(vertex.y);
-
-            vertexCount++;
+            currentVertex++;
         }
     }
-    stbi_image_free(data);
-    std::vector<float> normals;
-    // TODO : Refactor the code ; A LOT OF REPETITION
-    for (int z = 0; z < length; z++)
-    {
-        for (int x = 0; x < width; x++)
-        {
-
-            if (z < length - 1 || x < width - 1)
-            {
-                // std::cout << "z is " << z << " x is " << x << std::endl;
-                int index = ((z)*width + x )* 3;
-                glm::vec3 first = glm::vec3(vertices[index + 3] - vertices[index], vertices[index+4] - vertices[index+1], vertices[index+5] - vertices[index + 2]);
-                glm::vec3 second = glm::vec3(vertices[index + width*3 + 3] - vertices[index], vertices[index+ width * 3 + 4] - vertices[index+1], vertices[index+width*3 + 5] - vertices[index + 2]);
-                glm::vec3 normal = glm::normalize(glm::cross(first,second));
-                normals.push_back(normal.x);
-                normals.push_back(normal.y);
-                normals.push_back(normal.z);
-            }
-            else
-            {
-                if (z == length - 1 && x == width - 1)
-                {
-                    // std::cout << "z is " << z << " x is " << x << std::endl;
-                    int index = ((z )*width + x )* 3;
-                    glm::vec3 first = glm::vec3(vertices[index - 3] - vertices[index], vertices[index - 2] - vertices[index+1], vertices[index - 1] - vertices[index + 2]);
-                    glm::vec3 second = glm::vec3(vertices[index - width * 3] - vertices[index], vertices[index - width * 3 + 1] - vertices[index+1], vertices[index - width * 3 + 2] - vertices[index + 2]);
-                    glm::vec3 normal = glm::normalize(glm::cross(second,first));
-                    normals.push_back(normal.x);
-                    normals.push_back(normal.y);
-                    normals.push_back(normal.z);
-                }
-                if (x == width - 1 && z != length - 1)
-                {
-                    // std::cout << "z is " << z << " x is " << x << std::endl;
-                    int index = ((z )*width + x )* 3;
-                    glm::vec3 first = glm::vec3(vertices[index - 3] - vertices[index], vertices[index - 2] - vertices[index+1], vertices[index - 1] - vertices[index + 2]);
-                    glm::vec3 second = glm::vec3(vertices[index + width * 3] - vertices[index], vertices[index + width * 3 + 1] - vertices[index+1], vertices[index + width * 3 + 2] - vertices[index + 2]);
-                    glm::vec3 normal = glm::normalize(glm::cross(second,first));
-                    normals.push_back(normal.x);
-                    normals.push_back(normal.y);
-                    normals.push_back(normal.z);
-                }
-                if (z == length-1 && x != width - 1)
-                {
-                    // std::cout << "z is " << z << " x is " << x << std::endl;
-                    int index = ((z )*width + x )* 3;
-                    glm::vec3 first = glm::vec3(vertices[index - width * 3 + 3] - vertices[index], vertices[index - width * 3+4] - vertices[index+1], vertices[index - width * 3+5] - vertices[index + 2]);
-                    glm::vec3 second = glm::vec3(vertices[index + 3] - vertices[index], vertices[index + 4] - vertices[index+1], vertices[index + 5] - vertices[index + 2]);
-                    glm::vec3 normal = glm::normalize(glm::cross(second,first));
-                    normals.push_back(normal.x);
-                    normals.push_back(normal.y);
-                    normals.push_back(normal.z);
-                }
-            }
-        }
-    }
+    
+    std::vector<float> normals = this->GenerateNormals(data,128,128);
 
     std::cout << normals.size() << std::endl;
-    std::cout << vertices.size() << std::endl;
+    std::cout << data.size() << std::endl;
 
     // OPENGL Part
     GLuint IBO, VBO, VAO, normalVBO;
@@ -200,12 +142,12 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
 
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
 
 
     glGenBuffers(1, &IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * triangles.size(), triangles.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,12,(void*)0);
@@ -215,10 +157,10 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
     glBufferData(GL_ARRAY_BUFFER,sizeof(float) * normals.size(), normals.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12, (void*)3);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12, 0);
 
     glm::vec3 position = glm::vec3(0.0f,0.0f,0.0f);
-    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(VAO, VBO, IBO, triangles.size(), Transform(), heightmap, worldWidth, worldHeight, worldLength, position));
+    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(VAO, VBO, IBO, indices.size(), Transform(), map, 128, 128, 128, position));
     
     return terrain;
 }
@@ -288,4 +230,99 @@ void ResourceManager::LoadPlayer(const std::string& filePath, std::unique_ptr<Sc
         scene->gameObjects.push_back(player);
     }
     
+}
+
+std::vector<float> ResourceManager::GenerateNormals(std::vector<float>& vertices, int width, int length)
+{
+    std::vector<float> normals;
+    for (int z = 0; z < length; z++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            if (z == 0 || z == length-1 || x == 0 || x == width-1)
+            {
+                // handle outer cases
+                // outer non corner
+                // outer corner
+
+                normals.push_back(0.f);
+                normals.push_back(1.f);
+                normals.push_back(0.f);
+            }
+            else
+            {
+                // handle inner cases
+                // get current index
+                // get 6 vectors touching the current vertex
+                // compute their normals and sum them together
+                int currentIndex = (z * width + x) * 3;
+
+                // FIRST
+                glm::vec3 first;
+                first.x = vertices[currentIndex - width * 3] - vertices[currentIndex];
+                first.y = vertices[currentIndex - width * 3 + 1] - vertices[currentIndex+1];
+                first.z = vertices[currentIndex - width * 3 + 2] - vertices[currentIndex+2];
+                
+                // SECOND
+                glm::vec3 second;
+                second.x = vertices[currentIndex + 3] - vertices[currentIndex];
+                second.y = vertices[currentIndex + 4] - vertices[currentIndex+1];
+                second.z = vertices[currentIndex + 5] - vertices[currentIndex+2];
+
+                // FOURTH
+                glm::vec3 fourth;
+                fourth.x = vertices[currentIndex + width*3] - vertices[currentIndex];
+                fourth.x = vertices[currentIndex + width*3 + 1] - vertices[currentIndex + 1];
+                fourth.x = vertices[currentIndex + width*3 + 2] - vertices[currentIndex + 2];
+
+                // FIFTH
+                glm::vec3 fifth;
+                fifth.x = vertices[currentIndex - 3] - vertices[currentIndex];
+                fifth.y = vertices[currentIndex - 2] - vertices[currentIndex + 1];
+                fifth.z = vertices[currentIndex - 1] - vertices[currentIndex + 2];
+
+                glm::vec3 result(0.0f,0.0f,0.0f);
+                result += glm::cross(second,first);
+                result += glm::cross(first,fifth);
+                result += glm::cross(fifth,fourth);
+                result += glm::cross(fourth,second);
+                result = glm::normalize(result);
+                normals.push_back(result.x);
+                normals.push_back(result.y);
+                normals.push_back(result.z);
+            }
+        }
+    }
+    return normals;
+}
+
+void ResourceManager::LoadAnimatedObject(const std::string& filePath)
+{
+    std::ifstream       file;
+    std::stringstream   fileString;
+
+    // open the file and load the content in the buffer.
+    file.open(filePath,std::ios_base::binary);
+    fileString << file.rdbuf();
+
+    // get the size
+    file.seekg(0,std::ios_base::end);
+    int size = file.tellg();
+    std::cout << size << std::endl;
+    file.seekg(0, std::ios_base::beg);
+
+    char* cstring = new char[size];
+    fileString.read(cstring,size);
+    
+    ofbx::IScene* scene = ofbx::load((ofbx::u8*)cstring,size);
+    std::cout << scene->getAnimationStackCount() << std::endl;
+    for (int i = 0; i < scene->getMeshCount(); i++)
+    {
+        std::cout << scene->getMesh(i)->name << std::endl;
+    }
+    for (int i=0; i < scene->getAnimationStackCount() ; i++)
+    {
+        const ofbx::Object* stack = scene->getAnimationStack(i);
+        std::cout << stack->id << std::endl;
+    }
 }

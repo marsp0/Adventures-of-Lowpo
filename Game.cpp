@@ -68,7 +68,8 @@ Game::Game(int width, int height) :
     this->resourseManager   = ResourceManager();
     this->physicsEngine     = PhysicsEngine();
     this->resourseManager.LoadPlayer("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/player.obj",this->scene);
-    this->terrain = this->resourseManager.LoadTerrain("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/heightmap.jpg");
+    this->resourseManager.LoadAnimatedObject("/home/martin/Downloads/Character Running.fbx");
+    this->terrain = this->resourseManager.LoadTerrain("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/map.obj");
 }
 
 void Game::Init()
@@ -91,8 +92,7 @@ void Game::Init()
     glewInit();
     glGetError();
     glViewport(0, 0, this->width, this->height);
-    
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
 
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -116,6 +116,10 @@ void Game::HandleInput(float deltaTime)
     // KEYBOARD
     if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(this->window, true);
+    if (glfwGetKey(this->window, GLFW_KEY_E) == GLFW_PRESS)
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    if (glfwGetKey(this->window, GLFW_KEY_E) == GLFW_RELEASE)
+        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 }
 
 void Game::Update(float deltaTime)
