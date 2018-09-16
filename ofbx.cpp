@@ -2937,7 +2937,6 @@ IScene* load(const u8* data, int size)
 	if(!parseTakes(scene.get())) return nullptr;
 	if(!parseObjects(*root.getValue(), scene.get())) return nullptr;
 	parseGlobalSettings(*root.getValue(), scene.get());
-	std::cout << "got to here " << std::endl;
 	return scene.release();
 }
 

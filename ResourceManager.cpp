@@ -83,8 +83,7 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
 std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePath)
 {
 
-    // load the obj file
-    // iterate over the 16k vertices and create the heightmap
+    // TODO (Martin) : update terrain code to use planes in a quadtree
 
     // build the heightmap
     std::shared_ptr<std::vector<std::vector<float>>> map = std::make_shared<std::vector<std::vector<float>>>(128);
@@ -95,9 +94,8 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
     objl::Loader loader;
     loader.LoadFile(filePath);
 
-    std::vector<float> data;
-    std::vector<unsigned int> indices;
-    int currentVertex = 0;
+    std::vector<float>  data;
+    
     for (int i = 0; i < loader.LoadedMeshes[0].Vertices.size(); i++)
     {
         // std::cout << i << std::endl;
@@ -106,61 +104,35 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
         (*map)[z][x] = loader.LoadedMeshes[0].Vertices[i].Position.Y;
     }   
 
-    for (int i = 0; i < 128; i++)
+    for (int i = 0; i < loader.LoadedMeshes[0].Vertices.size();i++)
     {
-        for (int j = 0; j < 128; j++)
-        {
-            data.push_back((float)j);
-            data.push_back((*map)[i][j]);
-            data.push_back((float)i);
+        data.push_back(loader.LoadedMeshes[0].Vertices[i].Position.X);
+        data.push_back(loader.LoadedMeshes[0].Vertices[i].Position.Y);
+        data.push_back(loader.LoadedMeshes[0].Vertices[i].Position.Z);
 
-            if (j < 127 && i < 127)
-            {
-                indices.push_back(currentVertex);
-                indices.push_back(currentVertex + 128);
-                indices.push_back(currentVertex + 128 + 1);
-
-                indices.push_back(currentVertex);
-                indices.push_back(currentVertex + 128 + 1);
-                indices.push_back(currentVertex + 1);
-            }
-
-            currentVertex++;
-        }
+        // Normals per face
+        data.push_back(loader.LoadedMeshes[0].Vertices[i].Normal.X);
+        data.push_back(loader.LoadedMeshes[0].Vertices[i].Normal.Y);
+        data.push_back(loader.LoadedMeshes[0].Vertices[i].Normal.Z);
     }
-    
-    std::vector<float> normals = this->GenerateNormals(data,128,128);
+    unsigned int VAO, VBO;
 
-    std::cout << normals.size() << std::endl;
-    std::cout << data.size() << std::endl;
-
-    // OPENGL Part
-    GLuint IBO, VBO, VAO, normalVBO;
-
-    glGenVertexArrays(1, &VAO);
+    glGenVertexArrays(1,&VAO);
     glBindVertexArray(VAO);
 
-    glGenBuffers(1, &VBO);
+    glGenBuffers(1,&VBO);
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
-
-
-    glGenBuffers(1, &IBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
-
+    glBufferData(GL_ARRAY_BUFFER,sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
+    
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,12,(void*)0);
-
-    glGenBuffers(1, &normalVBO);
-    glBindBuffer(GL_ARRAY_BUFFER,normalVBO);
-    glBufferData(GL_ARRAY_BUFFER,sizeof(float) * normals.size(), normals.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 24, (float*)0);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12, 0);
-
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 24, (void*)(sizeof(float)*3));
+    std::cout << "vertices are " << loader.LoadedMeshes[0].Vertices.size() << std::endl;
+    std::cout << data.size() / 6.0f << std::endl;
     glm::vec3 position = glm::vec3(0.0f,0.0f,0.0f);
-    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(VAO, VBO, IBO, indices.size(), Transform(), map, 128, 128, 128, position));
+    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(VAO, VBO, data.size() / 6.0f, Transform(), map, 128, 128, 128, position));
     
     return terrain;
 }

@@ -8,8 +8,8 @@
 class Terrain
 {
     public:
-        Terrain(unsigned int vao, unsigned int vbo, unsigned int ibo, int indexCount, 
-                Transform transform, 
+        Terrain(unsigned int vao, unsigned int vbo, 
+                int vertexCount, Transform transform, 
                 std::shared_ptr<std::vector<std::vector<float>>> heightmap,
                 float worldWidth, float worldHeight, float worldLength,
                 glm::vec3 position);
@@ -24,10 +24,9 @@ class Terrain
         Transform       transform;
 
     private:
-        int             indexCount;
+        int             vertexCount;
         unsigned int    vertexBuffer;
         unsigned int    vertexArray;
-        unsigned int    indexBuffer;
         float           worldWidth;
         float           worldHeight;
         float           worldLength;
