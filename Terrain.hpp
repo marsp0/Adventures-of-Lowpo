@@ -11,7 +11,7 @@ class Terrain
         Terrain(unsigned int vao, unsigned int vbo, 
                 int vertexCount, Transform transform, 
                 std::shared_ptr<std::vector<std::vector<float>>> heightmap,
-                float worldWidth, float worldHeight, float worldLength,
+                float cellWidth, float cellLength,
                 glm::vec3 position);
         
         void        Render();
@@ -27,9 +27,8 @@ class Terrain
         int             vertexCount;
         unsigned int    vertexBuffer;
         unsigned int    vertexArray;
-        float           worldWidth;
-        float           worldHeight;
-        float           worldLength;
+        float           cellWidth;
+        float           cellLength;
         glm::vec3       position;
         std::shared_ptr<std::vector<std::vector<float>>> heightmap;
 };

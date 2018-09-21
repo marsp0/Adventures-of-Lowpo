@@ -80,16 +80,17 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
     
 }
 
-std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePath)
+std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePath, int gridSize, int cellSize)
 {
 
     // TODO (Martin) : update terrain code to use planes in a quadtree
 
     // build the heightmap
-    std::shared_ptr<std::vector<std::vector<float>>> map = std::make_shared<std::vector<std::vector<float>>>(128);
-    for (int i = 0; i < 128; i++)
+    
+    std::shared_ptr<std::vector<std::vector<float>>> map = std::make_shared<std::vector<std::vector<float>>>(gridSize);
+    for (int i = 0; i < gridSize; i++)
     {
-        (*map)[i] = std::vector<float>(128);
+        (*map)[i] = std::vector<float>(gridSize);
     }
     objl::Loader loader;
     loader.LoadFile(filePath);
@@ -98,9 +99,9 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
     
     for (int i = 0; i < loader.LoadedMeshes[0].Vertices.size(); i++)
     {
-        // std::cout << i << std::endl;
-        int z = -((int)loader.LoadedMeshes[0].Vertices[i].Position.Z);
-        int x = (int)loader.LoadedMeshes[0].Vertices[i].Position.X;
+        int z = -((int)loader.LoadedMeshes[0].Vertices[i].Position.Z)/cellSize;
+        int x = (int)loader.LoadedMeshes[0].Vertices[i].Position.X/cellSize;
+        (*map)[z][x] = loader.LoadedMeshes[0].Vertices[i].Position.Y;
         (*map)[z][x] = loader.LoadedMeshes[0].Vertices[i].Position.Y;
     }   
 
@@ -129,11 +130,8 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
 
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 24, (void*)(sizeof(float)*3));
-    std::cout << "vertices are " << loader.LoadedMeshes[0].Vertices.size() << std::endl;
-    std::cout << data.size() / 6.0f << std::endl;
     glm::vec3 position = glm::vec3(0.0f,0.0f,0.0f);
-    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(VAO, VBO, data.size() / 6.0f, Transform(), map, 128, 128, 128, position));
-    
+    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(VAO, VBO, data.size() / 6.0f, Transform(), map, cellSize,cellSize, position));
     return terrain;
 }
 
@@ -280,21 +278,14 @@ void ResourceManager::LoadAnimatedObject(const std::string& filePath)
     // get the size
     file.seekg(0,std::ios_base::end);
     int size = file.tellg();
-    std::cout << size << std::endl;
     file.seekg(0, std::ios_base::beg);
 
     char* cstring = new char[size];
     fileString.read(cstring,size);
     
     ofbx::IScene* scene = ofbx::load((ofbx::u8*)cstring,size);
-    std::cout << scene->getAnimationStackCount() << std::endl;
-    for (int i = 0; i < scene->getMeshCount(); i++)
-    {
-        std::cout << scene->getMesh(i)->name << std::endl;
-    }
     for (int i=0; i < scene->getAnimationStackCount() ; i++)
     {
         const ofbx::Object* stack = scene->getAnimationStack(i);
-        std::cout << stack->id << std::endl;
     }
 }

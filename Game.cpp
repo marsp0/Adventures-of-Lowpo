@@ -68,7 +68,7 @@ Game::Game(int width, int height) :
     this->resourseManager   = ResourceManager();
     this->physicsEngine     = PhysicsEngine();
     this->resourseManager.LoadPlayer("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/player.obj",this->scene);
-    this->terrain = this->resourseManager.LoadTerrain("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/map.obj");
+    this->terrain = this->resourseManager.LoadTerrain("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/map.obj",33,8);
 }
 
 void Game::Init()
