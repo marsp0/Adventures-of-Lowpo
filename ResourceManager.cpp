@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <map>
 
 #include "Player.hpp"
 #include "Mesh.hpp"
@@ -19,13 +20,53 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
 {
     objl::Loader loader;
     loader.LoadFile(filePath);
+    bool isHitbox = false;
+    std::map<std::string,std::shared_ptr<Mesh>> hitboxMap;
     for (int j = 0; j < loader.LoadedMeshes.size(); j++)
     {
         std::vector<float> data;
+        isHitbox = false;
+        std::size_t found = loader.LoadedMeshes[j].MeshName.find("Hitbox");
+        if (found != std::string::npos)
+        {
+            isHitbox = true;
+        }
+        for (int i = 0; i < loader.LoadedMeshes[j].Vertices.size(); i++)
+        {            
+            if (!isHitbox)
+            {
+                data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.X);
+                data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.Y);
+                data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.Z);
+                data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.X);
+                data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.Y);
+                data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.Z);
+            }
+        }
+        
+        if (!isHitbox)
+        {
+            std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float));
+            std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(buffers.first, buffers.second, loader.LoadedMeshes[j].Vertices.size()));
+            hitboxMap[loader.LoadedMeshes[j].MeshName] = mesh;
+        }
+        
+    }
+
+    for (int j = 0; j < loader.LoadedMeshes.size(); j++)
+    {
+        isHitbox = false;
+        std::size_t found = loader.LoadedMeshes[j].MeshName.find("Hitbox");
+        if (found != std::string::npos)
+        {
+            isHitbox = true;
+        }
+
         glm::vec3 min, max;
+
         for (int i = 0; i < loader.LoadedMeshes[j].Vertices.size(); i++)
         {
-            if (i == 0)
+            if ((i == 0) && isHitbox)
             {
                 max.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
                 max.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
@@ -35,7 +76,7 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
                 min.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
                 min.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
 
-            } else {
+            } else if ((i != 0) && isHitbox) {
                 if (max.x < loader.LoadedMeshes[j].Vertices[i].Position.X)
                     max.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
                 if (max.y < loader.LoadedMeshes[j].Vertices[i].Position.Y)
@@ -51,33 +92,22 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
                     min.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
             }
 
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.X);
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.Y);
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.Z);
-
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.X);
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.Y);
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.Z);
         }
-
-        unsigned int VAO,VBO;
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER,VBO);
-        glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float),data.data(),GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 24, (void*)0);
-
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 24, (void*)3);
-
-        std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(VAO, VBO, loader.LoadedMeshes[j].Vertices.size()));
-        std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>(GameObject(Transform(), NULL, mesh, PhysicsComponent(min,max, glm::vec3(0.f,0.f,0.f))));
-        gameObjects.push_back(gameObject);
+        if (isHitbox)
+        {
+            std::string first = loader.LoadedMeshes[j].MeshName.substr(0,loader.LoadedMeshes[j].MeshName.find("_"));
+            std::string second = loader.LoadedMeshes[j].MeshName.substr(loader.LoadedMeshes[j].MeshName.find("."), 4);
+            std::cout << first+second << std::endl;
+            if (hitboxMap.find(first+second) == hitboxMap.end())
+            {
+                std::cout << "NOT FOUND " << first+second << std::endl;
+            } else {
+                std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>(GameObject(Transform(), NULL, hitboxMap[first+second], PhysicsComponent(min,max, glm::vec3(0.f,0.f,0.f))));
+                gameObjects.push_back(gameObject);
+            }
+        }
     }
-    
+    std::cout << gameObjects.size() << std::endl;
 }
 
 std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePath, int gridSize, int cellSize)
@@ -116,22 +146,9 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
         data.push_back(loader.LoadedMeshes[0].Vertices[i].Normal.Y);
         data.push_back(loader.LoadedMeshes[0].Vertices[i].Normal.Z);
     }
-    unsigned int VAO, VBO;
-
-    glGenVertexArrays(1,&VAO);
-    glBindVertexArray(VAO);
-
-    glGenBuffers(1,&VBO);
-    glBindBuffer(GL_ARRAY_BUFFER,VBO);
-    glBufferData(GL_ARRAY_BUFFER,sizeof(float) * data.size(), data.data(), GL_STATIC_DRAW);
-    
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 24, (float*)0);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 24, (void*)(sizeof(float)*3));
+    std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float));
     glm::vec3 position = glm::vec3(0.0f,0.0f,0.0f);
-    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(VAO, VBO, data.size() / 6.0f, Transform(), map, cellSize,cellSize, position));
+    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(buffers.first, buffers.second, data.size() / 6.0f, Transform(), map, cellSize,cellSize, position));
     return terrain;
 }
 
@@ -180,26 +197,33 @@ void ResourceManager::LoadPlayer(const std::string& filePath, std::unique_ptr<Sc
             data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.Z);
         }
 
-        unsigned int VAO,VBO;
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER,VBO);
-        glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float),data.data(),GL_STATIC_DRAW);
+        std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float));
 
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 24, (void*)0);
-
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,24,(void*)3);
-
-        std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(VAO, VBO, loader.LoadedMeshes[j].Vertices.size()));
+        std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(buffers.first,buffers.second, loader.LoadedMeshes[j].Vertices.size()));
         std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), NULL, mesh, PhysicsComponent(min,max, glm::vec3(0.f,-10.f,0.f)),(float)800, (float)600));
         std::shared_ptr<Camera> camera = player->GetCamera();
         scene->AddCamera(camera);
         scene->gameObjects.push_back(player);
     }
     
+}
+
+std::pair<unsigned int,unsigned int> ResourceManager::SetupBuffers(float* data, int size)
+{
+    // TODO (Martin) : VAOS do not change, we can reuse the same one
+    unsigned int VAO,VBO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER,VBO);
+    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 24, (void*)0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,24,(void*)(sizeof(float)*3));
+    return std::make_pair(VAO,VBO);
 }
 
 std::vector<float> ResourceManager::GenerateNormals(std::vector<float>& vertices, int width, int length)

@@ -68,6 +68,7 @@ Game::Game(int width, int height) :
     this->resourseManager   = ResourceManager();
     this->physicsEngine     = PhysicsEngine();
     this->resourseManager.LoadPlayer("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/player.obj",this->scene);
+    this->resourseManager.LoadMesh("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/scene.obj",this->scene->gameObjects);
     this->terrain = this->resourseManager.LoadTerrain("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/map.obj",33,8);
 }
 
@@ -128,8 +129,8 @@ void Game::Update(float deltaTime)
         this->scene->gameObjects[i]->Update(deltaTime);
     }
 
+    this->physicsEngine.HandleCollisions(deltaTime, this->scene->gameObjects, terrain);
     this->physicsEngine.Step(deltaTime, this->scene->gameObjects);
-    this->physicsEngine.HandleCollisions(this->scene->gameObjects, terrain);
 }
 
 void Game::Render()
