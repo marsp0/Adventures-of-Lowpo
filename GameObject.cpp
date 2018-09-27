@@ -3,8 +3,10 @@
 GameObject::GameObject( Transform                   transform, 
                         std::shared_ptr<Texture>    texture, 
                         std::shared_ptr<Mesh>       mesh,
-                        PhysicsComponent physicsComponent) :
-    transform(transform), physicsComponent(physicsComponent)
+                        PhysicsComponent physicsComponent,
+                        Material material) :
+    transform(transform), physicsComponent(physicsComponent),
+    material(material)
 {
     this->mesh = mesh;
     if (texture != NULL)

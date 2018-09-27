@@ -9,7 +9,7 @@ class PhysicsComponent
     public:
 
         // Methods
-        PhysicsComponent(glm::vec3 min, glm::vec3 max, glm::vec3 velocity);
+        PhysicsComponent(glm::vec3 min, glm::vec3 max, glm::vec3 velocity, ObjectType type);
         void        Integrate(float deltaTime);
         const AABB  GetBoundingBox();
 
@@ -21,5 +21,6 @@ class PhysicsComponent
         glm::vec3   position;
         glm::vec3   velocity;
         AABB        boundingBox;
+        bool        canMove;
         
 };

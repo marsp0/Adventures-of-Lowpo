@@ -3,6 +3,7 @@
 uniform vec3 lightColor;
 uniform vec3 lightPosition;
 uniform vec3 viewPosition;
+uniform vec3 ambientColor;
 
 in vec3 normal;
 in vec3 fragPosition;
@@ -29,7 +30,7 @@ void main()
 	// vec3 specular = specularStrength * spec * lightColor;
 
 
-	vec3 result = (diffuse + ambient) * vec3(.749,.839,.2);
+	vec3 result = (diffuse + ambient) * ambientColor;
 	// vec3 result = normal;
 	FragColor = vec4(result, 1.0);
       

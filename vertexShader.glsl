@@ -7,6 +7,7 @@ layout (location = 1) in vec3 aNormal;
 uniform vec3 lightColor;
 uniform vec3 lightPosition;
 uniform vec3 viewPosition;
+uniform vec3 ambientColor;
 out vec3 normal;
 out vec3 fragPosition;
 

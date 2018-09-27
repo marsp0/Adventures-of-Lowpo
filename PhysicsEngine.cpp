@@ -25,14 +25,20 @@ void PhysicsEngine::HandleCollisions(float deltaTime, std::vector<std::shared_pt
 
     for (int i = 0; i < gameObjects.size(); i++)
     {
-        for (int j = 0; j < gameObjects.size(); j++)
+        for (int j = i+1; j < gameObjects.size(); j++)
         {
-            if (i != j)
+            if (gameObjects[i]->physicsComponent.boundingBox.HandleCollision(gameObjects[j]->physicsComponent.boundingBox))
             {
-                if (gameObjects[i]->physicsComponent.boundingBox.HandleCollision(gameObjects[j]->physicsComponent.boundingBox))
+                if (gameObjects[i]->physicsComponent.boundingBox.type == ObjectType::Dynamic)
                 {
-                    gameObjects[i]->SetVelocity(-gameObjects[i]->GetVelocity());
+                    gameObjects[i]->SetVelocity(-.5f*gameObjects[i]->GetVelocity());
+                    // gameObjects[i]->SetVelocity(glm::vec3(0.f,0.f,0.f));
+                    gameObjects[i]->physicsComponent.canMove = false;
+                } 
+                else if (gameObjects[j]->physicsComponent.boundingBox.type == ObjectType::Dynamic)
+                {
                     gameObjects[j]->SetVelocity(-gameObjects[j]->GetVelocity());
+                    gameObjects[j]->physicsComponent.canMove = false;
                 }
             }
         }

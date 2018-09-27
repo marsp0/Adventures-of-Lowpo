@@ -18,6 +18,7 @@ class Player : public GameObject
                 std::shared_ptr<Texture>    texture, 
                 std::shared_ptr<Mesh>       mesh,
                 PhysicsComponent physicsComponent,
+                Material material,
                 float cameraWidth,
                 float cameraHeight);
 

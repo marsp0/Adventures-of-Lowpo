@@ -8,6 +8,7 @@
 #include "Mesh.hpp"
 #include "PhysicsComponent.hpp"
 #include "ObjectTransform.hpp"
+#include "Material.hpp"
 // stays here because glew should get included before glfw
 // glew is present in GameObject.hpp
 // TODO : fix this mess
@@ -21,7 +22,8 @@ class GameObject
         GameObject( Transform                   transform, 
                     std::shared_ptr<Texture>    texture, 
                     std::shared_ptr<Mesh>       mesh,
-                    PhysicsComponent physicsComponent);
+                    PhysicsComponent physicsComponent,
+                    Material material);
 
         virtual void    HandleInput(GLFWwindow* window);
         virtual void    Update(float deltaTime);
@@ -34,4 +36,5 @@ class GameObject
         PhysicsComponent            physicsComponent;
         std::shared_ptr<Texture>    texture;
         std::shared_ptr<Mesh>       mesh;
+        Material                    material;
 };

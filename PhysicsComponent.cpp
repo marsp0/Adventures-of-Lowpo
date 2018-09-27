@@ -1,9 +1,10 @@
 #include <iostream>
 #include "PhysicsComponent.hpp"
 
-PhysicsComponent::PhysicsComponent(glm::vec3 min, glm::vec3 max, glm::vec3 velocity) :
-    boundingBox(min,max)
+PhysicsComponent::PhysicsComponent(glm::vec3 min, glm::vec3 max, glm::vec3 velocity, ObjectType type) :
+    boundingBox(min,max, type)
 {
+    this->canMove = true;
     this->position = glm::vec3(0.f,0.f,0.f);
     this->velocity = velocity;
 }

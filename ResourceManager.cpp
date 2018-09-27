@@ -47,6 +47,7 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
         if (!isHitbox)
         {
             std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float));
+            
             std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(buffers.first, buffers.second, loader.LoadedMeshes[j].Vertices.size()));
             hitboxMap[loader.LoadedMeshes[j].MeshName] = mesh;
         }
@@ -97,17 +98,14 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
         {
             std::string first = loader.LoadedMeshes[j].MeshName.substr(0,loader.LoadedMeshes[j].MeshName.find("_"));
             std::string second = loader.LoadedMeshes[j].MeshName.substr(loader.LoadedMeshes[j].MeshName.find("."), 4);
-            std::cout << first+second << std::endl;
-            if (hitboxMap.find(first+second) == hitboxMap.end())
-            {
-                std::cout << "NOT FOUND " << first+second << std::endl;
-            } else {
-                std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>(GameObject(Transform(), NULL, hitboxMap[first+second], PhysicsComponent(min,max, glm::vec3(0.f,0.f,0.f))));
-                gameObjects.push_back(gameObject);
-            }
+            glm::vec3 ambient = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Ka.X, loader.LoadedMeshes[j].MeshMaterial.Ka.Y, loader.LoadedMeshes[j].MeshMaterial.Ka.Z);
+            glm::vec3 diffuse = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Kd.X, loader.LoadedMeshes[j].MeshMaterial.Kd.Y, loader.LoadedMeshes[j].MeshMaterial.Kd.Z);
+            glm::vec3 specular = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Ks.X, loader.LoadedMeshes[j].MeshMaterial.Ks.Y, loader.LoadedMeshes[j].MeshMaterial.Ks.Z);
+            Material material = Material(ambient, diffuse, specular);
+            std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>(GameObject(Transform(), NULL, hitboxMap[first+second], PhysicsComponent(min,max, glm::vec3(0.f,0.f,0.f),ObjectType::Static),material));
+            gameObjects.push_back(gameObject);
         }
     }
-    std::cout << gameObjects.size() << std::endl;
 }
 
 std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePath, int gridSize, int cellSize)
@@ -200,7 +198,11 @@ void ResourceManager::LoadPlayer(const std::string& filePath, std::unique_ptr<Sc
         std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float));
 
         std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(buffers.first,buffers.second, loader.LoadedMeshes[j].Vertices.size()));
-        std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), NULL, mesh, PhysicsComponent(min,max, glm::vec3(0.f,-10.f,0.f)),(float)800, (float)600));
+        glm::vec3 ambient = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Ka.X, loader.LoadedMeshes[j].MeshMaterial.Ka.Y, loader.LoadedMeshes[j].MeshMaterial.Ka.Z);
+        glm::vec3 diffuse = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Kd.X, loader.LoadedMeshes[j].MeshMaterial.Kd.Y, loader.LoadedMeshes[j].MeshMaterial.Kd.Z);
+        glm::vec3 specular = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Ks.X, loader.LoadedMeshes[j].MeshMaterial.Ks.Y, loader.LoadedMeshes[j].MeshMaterial.Ks.Z);
+        Material material = Material(ambient, diffuse, specular);
+        std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), NULL, mesh, PhysicsComponent(min,max, glm::vec3(0.f,-10.f,0.f) , ObjectType::Dynamic), material,(float)800, (float)600));
         std::shared_ptr<Camera> camera = player->GetCamera();
         scene->AddCamera(camera);
         scene->gameObjects.push_back(player);
@@ -210,7 +212,6 @@ void ResourceManager::LoadPlayer(const std::string& filePath, std::unique_ptr<Sc
 
 std::pair<unsigned int,unsigned int> ResourceManager::SetupBuffers(float* data, int size)
 {
-    // TODO (Martin) : VAOS do not change, we can reuse the same one
     unsigned int VAO,VBO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);

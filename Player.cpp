@@ -5,13 +5,14 @@ Player::Player( Transform                   transform,
                 std::shared_ptr<Texture>    texture,
                 std::shared_ptr<Mesh>       mesh,
                 PhysicsComponent physicsComponent,
+                Material material,
                 float cameraWidth,
                 float cameraHeight) :
-                GameObject(transform, texture, mesh,physicsComponent)
+                GameObject(transform, texture, mesh,physicsComponent, material)
                 
 {
     this->direction = glm::vec3(0.f,0.f,-1.f);
-    this->speed = 30.5f;
+    this->speed = 8.5f;
     this->physicsComponent.position = glm::vec3(0.0f,0.f,-1.f);
     this->camera = std::make_shared<Camera>(Camera(cameraWidth, cameraHeight, glm::vec3(0.f,0.f, 50.f), glm::vec3(0.f,0.f,0.f)));
 }
@@ -47,14 +48,16 @@ void Player::Update(float deltaTime)
 
     // The 0 velocity check is at the beginning because
     // otherwise we cant move ; dont move the code.
-    if (!this->actions[MOVE_FOREWARD] && !this->actions[MOVE_BACKWARD] && !this->actions[MOVE_LEFT] && !this->actions[MOVE_RIGHT])
+    if (!this->actions[MOVE_FOREWARD] && !this->actions[MOVE_BACKWARD] \
+        && !this->actions[MOVE_LEFT] && !this->actions[MOVE_RIGHT])
     {
         this->SetVelocity(glm::vec3(0.f,0.f,0.f));
     }
     if (this->actions[MOVE_FOREWARD])
     {
-        this->SetVelocity(this->direction*this->speed);
         this->actions[MOVE_FOREWARD] = false;
+        glm::vec3 velocity(this->direction*this->speed);
+        this->SetVelocity(velocity);
     }
     if (this->actions[MOVE_BACKWARD])
     {
@@ -64,7 +67,7 @@ void Player::Update(float deltaTime)
     if (this->actions[MOVE_LEFT])
     {
         this->actions[MOVE_LEFT] = false;
-        this->SetVelocity(glm::rotate(this->direction,glm::radians(90.f),this->camera->worldUp) * this->speed);
+        this->SetVelocity(glm::rotate(this->direction,glm::radians(90.f), this->camera->worldUp) * this->speed);
     }
     if (this->actions[MOVE_RIGHT])
     {

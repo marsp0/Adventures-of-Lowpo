@@ -2,17 +2,26 @@
 
 #include <glm/glm.hpp>
 
+enum ObjectType
+{
+    Static,
+    Dynamic
+};
+
 class AABB
 {
     public:
     
-        AABB(glm::vec3 min, glm::vec3 max);
+        // Methods
+        AABB(glm::vec3 min, glm::vec3 max, ObjectType type);
         void Update(glm::vec3 position);
         bool HandleCollision(const AABB& other);
+        
+        // DATA
+        ObjectType  type;
     
     private:
 
-        glm::vec3 min;
-        glm::vec3 max;
-        
+        glm::vec3   min;
+        glm::vec3   max;
 };

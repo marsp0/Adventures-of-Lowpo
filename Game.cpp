@@ -62,7 +62,6 @@ Game::Game(int width, int height) :
     width(width), height(height)
 {
     this->Init();
-    this->deltaTime         = 0.016f;
     this->scene             = std::make_unique<Scene>(Scene((float)this->width, (float)this->height));
     this->renderer          = std::make_unique<Renderer>(Renderer("vertexShader.glsl","fragmentShader.glsl"));
     this->resourseManager   = ResourceManager();
@@ -140,17 +139,32 @@ void Game::Render()
 
 void Game::Run()
 {
+    double previous = glfwGetTime();
+    double lag = 0.f;
+    float deltaTime = 1.f/60.f;
     while (!glfwWindowShouldClose(window))
     {
+        // Game Clock
+        double currentTime = glfwGetTime();
+        double elapsed = currentTime - previous;
+        previous = currentTime;
+        lag += elapsed;
+
         glfwPollEvents();
         glClearColor(1.f, 1.f, 1.f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
         // Handle Player Input
         this->HandleInput(deltaTime);
-        // Update Game state
-        this->Update(deltaTime);
+        while (lag >= deltaTime)
+        {
+            // Update Game state
+            this->Update(deltaTime);
+            lag -= deltaTime;
+        }
         // Render
         this->Render();
+
         glfwSwapBuffers(window);
         unsigned int error = glGetError();
         if (error != 0)

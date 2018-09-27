@@ -34,8 +34,6 @@ class Game
         int                         width;
         int                         height;
         GLFWwindow*                 window;
-
-        float                       deltaTime;
         
         std::unique_ptr<Scene>      scene;
         std::unique_ptr<Renderer>   renderer;
