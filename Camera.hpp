@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 
 enum CameraMovement
@@ -30,6 +31,8 @@ class Camera
         glm::mat4   GetViewMatrix();
         glm::mat4   GetProjectionMatrix();
         void        Update(Player* parent);
+        void        HandleInput(GLFWwindow* window);
+        glm::vec3   GetCameraPosition();
         
         
         glm::vec3   direction;
@@ -38,6 +41,10 @@ class Camera
         glm::vec3   worldUp;
         float       speed;
         glm::vec3   position;
+
+        double      lastX;
+        double      lastY;
+        bool        rotate;
 
     private:
         

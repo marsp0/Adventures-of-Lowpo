@@ -37,6 +37,7 @@ void Player::HandleInput(GLFWwindow* window)
     {
         this->actions[MOVE_RIGHT] = true;
     }
+    this->camera->HandleInput(window);
 }
 
 void Player::Update(float deltaTime)

@@ -90,14 +90,6 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
             }
 
         }
-        std::cout << "Min" << std::endl;
-        std::cout << min.x << std::endl;
-        std::cout << min.y << std::endl;
-        std::cout << min.z << std::endl;
-        std::cout << "Max" << std::endl;
-        std::cout << max.x << std::endl;
-        std::cout << max.y << std::endl;
-        std::cout << max.z << std::endl;
         if (isHitbox)
         {
             std::string first = loader.LoadedMeshes[j].MeshName.substr(0,loader.LoadedMeshes[j].MeshName.find("_"));

@@ -9,13 +9,13 @@ PhysicsComponent::PhysicsComponent(glm::vec3 min, glm::vec3 max, glm::vec3 veloc
 
 void PhysicsComponent::Integrate(float deltaTime)
 {
-    if (this->boundingBox.type == ObjectType::Dynamic)
-    {
-        std::cout << "position is " << std::endl;
-        std::cout << this->position.x<< std::endl;
-        std::cout << this->position.y<< std::endl;
-        std::cout << this->position.z<< std::endl;
-    }
+    // if (this->boundingBox.type == ObjectType::Dynamic)
+    // {
+    //     std::cout << "position is " << std::endl;
+    //     std::cout << this->position.x<< std::endl;
+    //     std::cout << this->position.y<< std::endl;
+    //     std::cout << this->position.z<< std::endl;
+    // }
     this->position += this->velocity * deltaTime;
     this->boundingBox.Update(this->velocity * deltaTime);
 }

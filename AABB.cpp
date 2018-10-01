@@ -31,18 +31,18 @@ bool AABB::HandleCollision(const AABB& other)
 
 void AABB::Update(glm::vec3 position)
 {
-    if (this->type == ObjectType::Dynamic)
-    {
-        std::cout << "Min of " << this->type << " object is " << std::endl;
-        std::cout << min.x << std::endl;
-        std::cout << min.y << std::endl;
-        std::cout << min.z << std::endl;
-        std::cout << "Max of " << this->type << " object is " << std::endl;
-        std::cout << max.x << std::endl;
-        std::cout << max.y << std::endl;
-        std::cout << max.z << std::endl;
-        std::cout << std::endl;
-    }
+    // if (this->type == ObjectType::Dynamic)
+    // {
+    //     std::cout << "Min of " << this->type << " object is " << std::endl;
+    //     std::cout << min.x << std::endl;
+    //     std::cout << min.y << std::endl;
+    //     std::cout << min.z << std::endl;
+    //     std::cout << "Max of " << this->type << " object is " << std::endl;
+    //     std::cout << max.x << std::endl;
+    //     std::cout << max.y << std::endl;
+    //     std::cout << max.z << std::endl;
+    //     std::cout << std::endl;
+    // }
     this->max += position;
     this->min += position;
 }

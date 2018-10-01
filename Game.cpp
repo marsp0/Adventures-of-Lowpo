@@ -83,7 +83,7 @@ void Game::Init()
     this->window = glfwCreateWindow(this->width, this->height, "Shootemup", nullptr, nullptr);
     glfwMakeContextCurrent(this->window);
     // Disable mouse within window
-    // glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Initialize GLEW
     glewExperimental = GL_TRUE;
