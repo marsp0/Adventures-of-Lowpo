@@ -128,8 +128,7 @@ void Game::Update(float deltaTime)
         this->scene->gameObjects[i]->Update(deltaTime);
     }
 
-    this->physicsEngine.HandleCollisions(deltaTime, this->scene->gameObjects, terrain);
-    this->physicsEngine.Step(deltaTime, this->scene->gameObjects);
+    this->physicsEngine.Step(deltaTime, this->scene->gameObjects, this->terrain);
 }
 
 void Game::Render()

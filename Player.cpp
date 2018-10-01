@@ -13,7 +13,7 @@ Player::Player( Transform                   transform,
 {
     this->direction = glm::vec3(0.f,0.f,-1.f);
     this->speed = 8.5f;
-    this->physicsComponent.position = glm::vec3(0.0f,0.f,-1.f);
+    this->physicsComponent.position = glm::vec3(0.f,0.f,0.f);
     this->camera = std::make_shared<Camera>(Camera(cameraWidth, cameraHeight, glm::vec3(0.f,0.f, 50.f), glm::vec3(0.f,0.f,0.f)));
 }
 

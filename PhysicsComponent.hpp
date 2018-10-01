@@ -21,6 +21,5 @@ class PhysicsComponent
         glm::vec3   position;
         glm::vec3   velocity;
         AABB        boundingBox;
-        bool        canMove;
         
 };

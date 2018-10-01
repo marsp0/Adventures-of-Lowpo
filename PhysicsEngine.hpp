@@ -11,7 +11,6 @@ class PhysicsEngine
         
         PhysicsEngine();
 
-        void Step(float deltaTime, std::vector<std::shared_ptr<GameObject>>& gameObjects);
-        void HandleCollisions(float deltaTime,std::vector<std::shared_ptr<GameObject>>& gameObjects, std::shared_ptr<Terrain> terrain);
+        void Step(float deltaTime, std::vector<std::shared_ptr<GameObject>>& gameObjects, std::shared_ptr<Terrain> terrain);
 
 };

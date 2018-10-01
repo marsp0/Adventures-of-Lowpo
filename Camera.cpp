@@ -35,7 +35,7 @@ glm::mat4 Camera::GetProjectionMatrix()
 
 void Camera::Update(Player* parent)
 {
-    this->position = parent->GetPosition() + glm::vec3(0.f,3.f,12.f);
+    this->position = parent->GetPosition() + glm::vec3(-10.f,2.f,0.f);
     
     this->direction = glm::normalize(parent->GetPosition() - this->position);
     this->right = glm::normalize(glm::cross(this->direction,this->worldUp));

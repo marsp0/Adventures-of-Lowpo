@@ -31,9 +31,9 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
         {
             isHitbox = true;
         }
-        for (int i = 0; i < loader.LoadedMeshes[j].Vertices.size(); i++)
-        {            
             if (!isHitbox)
+            {
+            for (int i = 0; i < loader.LoadedMeshes[j].Vertices.size(); i++)
             {
                 data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.X);
                 data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.Y);
@@ -42,10 +42,6 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
                 data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.Y);
                 data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.Z);
             }
-        }
-        
-        if (!isHitbox)
-        {
             std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float));
             
             std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(buffers.first, buffers.second, loader.LoadedMeshes[j].Vertices.size()));
@@ -82,18 +78,26 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
                     max.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
                 if (max.y < loader.LoadedMeshes[j].Vertices[i].Position.Y)
                     max.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
-                if (max.z < loader.LoadedMeshes[j].Vertices[i].Position.Z)
+                if (max.z > loader.LoadedMeshes[j].Vertices[i].Position.Z)
                     max.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
 
                 if (min.x > loader.LoadedMeshes[j].Vertices[i].Position.X)
                     min.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
                 if (min.y > loader.LoadedMeshes[j].Vertices[i].Position.Y)
                     min.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
-                if (min.z > loader.LoadedMeshes[j].Vertices[i].Position.Z)
+                if (min.z < loader.LoadedMeshes[j].Vertices[i].Position.Z)
                     min.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
             }
 
         }
+        std::cout << "Min" << std::endl;
+        std::cout << min.x << std::endl;
+        std::cout << min.y << std::endl;
+        std::cout << min.z << std::endl;
+        std::cout << "Max" << std::endl;
+        std::cout << max.x << std::endl;
+        std::cout << max.y << std::endl;
+        std::cout << max.z << std::endl;
         if (isHitbox)
         {
             std::string first = loader.LoadedMeshes[j].MeshName.substr(0,loader.LoadedMeshes[j].MeshName.find("_"));
@@ -129,7 +133,6 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(const std::string& filePat
     {
         int z = -((int)loader.LoadedMeshes[0].Vertices[i].Position.Z)/cellSize;
         int x = (int)loader.LoadedMeshes[0].Vertices[i].Position.X/cellSize;
-        (*map)[z][x] = loader.LoadedMeshes[0].Vertices[i].Position.Y;
         (*map)[z][x] = loader.LoadedMeshes[0].Vertices[i].Position.Y;
     }   
 
@@ -175,14 +178,14 @@ void ResourceManager::LoadPlayer(const std::string& filePath, std::unique_ptr<Sc
                     max.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
                 if (max.y < loader.LoadedMeshes[j].Vertices[i].Position.Y)
                     max.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
-                if (max.z < loader.LoadedMeshes[j].Vertices[i].Position.Z)
+                if (max.z > loader.LoadedMeshes[j].Vertices[i].Position.Z)
                     max.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
 
                 if (min.x > loader.LoadedMeshes[j].Vertices[i].Position.X)
                     min.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
                 if (min.y > loader.LoadedMeshes[j].Vertices[i].Position.Y)
                     min.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
-                if (min.z > loader.LoadedMeshes[j].Vertices[i].Position.Z)
+                if (min.z < loader.LoadedMeshes[j].Vertices[i].Position.Z)
                     min.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
             }
 
