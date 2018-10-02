@@ -21,7 +21,7 @@ Camera::Camera( float       width,
     this->rotate    = false;
     this->lastX     = width/2.0;
     this->lastY     = height/2.0;
-    
+
     this->right     = glm::normalize(glm::cross(this->direction, this->worldUp));
     this->up        = glm::normalize(glm::cross(this->direction, this->right));
     this->projectionMatrix = glm::perspective(glm::radians(45.0f), this->width / this->height,.01f,200.f);

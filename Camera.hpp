@@ -22,8 +22,8 @@ class Camera
                 glm::vec3   position ,
                 glm::vec3   direction,
                 glm::vec3   worldUp     = glm::vec3(0.0f,1.0f,0.0f),
-                GLfloat     yaw         = 0.0f,
-                GLfloat     pitch       = 89.0f,
+                GLfloat     yaw         = 90.0f,
+                GLfloat     pitch       = 15.0f,
                 GLfloat     sensitivity = 0.1f,
                 GLfloat     speed       = 2.5f
                 );

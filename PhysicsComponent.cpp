@@ -16,6 +16,7 @@ void PhysicsComponent::Integrate(float deltaTime)
     //     std::cout << this->position.y<< std::endl;
     //     std::cout << this->position.z<< std::endl;
     // }
+    velocity.y = 0;
     this->position += this->velocity * deltaTime;
     this->boundingBox.Update(this->velocity * deltaTime);
 }

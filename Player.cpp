@@ -76,7 +76,7 @@ void Player::Update(float deltaTime)
         this->SetVelocity(glm::rotate(this->direction * this->speed,glm::radians(-90.f),this->camera->worldUp));
     }
     this->camera->Update(this);
-    
+    this->direction = glm::normalize(this->camera->direction);
 }
 
 std::shared_ptr<Camera> Player::GetCamera()

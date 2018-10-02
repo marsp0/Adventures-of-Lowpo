@@ -49,7 +49,6 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
         }
         
     }
-
     for (int j = 0; j < loader.LoadedMeshes.size(); j++)
     {
         isHitbox = false;
@@ -60,6 +59,7 @@ void ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::sha
         }
 
         glm::vec3 min, max;
+        
 
         for (int i = 0; i < loader.LoadedMeshes[j].Vertices.size(); i++)
         {
