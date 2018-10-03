@@ -5,9 +5,10 @@
 class Material
 {
     public:
-        Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular);
+        Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shine);
     
         glm::vec3 ambient;
         glm::vec3 diffuse;
         glm::vec3 specular;
+        float     shine;
 };

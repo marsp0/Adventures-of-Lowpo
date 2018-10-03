@@ -53,6 +53,8 @@ void Camera::HandleInput(GLFWwindow* window)
     this->rotate = false;
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
     {
+        // disable mouse to easily rotate
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         this->rotate = true;
         this->yaw += this->sensitivity * (x - this->lastX);
         this->pitch += this->sensitivity * (y - this->lastY);
@@ -64,6 +66,11 @@ void Camera::HandleInput(GLFWwindow* window)
     if (this->pitch < -89.0f)
     {
         this->pitch = -89.f;
+    }
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_RELEASE)
+    {
+        // enable mouse on release
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
     this->lastY = y;
     this->lastX = x;

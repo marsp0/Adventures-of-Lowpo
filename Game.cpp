@@ -83,7 +83,7 @@ void Game::Init()
     this->window = glfwCreateWindow(this->width, this->height, "Shootemup", nullptr, nullptr);
     glfwMakeContextCurrent(this->window);
     // Disable mouse within window
-    glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    
 
     // Initialize GLEW
     glewExperimental = GL_TRUE;
@@ -150,7 +150,7 @@ void Game::Run()
         lag += elapsed;
 
         glfwPollEvents();
-        glClearColor(1.f, 1.f, 1.f, 1.0f);
+        glClearColor(0.529f, 0.807f, 0.980f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         // Handle Player Input
