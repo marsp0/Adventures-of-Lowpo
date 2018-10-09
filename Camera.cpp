@@ -18,13 +18,15 @@ Camera::Camera( float       width,
                 sensitivity(sensitivity), speed(speed),
                 width(width), height(height)
 {
+    this->radius = 10;
+
     this->rotate    = false;
     this->lastX     = width/2.0;
     this->lastY     = height/2.0;
 
     this->right     = glm::normalize(glm::cross(this->direction, this->worldUp));
     this->up        = glm::normalize(glm::cross(this->direction, this->right));
-    this->projectionMatrix = glm::perspective(glm::radians(45.0f), this->width / this->height,.01f,200.f);
+    this->projectionMatrix = glm::perspective(glm::radians(45.0f), this->width / this->height,.01f,400.f);
 }
 
 glm::mat4 Camera::GetViewMatrix()
@@ -48,6 +50,7 @@ void Camera::Update(Player* parent)
 
 void Camera::HandleInput(GLFWwindow* window)
 {
+    // MOUSE STUFF
     double x, y;
     glfwGetCursorPos(window, &x, &y);
     this->rotate = false;
@@ -74,6 +77,17 @@ void Camera::HandleInput(GLFWwindow* window)
     }
     this->lastY = y;
     this->lastX = x;
+
+    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+    {
+        this->radius -= 5;
+    }
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+    {
+        this->radius += 5;
+    }
+
+
 }
 
 glm::vec3 Camera::GetCameraPosition()
@@ -92,8 +106,8 @@ r               - vector representing the change in the angles
     */
 
     glm::vec3 result;
-    result.x = 10 * cos(glm::radians(this->pitch)) * cos(glm::radians(this->yaw));
-    result.y = 10 * sin(glm::radians(this->pitch));
-    result.z = 10 * cos(glm::radians(this->pitch)) * sin(glm::radians(this->yaw));
+    result.x = this->radius * cos(glm::radians(this->pitch)) * cos(glm::radians(this->yaw));
+    result.y = this->radius * sin(glm::radians(this->pitch));
+    result.z = this->radius * cos(glm::radians(this->pitch)) * sin(glm::radians(this->yaw));
     return result;
 }

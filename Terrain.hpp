@@ -4,12 +4,14 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include "ObjectTransform.hpp"
+#include "Texture.hpp"
 
 class Terrain
 {
     public:
         Terrain(unsigned int vao, unsigned int vbo, 
                 int vertexCount, Transform transform, 
+                std::shared_ptr<Texture> texture,
                 std::shared_ptr<std::vector<std::vector<float>>> heightmap,
                 float cellWidth, float cellLength,
                 glm::vec3 position);
@@ -22,6 +24,7 @@ class Terrain
 
 
         Transform       transform;
+        std::shared_ptr<Texture> texture;
 
     private:
         int             vertexCount;

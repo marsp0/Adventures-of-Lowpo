@@ -61,14 +61,15 @@ void APIENTRY openglCallbackFunction(GLenum source,
 Game::Game(int width, int height) :
     width(width), height(height)
 {
+    this->ambient = 0.4f;
+    this->diffuse = 0.6f;
     this->Init();
     this->scene             = std::make_unique<Scene>(Scene((float)this->width, (float)this->height));
     this->renderer          = std::make_unique<Renderer>(Renderer("vertexShader.glsl","fragmentShader.glsl"));
     this->resourseManager   = ResourceManager();
     this->physicsEngine     = PhysicsEngine();
     this->resourseManager.LoadPlayer("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/player.obj",this->scene);
-    this->resourseManager.LoadMesh("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/scene.obj",this->scene->gameObjects);
-    this->terrain = this->resourseManager.LoadTerrain("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/map.obj",33,8);
+    this->terrain = this->resourseManager.LoadMesh("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/scene.obj",this->scene->gameObjects);
 }
 
 void Game::Init()

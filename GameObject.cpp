@@ -9,6 +9,7 @@ GameObject::GameObject( Transform                   transform,
     material(material)
 {
     this->mesh = mesh;
+    
     if (texture != NULL)
     {
         this->texture = texture;
@@ -26,11 +27,11 @@ void GameObject::Update(float deltaTime)
 
 void GameObject::Render()
 {
-    // this->texture->Bind();
+    this->texture->Bind();
     this->mesh->Bind();
     this->mesh->Draw();
     this->mesh->Unbind();
-    // this->texture->Unbind();
+    this->texture->Unbind();
 
 }
 

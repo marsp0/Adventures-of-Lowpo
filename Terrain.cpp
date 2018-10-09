@@ -3,16 +3,18 @@
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <math.h>
+
 #include "stb_image.hpp"
 #include "Terrain.hpp"
 
 Terrain::Terrain(unsigned int vao, unsigned int vbo, int vertexCount, 
-                Transform transform, std::shared_ptr<std::vector<std::vector<float>>> heightmap,
+                Transform transform, std::shared_ptr<Texture> texture, std::shared_ptr<std::vector<std::vector<float>>> heightmap,
                 float worldWidth, float worldLength,
                 glm::vec3 position) : 
                 transform(transform),position(position),
                 cellWidth(worldWidth), cellLength(worldLength)
 {
+    this->texture = texture;
     this->vertexArray = vao;
     this->vertexBuffer = vbo;
     this->vertexCount = vertexCount;
@@ -22,9 +24,11 @@ Terrain::Terrain(unsigned int vao, unsigned int vbo, int vertexCount,
 
 void Terrain::Render()
 {
+    this->texture->Bind();
     this->Bind();
     glDrawArrays(GL_TRIANGLES,0, this->vertexCount);
     this->Unbind();
+    this->texture->Unbind();
 }
 
 void Terrain::Bind()

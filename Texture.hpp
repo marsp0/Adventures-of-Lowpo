@@ -10,10 +10,13 @@ class Texture
         Texture(const std::string& fileName);
         ~Texture();
 
-        void Bind() const;
-        void Unbind() const;
-    private:
+        void Bind();
+        void Unbind();
+
+        // Data
         unsigned int  ID;
+        
+    private:
         int width;
         int height;
 };

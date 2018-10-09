@@ -41,6 +41,6 @@ class Game
         PhysicsEngine               physicsEngine;
         ResourceManager             resourseManager;
 
-        float lastPositionX;
-        float lastPositionY;
+        float ambient;
+        float diffuse;
 };

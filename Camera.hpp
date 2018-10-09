@@ -55,4 +55,5 @@ class Camera
         glm::mat4   projectionMatrix;
         float       width;
         float       height;
+        unsigned int radius;
 };
