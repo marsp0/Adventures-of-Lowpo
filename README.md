@@ -1,10 +1,10 @@
-Low poly RPG made with OpenGL(GLFW + glm) and C++. The project tracker can be found here : https://trello.com/b/SIsTXK57/adventures-of-lowpo
+# Adventures of Lowpo
 
-Credit for the OBJ Loader : https://github.com/Bly7/OBJ-Loader
+3D game made from scratch (low poly RPG) using C++ and OpenGL. The progress board for the game can be found [here](https://trello.com/b/SIsTXK57/adventures-of-lowpo).
 
-Credit for the FBX Loader : https://github.com/nem0/OpenFBX
+### Credits
 
-Credit for Base House Model : https://sketchfab.com/models/ceb601dbd4d1495885280ebaa9435e03
-
-3D models developed by PigArt : https://www.blendswap.com/blends/view/71743
-
+1. [OBJ-Loader](https://github.com/Bly7/OBJ-Loader)
+2. [FBX Loader](https://github.com/nem0/OpenFBX)
+3. [Base House Model](https://sketchfab.com/models/ceb601dbd4d1495885280ebaa9435e03)
+4. [PigArt 3D models](https://www.blendswap.com/blends/view/71743)
