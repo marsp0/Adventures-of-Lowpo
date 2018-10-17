@@ -5,7 +5,9 @@ Texture::Texture(const std::string& fileName) : ID()
 {
     // generate a texture and buffer the data.
     glGenTextures(1,&this->ID);
+    std::cout << this->ID << std::endl;
     glBindTexture(GL_TEXTURE_2D, this->ID);
+    std::cout << "is the ID" << this->ID << std::endl;
     // make configurable
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER , GL_LINEAR);
@@ -15,7 +17,6 @@ Texture::Texture(const std::string& fileName) : ID()
     int nrChannels;
     stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(fileName.c_str(),&this->width, &this->height,&nrChannels,0);
-    std::cout << " CHANNELS ARE  " << nrChannels << std::endl;
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,this->width,this->height,0,GL_RGBA,GL_UNSIGNED_BYTE,data);
@@ -27,6 +28,7 @@ Texture::Texture(const std::string& fileName) : ID()
     }
     stbi_image_free(data);
     this->Unbind();
+    std::cout << "is the ID" << this->ID << std::endl;
 }
 
 Texture::~Texture()
@@ -36,7 +38,8 @@ Texture::~Texture()
 
 void Texture::Bind()
 {
-    glBindTexture(GL_TEXTURE_2D,1);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->ID);
 }
 
 void Texture::Unbind()

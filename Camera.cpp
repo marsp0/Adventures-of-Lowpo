@@ -26,7 +26,7 @@ Camera::Camera( float       width,
 
     this->right     = glm::normalize(glm::cross(this->direction, this->worldUp));
     this->up        = glm::normalize(glm::cross(this->direction, this->right));
-    this->projectionMatrix = glm::perspective(glm::radians(45.0f), this->width / this->height,.01f,400.f);
+    this->projectionMatrix = glm::perspective(glm::radians(45.0f), this->width / this->height,.01f,200.f);
 }
 
 glm::mat4 Camera::GetViewMatrix()

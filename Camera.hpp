@@ -46,6 +46,9 @@ class Camera
         double      lastY;
         bool        rotate;
 
+        float       width;
+        float       height;
+        
     private:
         
 
@@ -53,7 +56,5 @@ class Camera
         float       pitch;
         float       sensitivity;
         glm::mat4   projectionMatrix;
-        float       width;
-        float       height;
         unsigned int radius;
 };

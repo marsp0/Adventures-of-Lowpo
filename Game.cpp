@@ -65,11 +65,10 @@ Game::Game(int width, int height) :
     this->diffuse = 0.6f;
     this->Init();
     this->scene             = std::make_unique<Scene>(Scene((float)this->width, (float)this->height));
-    this->renderer          = std::make_unique<Renderer>(Renderer("vertexShader.glsl","fragmentShader.glsl"));
+    this->renderer          = std::make_unique<Renderer>(Renderer("vertexShader.glsl","fragmentShader.glsl", "vertexShadowShader.glsl", "fragmentShadowShader.glsl", width, height));
     this->resourseManager   = ResourceManager();
     this->physicsEngine     = PhysicsEngine();
-    this->resourseManager.LoadPlayer("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/player.obj",this->scene);
-    this->terrain = this->resourseManager.LoadMesh("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/scene.obj",this->scene->gameObjects);
+    this->terrain = this->resourseManager.LoadWorld("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/scene.obj",this->scene);
 }
 
 void Game::Init()
@@ -91,19 +90,18 @@ void Game::Init()
     glEnable(GL_DEPTH_TEST);
     glewInit();
     glGetError();
-    glViewport(0, 0, this->width, this->height);
 
 
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(openglCallbackFunction, nullptr);
-    GLuint unusedIds = 0;
-    glDebugMessageControl(GL_DONT_CARE,
-            GL_DONT_CARE,
-            GL_DONT_CARE,
-            0,
-            &unusedIds,
-            true);
+    // glEnable(GL_DEBUG_OUTPUT);
+    // glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    // glDebugMessageCallback(openglCallbackFunction, nullptr);
+    // GLuint unusedIds = 0;
+    // glDebugMessageControl(GL_DONT_CARE,
+    //         GL_DONT_CARE,
+    //         GL_DONT_CARE,
+    //         0,
+    //         &unusedIds,
+    //         true);
 }
 
 void Game::HandleInput(float deltaTime)
@@ -134,6 +132,7 @@ void Game::Update(float deltaTime)
 
 void Game::Render()
 {
+    this->renderer->DrawShadows(this->scene, terrain);
     this->renderer->Draw(this->scene, terrain);
 }
 
@@ -149,10 +148,8 @@ void Game::Run()
         double elapsed = currentTime - previous;
         previous = currentTime;
         lag += elapsed;
-
+        
         glfwPollEvents();
-        glClearColor(0.529f, 0.807f, 0.980f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         // Handle Player Input
         this->HandleInput(deltaTime);
@@ -162,6 +159,7 @@ void Game::Run()
             this->Update(deltaTime);
             lag -= deltaTime;
         }
+
         // Render
         this->Render();
 

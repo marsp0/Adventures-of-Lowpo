@@ -14,7 +14,7 @@ class Texture
         void Unbind();
 
         // Data
-        unsigned int  ID;
+        unsigned int ID;
         
     private:
         int width;

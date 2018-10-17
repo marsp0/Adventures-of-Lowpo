@@ -35,7 +35,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     if (!success)
     {
         glGetShaderInfoLog(vertexID,512,NULL,infoLog);
-        std::cout << "VERTEX SHADER :: COMPILE ERROR :: " << infoLog << std::endl;
+        std::cout << "VERTEX SHADER :: COMPILE ERROR :: " << vertexPath << " " << infoLog << std::endl;
     }
     int fragmentID;
     fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -45,7 +45,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     if (!success)
     {
         glGetShaderInfoLog(fragmentID,512,NULL, infoLog);
-        std::cout << "FRAGMENT SHADER :: COMPILE ERROR :: " << infoLog << std::endl;
+        std::cout << "FRAGMENT SHADER :: COMPILE ERROR :: " << fragmentPath << " " << infoLog << std::endl;
     }
     // program
     this->ID = glCreateProgram();

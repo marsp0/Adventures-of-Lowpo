@@ -17,7 +17,7 @@ ResourceManager::ResourceManager()
     
 }
 
-std::shared_ptr<Terrain> ResourceManager::LoadMesh(const std::string& filePath, std::vector<std::shared_ptr<GameObject>>& gameObjects)
+std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath, std::unique_ptr<Scene>& scene)
 {
     // texture loading
     std::shared_ptr<Texture> texture = std::make_shared<Texture>("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/color_palette.png");
@@ -34,6 +34,10 @@ std::shared_ptr<Terrain> ResourceManager::LoadMesh(const std::string& filePath, 
             result = this->LoadTerrain(loader.LoadedMeshes[j].Vertices,33,8);
             result->texture = texture;
         }
+        else if (loader.LoadedMeshes[j].MeshName == "Player")
+        {
+            this->LoadPlayer(loader.LoadedMeshes[j].Vertices, scene, texture);
+        }
         else
         {
             std::vector<float> data;
@@ -45,7 +49,6 @@ std::shared_ptr<Terrain> ResourceManager::LoadMesh(const std::string& filePath, 
             }
             if (!isHitbox)
             {
-                std::cout << loader.LoadedMeshes[j].MeshName << std::endl;
                 for (int i = 0; i < loader.LoadedMeshes[j].Vertices.size(); i++)
                 {
                     data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.X);
@@ -81,7 +84,7 @@ std::shared_ptr<Terrain> ResourceManager::LoadMesh(const std::string& filePath, 
     }
     for (int j = 0; j < loader.LoadedMeshes.size(); j++)
     {
-        if (loader.LoadedMeshes[j].MeshName == "Plane")
+        if (loader.LoadedMeshes[j].MeshName == "Plane" || loader.LoadedMeshes[j].MeshName == "Player")
         {
             continue;
         }
@@ -129,7 +132,7 @@ std::shared_ptr<Terrain> ResourceManager::LoadMesh(const std::string& filePath, 
             std::string first = loader.LoadedMeshes[j].MeshName.substr(0,loader.LoadedMeshes[j].MeshName.find("_"));
             std::string second = loader.LoadedMeshes[j].MeshName.substr(loader.LoadedMeshes[j].MeshName.find("."), 4);
             std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>(GameObject(Transform(), texture, hitboxMap[first+second], PhysicsComponent(min,max, glm::vec3(0.f,0.f,0.f),ObjectType::Static),material));
-            gameObjects.push_back(gameObject);
+            scene->gameObjects.push_back(gameObject);
         }
     }
     return result;
@@ -178,67 +181,58 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(std::vector<objl::Vertex>&
     return terrain;
 }
 
-void ResourceManager::LoadPlayer(const std::string& filePath, std::unique_ptr<Scene>& scene)
+void ResourceManager::LoadPlayer(std::vector<objl::Vertex>& vertices, std::unique_ptr<Scene>& scene, std::shared_ptr<Texture> texture)
 {
-    objl::Loader loader;
-    loader.LoadFile(filePath);
-    for (int j = 0; j < loader.LoadedMeshes.size(); j++)
+    std::vector<float> data;
+    glm::vec3 min, max;
+    for (int i = 0; i < vertices.size(); i++)
     {
-        std::vector<float> data;
-        glm::vec3 min, max;
-        for (int i = 0; i < loader.LoadedMeshes[j].Vertices.size(); i++)
+        if (i == 0)
         {
-            if (i == 0)
-            {
-                max.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
-                max.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
-                max.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
+            max.x = vertices[i].Position.X;
+            max.y = vertices[i].Position.Y;
+            max.z = vertices[i].Position.Z;
 
-                min.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
-                min.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
-                min.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
+            min.x = vertices[i].Position.X;
+            min.y = vertices[i].Position.Y;
+            min.z = vertices[i].Position.Z;
 
-            } else {
-                if (max.x < loader.LoadedMeshes[j].Vertices[i].Position.X)
-                    max.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
-                if (max.y < loader.LoadedMeshes[j].Vertices[i].Position.Y)
-                    max.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
-                if (max.z > loader.LoadedMeshes[j].Vertices[i].Position.Z)
-                    max.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
+        } else if (i != 0) {
+            if (max.x < vertices[i].Position.X)
+                max.x = vertices[i].Position.X;
+            if (max.y < vertices[i].Position.Y)
+                max.y = vertices[i].Position.Y;
+            if (max.z > vertices[i].Position.Z)
+                max.z = vertices[i].Position.Z;
 
-                if (min.x > loader.LoadedMeshes[j].Vertices[i].Position.X)
-                    min.x = loader.LoadedMeshes[j].Vertices[i].Position.X;
-                if (min.y > loader.LoadedMeshes[j].Vertices[i].Position.Y)
-                    min.y = loader.LoadedMeshes[j].Vertices[i].Position.Y;
-                if (min.z < loader.LoadedMeshes[j].Vertices[i].Position.Z)
-                    min.z = loader.LoadedMeshes[j].Vertices[i].Position.Z;
-            }
-
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.X);
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.Y);
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].Position.Z);
-
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.X);
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.Y);
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].Normal.Z);
-
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].TextureCoordinate.X);
-            data.push_back(loader.LoadedMeshes[j].Vertices[i].TextureCoordinate.Y);
+            if (min.x > vertices[i].Position.X)
+                min.x = vertices[i].Position.X;
+            if (min.y > vertices[i].Position.Y)
+                min.y = vertices[i].Position.Y;
+            if (min.z < vertices[i].Position.Z)
+                min.z = vertices[i].Position.Z;
         }
 
-        std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float));
+        data.push_back(vertices[i].Position.X);
+        data.push_back(vertices[i].Position.Y);
+        data.push_back(vertices[i].Position.Z);
 
-        std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(buffers.first,buffers.second, loader.LoadedMeshes[j].Vertices.size()));
-        glm::vec3 ambient = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Ka.X, loader.LoadedMeshes[j].MeshMaterial.Ka.Y, loader.LoadedMeshes[j].MeshMaterial.Ka.Z);
-        glm::vec3 diffuse = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Kd.X, loader.LoadedMeshes[j].MeshMaterial.Kd.Y, loader.LoadedMeshes[j].MeshMaterial.Kd.Z);
-        glm::vec3 specular = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Ks.X, loader.LoadedMeshes[j].MeshMaterial.Ks.Y, loader.LoadedMeshes[j].MeshMaterial.Ks.Z);
-        float shine = loader.LoadedMeshes[j].MeshMaterial.Ns;
-        Material material = Material(ambient, diffuse, specular, shine);
-        std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), nullptr, mesh, PhysicsComponent(min,max, glm::vec3(0.f,-10.f,0.f) , ObjectType::Dynamic), material,(float)800, (float)600));
-        std::shared_ptr<Camera> camera = player->GetCamera();
-        scene->AddCamera(camera);
-        scene->gameObjects.push_back(player);
+        data.push_back(vertices[i].Normal.X);
+        data.push_back(vertices[i].Normal.Y);
+        data.push_back(vertices[i].Normal.Z);
+
+        data.push_back(vertices[i].TextureCoordinate.X);
+        data.push_back(vertices[i].TextureCoordinate.Y);
     }
+
+    std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float));
+
+    std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(buffers.first,buffers.second, vertices.size()));
+    Material material = Material(glm::vec3(),glm::vec3(),glm::vec3(),0.f);
+    std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), texture, mesh, PhysicsComponent(min,max, glm::vec3(0.f,-10.f,0.f) , ObjectType::Dynamic), material,(float)800, (float)600));
+    std::shared_ptr<Camera> camera = player->GetCamera();
+    scene->AddCamera(camera);
+    scene->gameObjects.push_back(player);
     
 }
 
