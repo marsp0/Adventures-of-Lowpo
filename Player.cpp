@@ -1,5 +1,6 @@
 #include "Player.hpp"
-#include "glm/gtx/rotate_vector.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/rotate_vector.hpp>
 
 Player::Player( Transform                   transform,
                 std::shared_ptr<Texture>    texture,
@@ -13,8 +14,8 @@ Player::Player( Transform                   transform,
 {
     this->direction = glm::vec3(0.f,0.f,-1.f);
     this->speed = 10.5f;
-    this->physicsComponent.position = glm::vec3(3.f,0.f,-12.f);
-    this->physicsComponent.boundingBox.Update(glm::vec3(3.f,0.f,-12.f));
+    this->physicsComponent.position = glm::vec3(10.f,0.f,-12.f);
+    this->physicsComponent.boundingBox.Update(glm::vec3(10.f,0.f,-12.f));
     this->camera = std::make_shared<Camera>(Camera(cameraWidth, cameraHeight, glm::vec3(0.f,0.f, 50.f), glm::vec3(0.f,0.f,0.f)));
 }
 

@@ -37,6 +37,8 @@
         "numeric": "cpp",
         "cinttypes": "cpp",
         "cstdarg": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "optional": "cpp",
+        "string_view": "cpp"
     }
 }

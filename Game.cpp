@@ -7,6 +7,8 @@
 #include "Game.hpp"
 #include "Terrain.hpp"
 
+
+
 void APIENTRY openglCallbackFunction(GLenum source,
                                            GLenum type,
                                            GLuint id,
@@ -92,16 +94,16 @@ void Game::Init()
     glGetError();
 
 
-    // glEnable(GL_DEBUG_OUTPUT);
-    // glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    // glDebugMessageCallback(openglCallbackFunction, nullptr);
-    // GLuint unusedIds = 0;
-    // glDebugMessageControl(GL_DONT_CARE,
-    //         GL_DONT_CARE,
-    //         GL_DONT_CARE,
-    //         0,
-    //         &unusedIds,
-    //         true);
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(openglCallbackFunction, nullptr);
+    GLuint unusedIds = 0;
+    glDebugMessageControl(GL_DONT_CARE,
+            GL_DONT_CARE,
+            GL_DONT_CARE,
+            0,
+            &unusedIds,
+            true);
 }
 
 void Game::HandleInput(float deltaTime)
@@ -132,7 +134,6 @@ void Game::Update(float deltaTime)
 
 void Game::Render()
 {
-    this->renderer->DrawShadows(this->scene, terrain);
     this->renderer->Draw(this->scene, terrain);
 }
 

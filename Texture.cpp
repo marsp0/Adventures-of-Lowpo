@@ -20,7 +20,7 @@ Texture::Texture(const std::string& fileName) : ID()
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,this->width,this->height,0,GL_RGBA,GL_UNSIGNED_BYTE,data);
-        // glGenerateMipmap(GL_TEXTURE_2D);   
+        glGenerateMipmap(GL_TEXTURE_2D);   
     }
     else
     {
@@ -28,7 +28,6 @@ Texture::Texture(const std::string& fileName) : ID()
     }
     stbi_image_free(data);
     this->Unbind();
-    std::cout << "is the ID" << this->ID << std::endl;
 }
 
 Texture::~Texture()

@@ -21,6 +21,7 @@ std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath,
 {
     // texture loading
     std::shared_ptr<Texture> texture = std::make_shared<Texture>("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/color_palette.png");
+    std::cout << texture->ID << std::endl;
     objl::Loader loader;
     loader.LoadFile(filePath);
     bool isHitbox = false;
@@ -33,6 +34,7 @@ std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath,
         {
             result = this->LoadTerrain(loader.LoadedMeshes[j].Vertices,33,8);
             result->texture = texture;
+            std::cout << "terrain should be loaded" << std::endl;
         }
         else if (loader.LoadedMeshes[j].MeshName == "Player")
         {

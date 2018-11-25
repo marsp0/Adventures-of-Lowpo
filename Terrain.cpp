@@ -29,6 +29,7 @@ void Terrain::Render()
     glDrawArrays(GL_TRIANGLES,0, this->vertexCount);
     this->Unbind();
     this->texture->Unbind();
+    // std::cout << "terrain should be drawn" << std::endl;
 }
 
 void Terrain::Bind()
