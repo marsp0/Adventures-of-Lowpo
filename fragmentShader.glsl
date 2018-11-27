@@ -1,6 +1,5 @@
 #version 330 core
 
-
 in vec3 normal;
 in vec3 fragPosition;
 in vec2 TexCoord;

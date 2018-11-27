@@ -146,7 +146,7 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(std::vector<objl::Vertex>&
     // TODO (Martin) : update terrain code to use planes in a quadtree
 
     // build the heightmap
-    
+    std::cout << "started loading terrain" << std::endl;
     std::shared_ptr<std::vector<std::vector<float>>> map = std::make_shared<std::vector<std::vector<float>>>(gridSize);
     for (int i = 0; i < gridSize; i++)
     {
@@ -154,14 +154,14 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(std::vector<objl::Vertex>&
     }
 
     std::vector<float>  data;
-    
+    std::cout << "started populating the heights data" << std::endl;
     for (int i = 0; i < vertices.size(); i++)
     {
         int z = -((int)vertices[i].Position.Z)/cellSize;
         int x = (int)vertices[i].Position.X/cellSize;
         (*map)[z][x] = vertices[i].Position.Y;
     }   
-
+    std::cout << "started populating the triangle data buffer" << std::endl;
     for (int i = 0; i < vertices.size();i++)
     {
         data.push_back(vertices[i].Position.X);

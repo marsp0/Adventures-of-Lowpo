@@ -4,6 +4,7 @@ Transform::Transform()
 {
     this->scale = glm::vec3(1.0f,1.0f,1.0f);
     this->position = glm::vec3(0.0f,0.0f,0.0f);
+    this->rotation = glm::quat();
 }
 
 glm::mat4 Transform::getWorldMatrix()
@@ -20,7 +21,8 @@ glm::mat4 Transform::getWorldMatrix()
         0, 0, 1, 0,
         this->position.x, this->position.y, this->position.z, 1
     );
-    glm::mat4 result = glm::mat4_cast(this->rotation) * scale * translation;
+    glm::mat4 result(1.0f); 
+    result *=  glm::mat4_cast(this->rotation) * scale * translation;
     return result;
 }
 
