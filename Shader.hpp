@@ -22,6 +22,6 @@ class Shader
         void SetVector4f(const GLchar* name, const glm::vec4& value);
 
         void SetMat4(const GLchar* name, const glm::mat4& value);
-    private:
+        
         GLuint ID;
 };

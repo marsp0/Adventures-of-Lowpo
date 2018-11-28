@@ -134,6 +134,7 @@ void Game::Update(float deltaTime)
 
 void Game::Render()
 {
+    this->renderer->DrawShadows(this->scene, terrain);
     this->renderer->Draw(this->scene, terrain);
 }
 
