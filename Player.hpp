@@ -2,6 +2,7 @@
 
 #include "GameObject.hpp"
 #include "Camera.hpp"
+#include "Animator.hpp"
 
 enum PlayerActions
 {
@@ -41,4 +42,7 @@ class Player : public GameObject
         // moving camera means moving the direction
         glm::vec3   direction;
         float       speed;
+
+        // Animations
+        Animator    animator;
 };

@@ -11,9 +11,10 @@ class Transform
     public:
         Transform();
 
-        glm::mat4   getWorldMatrix();
-
-        void   SetPosition(glm::vec3 position);
+        glm::mat4   GetWorldMatrix();
+        glm::mat4   GetMatrix();
+        
+        void        SetPosition(glm::vec3 position);
         
         // TODO : Add Euler angles and axis-angle rotations
         void        SetRotation(glm::quat rotation);

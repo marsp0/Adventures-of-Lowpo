@@ -32,6 +32,7 @@ std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath,
     {
         if (loader.LoadedMeshes[j].MeshName == "Plane")
         {
+            std::cout << "right before calling the loadterrain function" << std::endl;
             result = this->LoadTerrain(loader.LoadedMeshes[j].Vertices,33,8);
             result->texture = texture;
             std::cout << "terrain should be loaded" << std::endl;

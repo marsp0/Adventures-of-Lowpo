@@ -14,10 +14,9 @@ struct Light{
 	vec3 specular;
 };
 
-uniform Light light;
-
-uniform sampler2D mainTexture;
-uniform sampler2D shadowMap; 
+uniform Light 		light;
+uniform sampler2D 	mainTexture;
+uniform sampler2D 	shadowMap; 
 
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 norm, vec3 lightDir)
 {
@@ -30,7 +29,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 norm, vec3 lightDir)
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
 	// apply bias to avoid acne
-	float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);  
+	float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005); 
     // check whether current frag pos is in shadow
     float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
     return shadow;
@@ -46,11 +45,13 @@ void main()
 	vec3 norm = normalize(normal);
 	vec3 lightDir = normalize(-light.direction);
 
-	float diff = max(dot(norm,lightDir),0.0);
+	// float diff = max(dot(norm,lightDir),0.0);
+	float diff = max(dot(norm,lightDir) * 0.5 + 0.5, 0.0);
 	vec3 diffuse = light.diffuse * diff * texture(mainTexture, TexCoord).rgb;
 	// vec3 diffuse = diff * texture(mainTexture, TexCoord).rgb;
 	
 	float shadow = ShadowCalculation(fragPosLightSpace, norm, lightDir);
 	vec3 result = ambient + (1.0 - shadow) * diffuse;
+	// vec3 result = ambient + (1.0 - .5 * shadow) * diffuse;
 	FragColor = vec4(result, 1.0);
 }
