@@ -105,7 +105,7 @@ namespace Collada
     class Loader
     {
         public:
-            Loader(std::string& filename);
+            Loader(std::string filename);
             std::vector<std::string> SplitString(std::string stringData);
             GeometryLibrary ParseGeometry(std::string geometryString);
             Source          ParseSource(const std::string& sourceData);
@@ -116,9 +116,9 @@ namespace Collada
             Vertices        ParseVertices(std::string verticesData);
             Input           ParseInput(std::string inputData);
 
-        private:
-
             std::string colladaStringFile;
             std::shared_ptr<GeometryLibrary> geometry;
+        private:
+
     };
 };

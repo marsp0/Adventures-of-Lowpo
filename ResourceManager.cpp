@@ -19,6 +19,9 @@ ResourceManager::ResourceManager()
 
 std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath, std::unique_ptr<Scene>& scene)
 {
+    Collada::Loader loader1 = Collada::Loader("/home/martin/Downloads/CharacterRunning.dae");
+    std::string geometryData = loader1.colladaStringFile.substr(loader1.colladaStringFile.find("<geometry"), loader1.colladaStringFile.find("</geometry") - loader1.colladaStringFile.find("<geometry"));
+    Collada::GeometryLibrary geometry = loader1.ParseGeometry(geometryData);
     // texture loading
     std::shared_ptr<Texture> texture = std::make_shared<Texture>("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/color_palette.png");
     std::cout << texture->ID << std::endl;

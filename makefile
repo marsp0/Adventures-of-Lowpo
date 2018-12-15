@@ -4,7 +4,7 @@ SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 LDFLAGS := -lGL -lGLEW -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi
 # CPPFLAGS := -std=c++14 -Wall -pedantic
-CPPFLAGS := -std=c++14
+CPPFLAGS := -std=c++14 -Wall
 CXXFLAGS := ...
 
 output.out: $(OBJ_FILES)

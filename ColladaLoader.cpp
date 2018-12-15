@@ -41,7 +41,7 @@ Param::Param(std::string name) : name(name)
 
 }
 
-Loader::Loader(std::string& filename)
+Loader::Loader(std::string filename)
 {
     std::ifstream       colladaFile;
     std::stringstream   colladaFileString;
@@ -60,8 +60,8 @@ std::vector<std::string> Loader::SplitString(std::string stringData)
     while (currentDelimeter != std::string::npos)
     {
         result.push_back(stringData.substr(prevDelimeter, currentDelimeter - prevDelimeter));
-        prevDelimeter = currentDelimeter;
-        currentDelimeter = stringData.find(" ", prevDelimeter+1);
+        prevDelimeter = currentDelimeter + 1;
+        currentDelimeter = stringData.find(" ", prevDelimeter);
     }
     if (prevDelimeter != currentDelimeter)
     {
@@ -80,25 +80,33 @@ GeometryLibrary Loader::ParseGeometry(std::string geometryData)
     size_t triEnd = geometryData.find("</triangles");
     Triangles triangles = this->ParseTriangles(geometryData.substr(triStart, triEnd - triStart));
 
-    size_t startIndex = geometryData.find("<source");
-    size_t endIndex = geometryData.find("</source");
+    std::string sourceStringOpen = "<source";
+    std::string sourceStringClose = "</source>";
+    size_t startIndex = geometryData.find(sourceStringOpen);
+    size_t endIndex = geometryData.find(sourceStringClose);
     std::vector<Source> sources;
     while (endIndex != std::string::npos)
     {
+
         sources.push_back(this->ParseSource(geometryData.substr(startIndex, endIndex-startIndex)));
-        startIndex = endIndex;
-        endIndex = geometryData.find("<source", startIndex+1);
+        startIndex = endIndex + sourceStringClose.length();
+        endIndex = geometryData.find(sourceStringClose, startIndex);
+    }
+    for (int i = 0; i < sources.size(); i++)
+    {
+        std::cout << sources[i].floatArray[0] << std::endl;
     }
 }
 
 Source Loader::ParseSource(const std::string& sourceData)
 {   
-    size_t startIndex = sourceData.find("id=\"")+4;
-    size_t endIndex = sourceData.find("\">");
+    std::string idString = "id=\"";
+    size_t startIndex = sourceData.find(idString)+idString.length();
+    size_t endIndex = sourceData.find("\"",startIndex);
     std::string id = sourceData.substr(startIndex,endIndex-startIndex);
 
-    startIndex = sourceData.find(">");
-    endIndex = sourceData.find("<", startIndex);
+    startIndex = sourceData.find(">", sourceData.find("<float_array"))+1;
+    endIndex = sourceData.find("</float_array>", startIndex);
     std::vector<std::string> result = this->SplitString(sourceData.substr(startIndex, endIndex-startIndex));
     std::vector<float> floatResult;
     bool isFloatArray;
@@ -113,6 +121,7 @@ Source Loader::ParseSource(const std::string& sourceData)
     }
 
     TechniqueCommon technique = this->ParseTechnique(sourceData.substr(sourceData.find("technique_common"),sourceData.npos));
+    std::cout << "Parsed source" << std::endl;
     if (isFloatArray)
     {
         return Source(isFloatArray,technique,floatResult,std::vector<std::string>(), id);
@@ -122,51 +131,61 @@ Source Loader::ParseSource(const std::string& sourceData)
 
 Triangles Loader::ParseTriangles(std::string trianglesData)
 {
-    std::string searchFor = "material=\"";
-    size_t startIndex = trianglesData.find(searchFor) + searchFor.length();
+    std::string materialString = "material=\"";
+    size_t startIndex = trianglesData.find(materialString) + materialString.length();
     size_t endIndex = trianglesData.find("\"", startIndex+1);
     std::string material = trianglesData.substr(startIndex, endIndex-startIndex);
 
     startIndex = trianglesData.find("<input");
     endIndex = trianglesData.find("/>");
+    
     std::vector<Input> inputs;
     while (endIndex != std::string::npos)
     {
         inputs.push_back(this->ParseInput(trianglesData.substr(startIndex, endIndex-startIndex)));
-        startIndex = endIndex;
-        endIndex = trianglesData.find("<input", startIndex+1);
+        startIndex = endIndex+1;
+        endIndex = trianglesData.find("<input", startIndex);
     }
+    std::cout << "Parsed triangles" << std::endl;
     return Triangles(material, inputs);
 }
 
 TechniqueCommon Loader::ParseTechnique(std::string techniqueData)
 {
+    std::cout << "Parsed technique" << std::endl;
     return TechniqueCommon(this->ParseAccessor(techniqueData));
 }
 
 Accessor Loader::ParseAccessor(std::string accessorData)
 {
-    size_t startIndex      = accessorData.find("source=\"") + 8;
-    size_t endIndex        = accessorData.find("\" count");
-    std::string source  = accessorData.substr(startIndex,endIndex-startIndex);
+    std::string sourceString    = "source=\"";
+    size_t startIndex           = accessorData.find(sourceString) + sourceString.length();
+    size_t endIndex             = accessorData.find("\"", startIndex);
+    std::string source          = accessorData.substr(startIndex,endIndex-startIndex);
     
-    startIndex  = accessorData.find("\" count=") + 8;
-    endIndex    = accessorData.find("\" stride");
-    int count   = std::stoi(accessorData.substr(startIndex, endIndex-startIndex));
-    
-    startIndex  = accessorData.find("stride=\"") + 8;
-    endIndex    = accessorData.find("\">");
-    int stride  = std::stoi(accessorData.substr(startIndex,endIndex-startIndex));
+    std::string countString     = "count=\"";
+    startIndex                  = accessorData.find(countString) + countString.length();
+    endIndex                    = accessorData.find("\"", startIndex);
+    int count                   = std::stoi(accessorData.substr(startIndex, endIndex-startIndex));
+
+    std::string strideString    = "stride=\"";
+    startIndex                  = accessorData.find(strideString) + strideString.length();
+    endIndex                    = accessorData.find("\"", startIndex);
+    int stride                  = std::stoi(accessorData.substr(startIndex,endIndex-startIndex));
 
     std::vector<Param> params;
-    size_t startSearchIndex = 0;
+    std::string paramStringOpen = "<param";
+    std::string paramStringClose = "/>";
+    startIndex = accessorData.find(paramStringOpen);
+    endIndex = accessorData.find(paramStringClose);
     for (int i = 0; i < stride; i++)
     {
-        startIndex = accessorData.find("<param",startSearchIndex);
-        endIndex = accessorData.find("/>");
         params.push_back(this->ParseParam(accessorData.substr(startIndex, endIndex-startIndex)));
-        startSearchIndex = endIndex;
+        startIndex = endIndex + paramStringClose.length();
+        endIndex = accessorData.find(paramStringClose, startIndex);
     }
+    std::cout << "Parsed accessor" << std::endl;
+    return Accessor(source,count,stride,params);
 }
 
 Param Loader::ParseParam(std::string paramData)
@@ -174,6 +193,7 @@ Param Loader::ParseParam(std::string paramData)
     size_t startIndex = paramData.find("name=\"") + 5;
     size_t endIndex = paramData.find("\"",startIndex+1);
     std::string name = paramData.substr(startIndex, endIndex-startIndex);
+    std::cout << "Parsed param" << std::endl;
     return Param(name);
 }
 
@@ -181,18 +201,29 @@ Param Loader::ParseParam(std::string paramData)
 
 Vertices Loader::ParseVertices(std::string verticesData)
 {
-    size_t start = verticesData.find("id=\"")+4;
-    size_t end   = verticesData.find("\"", start+1);
-    std::string id = verticesData.substr(start,end-start);
-    Input input = Input(this->ParseInput(verticesData));
+    std::string idString = "id=\"";
+    size_t startIndex    = verticesData.find(idString)+idString.length();
+    size_t endIndex      = verticesData.find("\"", startIndex);
+    std::string id  = verticesData.substr(startIndex,endIndex - startIndex);
+    Input input     = Input(this->ParseInput(verticesData));
+    // std::cout << "ID is " << id << std::endl;
     return Vertices(id, input);
 }
 
 Input Loader::ParseInput(std::string inputData)
 {
-    std::string position = "POSITION";
-    std::string sourceString = "source=";
-    std::string semantic = inputData.substr(inputData.find(position),position.length());
-    std::string source = inputData.substr(inputData.find(sourceString), source.length());
+    std::string semanticString = "semantic=\"";
+    size_t semanticStartIndex = inputData.find(semanticString) + semanticString.length();
+    size_t semanticEndIndex = inputData.find("\"", semanticStartIndex);
+    std::string semantic = inputData.substr(semanticStartIndex, semanticEndIndex - semanticStartIndex);
+
+    std::string sourceString = "source=\"";
+    size_t sourceStartIndex = inputData.find(sourceString) + sourceString.length();
+    size_t sourceEndIndex = inputData.find("\"", sourceStartIndex);
+    std::string source = inputData.substr(sourceStartIndex, sourceEndIndex-sourceStartIndex);
+
+    // std::cout << "semantic " <<  semantic << std::endl;
+    // std::cout << "source " << source << std::endl;
+    // std::cout << "Parsed input" << std::endl;
     return Input(semantic,source);
 }
