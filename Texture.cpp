@@ -5,9 +5,7 @@ Texture::Texture(const std::string& fileName) : ID()
 {
     // generate a texture and buffer the data.
     glGenTextures(1,&this->ID);
-    std::cout << this->ID << std::endl;
     glBindTexture(GL_TEXTURE_2D, this->ID);
-    std::cout << "is the ID" << this->ID << std::endl;
     // make configurable
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER , GL_LINEAR);

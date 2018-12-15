@@ -82,7 +82,7 @@ void Game::Init()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     // Create window
-    this->window = glfwCreateWindow(this->width, this->height, "Shootemup", nullptr, nullptr);
+    this->window = glfwCreateWindow(this->width, this->height, "Adventures of Lowpo", nullptr, nullptr);
     glfwMakeContextCurrent(this->window);
     // Disable mouse within window
     
@@ -171,7 +171,6 @@ void Game::Run()
         {
             std::cout << error << std::endl;
         }
-
     }
 
     glfwTerminate();

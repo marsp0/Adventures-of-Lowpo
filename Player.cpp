@@ -81,7 +81,7 @@ void Player::Update(float deltaTime)
     this->direction = glm::normalize(this->camera->direction);
 
     // Update Animations
-    this->animator.Update(deltaTime);
+    // this->animator.Update(deltaTime);
 }
 
 std::shared_ptr<Camera> Player::GetCamera()

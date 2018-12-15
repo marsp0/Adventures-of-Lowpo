@@ -10,7 +10,7 @@
 #include "Texture.hpp"
 #include "ResourceManager.hpp"
 #include "OBJ_Loader.hpp"
-#include "ofbx.hpp"
+#include "ColladaLoader.hpp"
 
 ResourceManager::ResourceManager()
 {
@@ -258,94 +258,6 @@ std::pair<unsigned int,unsigned int> ResourceManager::SetupBuffers(float* data, 
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float)*6));
 
     return std::make_pair(VAO,VBO);
-}
-
-std::vector<float> ResourceManager::GenerateNormals(std::vector<float>& vertices, int width, int length)
-{
-    std::vector<float> normals;
-    for (int z = 0; z < length; z++)
-    {
-        for (int x = 0; x < width; x++)
-        {
-            if (z == 0 || z == length-1 || x == 0 || x == width-1)
-            {
-                // handle outer cases
-                // outer non corner
-                // outer corner
-
-                normals.push_back(0.f);
-                normals.push_back(1.f);
-                normals.push_back(0.f);
-            }
-            else
-            {
-                // handle inner cases
-                // get current index
-                // get 6 vectors touching the current vertex
-                // compute their normals and sum them together
-                int currentIndex = (z * width + x) * 3;
-
-                // FIRST
-                glm::vec3 first;
-                first.x = vertices[currentIndex - width * 3] - vertices[currentIndex];
-                first.y = vertices[currentIndex - width * 3 + 1] - vertices[currentIndex+1];
-                first.z = vertices[currentIndex - width * 3 + 2] - vertices[currentIndex+2];
-                
-                // SECOND
-                glm::vec3 second;
-                second.x = vertices[currentIndex + 3] - vertices[currentIndex];
-                second.y = vertices[currentIndex + 4] - vertices[currentIndex+1];
-                second.z = vertices[currentIndex + 5] - vertices[currentIndex+2];
-
-                // FOURTH
-                glm::vec3 fourth;
-                fourth.x = vertices[currentIndex + width*3] - vertices[currentIndex];
-                fourth.x = vertices[currentIndex + width*3 + 1] - vertices[currentIndex + 1];
-                fourth.x = vertices[currentIndex + width*3 + 2] - vertices[currentIndex + 2];
-
-                // FIFTH
-                glm::vec3 fifth;
-                fifth.x = vertices[currentIndex - 3] - vertices[currentIndex];
-                fifth.y = vertices[currentIndex - 2] - vertices[currentIndex + 1];
-                fifth.z = vertices[currentIndex - 1] - vertices[currentIndex + 2];
-
-                glm::vec3 result(0.0f,0.0f,0.0f);
-                result += glm::cross(second,first);
-                result += glm::cross(first,fifth);
-                result += glm::cross(fifth,fourth);
-                result += glm::cross(fourth,second);
-                result = glm::normalize(result);
-                normals.push_back(result.x);
-                normals.push_back(result.y);
-                normals.push_back(result.z);
-            }
-        }
-    }
-    return normals;
-}
-
-void ResourceManager::LoadAnimatedObject(const std::string& filePath)
-{
-    std::ifstream       file;
-    std::stringstream   fileString;
-
-    // open the file and load the content in the buffer.
-    file.open(filePath,std::ios_base::binary);
-    fileString << file.rdbuf();
-
-    // get the size
-    file.seekg(0,std::ios_base::end);
-    int size = file.tellg();
-    file.seekg(0, std::ios_base::beg);
-
-    char* cstring = new char[size];
-    fileString.read(cstring,size);
-    
-    ofbx::IScene* scene = ofbx::load((ofbx::u8*)cstring,size);
-    for (int i=0; i < scene->getAnimationStackCount() ; i++)
-    {
-        const ofbx::Object* stack = scene->getAnimationStack(i);
-    }
 }
 
 unsigned int ResourceManager::LoadTexture(const std::string& filePath)
