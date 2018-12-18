@@ -5,6 +5,12 @@
 
 using namespace Collada;
 
+GeometryLibrary::GeometryLibrary(Vertices vertices, Triangles triangles, Source positions, Source normals, Source texCoords) : 
+        vertices(vertices), triangles(triangles), positions(positions), normals(normals), texCoords(texCoords)
+{
+
+}
+
 Source::Source(bool isFloatArray, TechniqueCommon techniqueCommon, std::vector<float> floatArray, std::vector<std::string> stringArray, std::string id):
     isFloatArray(isFloatArray), techniqueCommon(techniqueCommon), floatArray(floatArray), stringArray(stringArray), id(id)
 {
@@ -85,17 +91,37 @@ GeometryLibrary Loader::ParseGeometry(std::string geometryData)
     size_t startIndex = geometryData.find(sourceStringOpen);
     size_t endIndex = geometryData.find(sourceStringClose);
     std::vector<Source> sources;
+    int positions;
+    int normals;
+    int texCoords;
     while (endIndex != std::string::npos)
     {
-
         sources.push_back(this->ParseSource(geometryData.substr(startIndex, endIndex-startIndex)));
         startIndex = endIndex + sourceStringClose.length();
         endIndex = geometryData.find(sourceStringClose, startIndex);
     }
+    // set positions
     for (int i = 0; i < sources.size(); i++)
     {
-        std::cout << sources[i].floatArray[0] << std::endl;
+        if(sources[i].id == verts.input.source)
+        {
+            positions = i;
+        }
+        else
+        {
+            for (int j = 0; j < triangles.inputs.size(); j++)
+            {
+                if (triangles.inputs[j].source == sources[i].id)
+                {
+                    if (triangles.inputs[j].semantic == "NORMAL")
+                        normals = i;
+                    else if (triangles.inputs[j].semantic == "TEXCOORD")
+                        texCoords = i;
+                }
+            }
+        }
     }
+    return GeometryLibrary(verts, triangles, sources[positions], sources[normals], sources[texCoords]);
 }
 
 Source Loader::ParseSource(const std::string& sourceData)
@@ -158,7 +184,7 @@ TechniqueCommon Loader::ParseTechnique(std::string techniqueData)
 
 Accessor Loader::ParseAccessor(std::string accessorData)
 {
-    std::string sourceString    = "source=\"";
+    std::string sourceString    = "source=\"#";
     size_t startIndex           = accessorData.find(sourceString) + sourceString.length();
     size_t endIndex             = accessorData.find("\"", startIndex);
     std::string source          = accessorData.substr(startIndex,endIndex-startIndex);
@@ -217,7 +243,7 @@ Input Loader::ParseInput(std::string inputData)
     size_t semanticEndIndex = inputData.find("\"", semanticStartIndex);
     std::string semantic = inputData.substr(semanticStartIndex, semanticEndIndex - semanticStartIndex);
 
-    std::string sourceString = "source=\"";
+    std::string sourceString = "source=\"#";
     size_t sourceStartIndex = inputData.find(sourceString) + sourceString.length();
     size_t sourceEndIndex = inputData.find("\"", sourceStartIndex);
     std::string source = inputData.substr(sourceStartIndex, sourceEndIndex-sourceStartIndex);

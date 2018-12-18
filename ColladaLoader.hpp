@@ -77,11 +77,13 @@ namespace Collada
         // positions/normals/texture coords
         public:
 
-            GeometryLibrary(std::string geometryData);
+            GeometryLibrary(Vertices vertices, Triangles triangles, Source positions, Source normals, Source texCoords);
 
-            Source positions;
-            Source normals;
-            Source texCoords;
+            Vertices    vertices;
+            Triangles   triangles;
+            Source      positions;
+            Source      normals;
+            Source      texCoords;
     };
 
     // library_animations
