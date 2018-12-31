@@ -20,6 +20,9 @@ class ResourceManager
         void                                    LoadPlayer( std::vector<objl::Vertex>& vertices, std::unique_ptr<Scene>& scene, std::shared_ptr<Texture> texture);
         std::shared_ptr<Terrain>                LoadTerrain(std::vector<objl::Vertex>& vertices, int gridSize, int cellSize);
         std::pair<unsigned int,unsigned int>    SetupBuffers(float* data, int size);
-        void                                    LoadAnimatedObject(const std::string& filePath);
+        void                                    LoadAnimatedObject(std::string filePath);
         unsigned int                            LoadTexture(const std::string& filePath);
+        std::vector<std::string>                SplitString(const std::string& stringData);
+        std::vector<int>                        SplitStringInt(const std::string& stringData);
+        std::vector<float>                      SplitStringFloat(const std::string& stringData);
 };

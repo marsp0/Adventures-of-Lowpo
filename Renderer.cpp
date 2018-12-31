@@ -57,6 +57,7 @@ void Renderer::Draw(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terr
     float ambient = 0.3f;
     float diffuse = 0.5f;
     this->shader.SetVector3f("light.direction",-48.f, -128.f, 0.f);
+    // this->shader.SetVector3f("light.direction",-5.28f, -4.15f, 4.f);
     this->shader.SetVector3f("light.ambient",ambient,ambient,ambient);
     this->shader.SetVector3f("light.diffuse",diffuse,diffuse,diffuse);
 

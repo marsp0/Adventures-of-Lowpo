@@ -10,7 +10,7 @@
 #include "Texture.hpp"
 #include "ResourceManager.hpp"
 #include "OBJ_Loader.hpp"
-#include "ColladaLoader.hpp"
+#include "tinyxml2.hpp"
 
 ResourceManager::ResourceManager()
 {
@@ -19,9 +19,6 @@ ResourceManager::ResourceManager()
 
 std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath, std::unique_ptr<Scene>& scene)
 {
-    Collada::Loader loader1 = Collada::Loader("/home/martin/Downloads/CharacterRunning.dae");
-    std::string geometryData = loader1.colladaStringFile.substr(loader1.colladaStringFile.find("<geometry"), loader1.colladaStringFile.find("</geometry") - loader1.colladaStringFile.find("<geometry"));
-    Collada::GeometryLibrary geometry = loader1.ParseGeometry(geometryData);
     // texture loading
     std::shared_ptr<Texture> texture = std::make_shared<Texture>("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/color_palette.png");
     std::cout << texture->ID << std::endl;
@@ -287,4 +284,136 @@ unsigned int ResourceManager::LoadTexture(const std::string& filePath)
     }
     stbi_image_free(data);
     return texture;
+}
+
+void ResourceManager::LoadAnimatedObject(std::string filePath)
+{
+    using namespace tinyxml2;
+    // create and load the collada file.
+    XMLDocument document;
+    document.LoadFile(filePath.c_str());
+    // the document represents the "whole" file so we need to query the first child which
+    // is always Collada
+    XMLElement* collada = document.FirstChildElement("COLLADA");
+
+    // parse the mesh
+    XMLElement* libraryGeometries = collada->FirstChildElement("library_geometries");
+    XMLElement* geometry = libraryGeometries->FirstChildElement("geometry");
+    XMLElement* mesh = geometry->FirstChildElement("mesh");
+
+    // find name of the source holding the vertices.
+    XMLElement* verticesElement = mesh->FirstChildElement("vertices");
+    std::string verticesName;
+    for (XMLElement* currElement = verticesElement->FirstChildElement("input"); currElement != NULL ; currElement = currElement->NextSiblingElement())
+    {
+        std::string semantic = currElement->Attribute("semantic");
+        if (semantic == "POSITION")
+        {
+            verticesName = currElement->Attribute("source");
+            verticesName = verticesName.substr(1,verticesName.length() - 1);
+        }
+    }
+
+    std::string normalsName;
+    std::string texCoordsName;
+    // Find the names of the sources holding the normals and the texcoords
+    XMLElement* triangles = mesh->FirstChildElement("triangles");
+    for (XMLElement* currElement = triangles->FirstChildElement("input"); currElement != NULL ; currElement = currElement->NextSiblingElement("input"))
+    {
+        std::string semantic = currElement->Attribute("semantic");
+        if (semantic == "NORMAL")
+        {
+            normalsName = currElement->Attribute("source");
+            normalsName = normalsName.substr(1, normalsName.length() - 1);
+        }
+        else if (semantic == "TEXCOORD")
+        {
+            texCoordsName = currElement->Attribute("source");
+            texCoordsName = texCoordsName.substr(1, texCoordsName.length() - 1);
+        }
+    }
+
+    std::vector<float> vertices;
+    std::vector<float> normals;
+    std::vector<float> texCoords;
+
+    // Load the vertices/normals/texcoords into an array
+    for (XMLElement* currElement = mesh->FirstChildElement("source") ; currElement != NULL ; currElement = currElement->NextSiblingElement("source"))
+    {
+        std::string id = currElement->Attribute("id");
+        XMLElement* floatArray = currElement->FirstChildElement("float_array");
+        std::string floatData = floatArray->GetText();
+        if (id == verticesName)
+        {
+            vertices = this->SplitStringFloat(floatData);
+        }
+        else if (id == normalsName)
+        {
+            normals = this->SplitStringFloat(floatData);
+        }
+        else if (id == texCoordsName)
+        {
+            texCoords = this->SplitStringFloat(floatData);
+        }
+    }
+    XMLElement* p = triangles->FirstChildElement("p");
+    std::string pData = p->GetText();
+    std::vector<int> indices = this->SplitStringInt(pData);
+    
+    // load animations
+
+}
+
+std::vector<float> ResourceManager::SplitStringFloat(const std::string& stringData)
+{
+    std::vector<float> result;
+    size_t prevDelimeter = 0;
+    size_t currentDelimeter = stringData.find(" ");
+    while (currentDelimeter != std::string::npos)
+    {
+        result.push_back(std::stof(stringData.substr(prevDelimeter, currentDelimeter - prevDelimeter)));
+        prevDelimeter = currentDelimeter + 1;
+        currentDelimeter = stringData.find(" ", prevDelimeter);
+    }
+    if (prevDelimeter != currentDelimeter)
+    {
+        result.push_back(std::stof(stringData.substr(prevDelimeter, currentDelimeter)));
+    }
+    return result;
+}
+
+std::vector<int> ResourceManager::SplitStringInt(const std::string& stringData)
+{
+    std::vector<int> result;
+    size_t prevDelimeter = 0;
+    size_t currentDelimeter = stringData.find(" ");
+    while (currentDelimeter != std::string::npos)
+    {
+        result.push_back(std::stoi(stringData.substr(prevDelimeter, currentDelimeter - prevDelimeter)));    
+        prevDelimeter = currentDelimeter + 1;
+        currentDelimeter = stringData.find(" ", prevDelimeter);
+    }
+    if (prevDelimeter != currentDelimeter)
+    {
+        result.push_back(std::stoi(stringData.substr(prevDelimeter, currentDelimeter)));
+    }
+    return result;
+}
+
+std::vector<std::string> ResourceManager::SplitString(const std::string& stringData)
+{
+    std::vector<std::string> result;
+    size_t prevDelimeter = 0;
+    size_t currentDelimeter = stringData.find(" ");
+    while (currentDelimeter != std::string::npos)
+    {
+        result.push_back(stringData.substr(prevDelimeter, currentDelimeter - prevDelimeter));
+        prevDelimeter = currentDelimeter + 1;
+        currentDelimeter = stringData.find(" ", prevDelimeter);
+    }
+    if (prevDelimeter != currentDelimeter)
+    {
+        result.push_back(stringData.substr(prevDelimeter, currentDelimeter));
+    }
+    return result;
 }

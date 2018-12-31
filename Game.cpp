@@ -71,7 +71,7 @@ Game::Game(int width, int height) :
     this->resourseManager   = ResourceManager();
     this->physicsEngine     = PhysicsEngine();
     this->terrain = this->resourseManager.LoadWorld("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/scene.obj",this->scene);
-    
+    this->resourseManager.LoadAnimatedObject("/home/martin/Downloads/CharacterRunning.dae");
 }
 
 void Game::Init()
