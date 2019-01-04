@@ -2,7 +2,7 @@
 
 Bone::Bone(const int boneIndex, const glm::mat4& offsetMatrix, const std::string& name):
         boneIndex(boneIndex),
-        offsetMatrix(offsetMatrix), name(name)
+        offsetMatrix(offsetMatrix), name(name), localAnimationTransform(1.0), animationTransform(1.0)
 {
 
 }

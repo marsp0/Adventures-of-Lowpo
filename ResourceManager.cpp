@@ -5,6 +5,7 @@
 #include <sstream>
 #include <map>
 #include <algorithm>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Player.hpp"
 #include "Mesh.hpp"
@@ -66,7 +67,7 @@ std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath,
                     data.push_back(loader.LoadedMeshes[j].Vertices[i].TextureCoordinate.Y);
                     
                 }
-                std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float));
+                std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float), false);
                 glm::vec3 ambient = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Ka.X, loader.LoadedMeshes[j].MeshMaterial.Ka.Y, loader.LoadedMeshes[j].MeshMaterial.Ka.Z);
                 glm::vec3 diffuse = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Kd.X, loader.LoadedMeshes[j].MeshMaterial.Kd.Y, loader.LoadedMeshes[j].MeshMaterial.Kd.Z);
                 glm::vec3 specular = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Ks.X, loader.LoadedMeshes[j].MeshMaterial.Ks.Y, loader.LoadedMeshes[j].MeshMaterial.Ks.Z);
@@ -171,7 +172,7 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(std::vector<objl::Vertex>&
         data.push_back(vertices[i].TextureCoordinate.X);
         data.push_back(vertices[i].TextureCoordinate.Y);
     }
-    std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float));
+    std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float), false);
     glm::vec3 position = glm::vec3(0.0f,0.0f,0.0f);
     std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(Terrain(buffers.first, buffers.second, data.size() / 6.0f, Transform(), nullptr ,map, cellSize,cellSize, position));
     return terrain;
@@ -221,7 +222,7 @@ void ResourceManager::LoadPlayer(std::vector<objl::Vertex>& vertices, std::uniqu
         data.push_back(vertices[i].TextureCoordinate.Y);
     }
 
-    std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float));
+    std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float), false);
 
     std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(buffers.first,buffers.second, vertices.size()));
     Material material = Material(glm::vec3(),glm::vec3(),glm::vec3(),0.f);
@@ -232,8 +233,13 @@ void ResourceManager::LoadPlayer(std::vector<objl::Vertex>& vertices, std::uniqu
     
 }
 
-std::pair<unsigned int,unsigned int> ResourceManager::SetupBuffers(float* data, int size)
+std::pair<unsigned int,unsigned int> ResourceManager::SetupBuffers(float* data, int size, bool animated)
 {
+    int floatCount = 8;
+    if (animated)
+    {
+        floatCount = 16;
+    }
     unsigned int VAO,VBO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -242,43 +248,22 @@ std::pair<unsigned int,unsigned int> ResourceManager::SetupBuffers(float* data, 
     glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, floatCount * sizeof(float), (void*)0);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),(void*)(sizeof(float)*3));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, floatCount * sizeof(float),(void*)(sizeof(float)*3));
 
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float)*6));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, floatCount * sizeof(float), (void*)(sizeof(float)*6));
 
-    return std::make_pair(VAO,VBO);
-}
+    if (animated)
+    {
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, floatCount * sizeof(float), (void*)(sizeof(float)*8));
 
-std::pair<unsigned int, unsigned int> ResourceManager::SetupAnimatedBuffers(float* data, int size)
-{
-    unsigned int VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)0);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(sizeof(float)*3));
-
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(sizeof(float)*6));
-
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(sizeof(float)*8));
-
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(sizeof(float)*12));
-
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, floatCount * sizeof(float), (void*)(sizeof(float)*12));
+    }
     return std::make_pair(VAO,VBO);
 }
 
@@ -557,8 +542,48 @@ void ResourceManager::LoadAnimatedObject(std::string filePath)
             bufferData.push_back(weightValues[3]);
         }
     }
+
+    // Load bone structure
+
+    XMLElement* libraryVisualScenes = collada->FirstChildElement("library_visual_scenes");
+    XMLElement* visualScene = libraryVisualScenes->FirstChildElement("visual_scene");
+
+    std::vector<std::shared_ptr<Bone>> bonesVector;
+    std::shared_ptr<BoneTreeNode> root;
+
+    for (XMLElement* currNode = visualScene->FirstChildElement("node") ; currNode != NULL; currNode = currNode->NextSiblingElement("node"))
+    {
+        std::string id = currNode->Attribute("id");
+        if (id == "Armature")
+        {
+            XMLElement* torsoNode = currNode->FirstChildElement("node");
+            root = this->ParseNode(torsoNode,bonesVector,glm::mat4(1.0));
+        }
+    }
+
 }
 
+std::shared_ptr<BoneTreeNode> ResourceManager::ParseNode(tinyxml2::XMLElement* node, std::vector<std::shared_ptr<Bone>>& bonesVector, glm::mat4 parentOffset)
+{
+    using namespace tinyxml2;
+    int     boneIndex           = bonesVector.size();
+    std::string name            = node->Attribute("sid");
+    XMLElement* matrixNode      = node->FirstChildElement("matrix");
+    std::string matrixNodeData  = matrixNode->GetText();
+    std::vector<float> matrixFloats = this->SplitStringFloat(matrixNodeData);
+    // just to not lose track of this -> https://math.stackexchange.com/questions/688339/product-of-inverse-matrices-ab-1
+    glm::mat4 offsetMat         = glm::inverse(glm::make_mat4(matrixFloats.data())) * parentOffset;
+    std::shared_ptr<Bone> bone  = std::make_shared<Bone>(boneIndex, offsetMat, name);
+    bonesVector.push_back(bone);
+
+    std::shared_ptr<BoneTreeNode> btn = std::make_shared<BoneTreeNode>();
+    btn->boneIndex = boneIndex;
+    for (XMLElement* currChild = node->FirstChildElement("node"); currChild != NULL; currChild = currChild->NextSiblingElement("node"))
+    {
+        btn->children.push_back(this->ParseNode(currChild, bonesVector, bone->GetOffsetMatrix()));
+    }
+    return btn;
+}
 
 
 std::vector<float> ResourceManager::SplitStringFloat(const std::string& stringData)
