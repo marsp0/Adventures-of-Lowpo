@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <algorithm>
 
 #include "Player.hpp"
 #include "Mesh.hpp"
@@ -21,7 +22,6 @@ std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath,
 {
     // texture loading
     std::shared_ptr<Texture> texture = std::make_shared<Texture>("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/color_palette.png");
-    std::cout << texture->ID << std::endl;
     objl::Loader loader;
     loader.LoadFile(filePath);
     bool isHitbox = false;
@@ -32,10 +32,8 @@ std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath,
     {
         if (loader.LoadedMeshes[j].MeshName == "Plane")
         {
-            std::cout << "right before calling the loadterrain function" << std::endl;
             result = this->LoadTerrain(loader.LoadedMeshes[j].Vertices,33,8);
             result->texture = texture;
-            std::cout << "terrain should be loaded" << std::endl;
         }
         else if (loader.LoadedMeshes[j].MeshName == "Player")
         {
@@ -66,9 +64,7 @@ std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath,
                     // texture
                     data.push_back(loader.LoadedMeshes[j].Vertices[i].TextureCoordinate.X);
                     data.push_back(loader.LoadedMeshes[j].Vertices[i].TextureCoordinate.Y);
-                        
-                    // std::cout << "X is " << loader.LoadedMeshes[j].Vertices[i].TextureCoordinate.X << std::endl;
-                    // std::cout << "Y is " << loader.LoadedMeshes[j].Vertices[i].TextureCoordinate.Y << std::endl;
+                    
                 }
                 std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float));
                 glm::vec3 ambient = glm::vec3(loader.LoadedMeshes[j].MeshMaterial.Ka.X, loader.LoadedMeshes[j].MeshMaterial.Ka.Y, loader.LoadedMeshes[j].MeshMaterial.Ka.Z);
@@ -147,7 +143,6 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(std::vector<objl::Vertex>&
     // TODO (Martin) : update terrain code to use planes in a quadtree
 
     // build the heightmap
-    std::cout << "started loading terrain" << std::endl;
     std::shared_ptr<std::vector<std::vector<float>>> map = std::make_shared<std::vector<std::vector<float>>>(gridSize);
     for (int i = 0; i < gridSize; i++)
     {
@@ -155,14 +150,12 @@ std::shared_ptr<Terrain> ResourceManager::LoadTerrain(std::vector<objl::Vertex>&
     }
 
     std::vector<float>  data;
-    std::cout << "started populating the heights data" << std::endl;
     for (int i = 0; i < vertices.size(); i++)
     {
         int z = -((int)vertices[i].Position.Z)/cellSize;
         int x = (int)vertices[i].Position.X/cellSize;
         (*map)[z][x] = vertices[i].Position.Y;
     }   
-    std::cout << "started populating the triangle data buffer" << std::endl;
     for (int i = 0; i < vertices.size();i++)
     {
         data.push_back(vertices[i].Position.X);
@@ -256,6 +249,35 @@ std::pair<unsigned int,unsigned int> ResourceManager::SetupBuffers(float* data, 
 
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float)*6));
+
+    return std::make_pair(VAO,VBO);
+}
+
+std::pair<unsigned int, unsigned int> ResourceManager::SetupAnimatedBuffers(float* data, int size)
+{
+    unsigned int VAO, VBO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(sizeof(float)*3));
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(sizeof(float)*6));
+
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(sizeof(float)*8));
+
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 16 * sizeof(float), (void*)(sizeof(float)*12));
 
     return std::make_pair(VAO,VBO);
 }
@@ -359,10 +381,185 @@ void ResourceManager::LoadAnimatedObject(std::string filePath)
     XMLElement* p = triangles->FirstChildElement("p");
     std::string pData = p->GetText();
     std::vector<int> indices = this->SplitStringInt(pData);
-    
-    // load animations
 
+    XMLElement* libraryControllers = collada->FirstChildElement("library_controllers");
+    XMLElement* controller = libraryControllers->FirstChildElement("controller");
+    XMLElement* skin = controller->FirstChildElement("skin");
+    XMLElement* joints = skin->FirstChildElement("joints");
+    std::string sourceJointName;
+    std::string sourceInvBindName;
+    std::string sourceWeightsName;
+    for (XMLElement* currElement = joints->FirstChildElement("input") ; currElement != NULL ; currElement = currElement->NextSiblingElement("input"))
+    {
+        std::string semantic = currElement->Attribute("semantic");
+        if (semantic == "JOINT")
+        {
+            sourceJointName = currElement->Attribute("source");
+            sourceJointName = sourceJointName.substr(1, sourceJointName.length() - 1);
+        }
+        else if (semantic == "INV_BIND_MATRIX")
+        {
+            sourceInvBindName = currElement->Attribute("source");
+            sourceInvBindName = sourceInvBindName.substr(1, sourceInvBindName.length() - 1);
+        }
+    }
+
+    XMLElement* vertexWeights = skin->FirstChildElement("vertex_weights");
+    for (XMLElement* currElement = vertexWeights->FirstChildElement("input") ; currElement != NULL ; currElement = currElement->NextSiblingElement("input"))
+    {
+        std::string semantic = currElement->Attribute("semantic");
+        if (semantic == "WEIGHT")
+        {
+            sourceWeightsName = currElement->Attribute("source");
+            sourceWeightsName = sourceWeightsName.substr(1, sourceWeightsName.length() - 1);
+        }
+    }
+    XMLElement* vCount          = vertexWeights->FirstChildElement("vcount");
+    XMLElement* v               = vertexWeights->FirstChildElement("v");
+    std::string vCountString    = vCount->GetText();
+    std::string vString         = v->GetText();
+    std::vector<int> vCountInts = this->SplitStringInt(vCountString);
+    std::vector<int> vInts      = this->SplitStringInt(vString);
+
+    std::vector<std::string>    jointNames;
+    std::vector<float>          weights;
+    std::vector<float>          inverseBindMatrices;
+    std::map<std::string, int>  jointNameToInt;
+
+    for (XMLElement* currElement = skin->FirstChildElement("source") ; currElement != NULL ; currElement = currElement->NextSiblingElement("source"))
+    {
+        std::string id = currElement->Attribute("id");
+        if (id == sourceJointName)
+        {
+            XMLElement* nameArray = currElement->FirstChildElement("Name_array");
+            std::string nameArrayData = nameArray->GetText();
+            jointNames = this->SplitString(nameArrayData);
+            for (int i = 0; i < jointNames.size() ; i++)
+            {
+                jointNameToInt[jointNames[i]] = i;
+            }
+        }
+        else if (id == sourceInvBindName)
+        {
+            XMLElement* floatArray = currElement->FirstChildElement("float_array");
+            std::string floatArrayData = floatArray->GetText();
+            inverseBindMatrices = this->SplitStringFloat(floatArrayData);
+        }
+        else if (id == sourceWeightsName)
+        {
+            XMLElement* floatArray = currElement->FirstChildElement("float_array");
+            std::string floatArrayData = floatArray->GetText();
+            weights = this->SplitStringFloat(floatArrayData);
+        }
+    }
+    
+    //
+    std::vector<int> arrayOfSums(vCountInts.size());
+    int sumToHere = 0;
+    for (int i = 0; i < vCountInts.size(); i++)
+    {
+        arrayOfSums[i] = sumToHere;
+        sumToHere += vCountInts[i] * 2;
+    }
+
+    std::vector<float> bufferData;
+    for (int i = 0; i < indices.size() ; i += 12)
+    {
+        int v1Index = indices[i];
+        int v2Index = indices[i+4];
+        int v3Index = indices[i+8];
+        std::vector<int> vIndices{v1Index,v2Index,v3Index};
+
+        int v1TexIndex = indices[i+2];
+        int v2TexIndex = indices[i+6];
+        int v3TexIndex = indices[i+10];
+        std::vector<int> vTexIndices{v1TexIndex,v2TexIndex,v3TexIndex};
+
+        glm::vec3 vertex1 = glm::vec3(vertices[v1Index*3], vertices[v1Index*3 + 1], vertices[v1Index*3 + 2]);
+        glm::vec3 vertex2 = glm::vec3(vertices[v2Index*3], vertices[v2Index*3 + 1], vertices[v2Index*3 + 2]);
+        glm::vec3 vertex3 = glm::vec3(vertices[v3Index*3], vertices[v3Index*3 + 1], vertices[v3Index*3 + 2]);
+        
+        glm::vec3 triangleNormal = glm::cross(vertex2-vertex1, vertex3-vertex1);
+
+        for (int i = 0; i < vIndices.size(); i++)
+        {
+            int currentIndex = vIndices[i];
+            int currentTexIndex = vTexIndices[i];
+            glm::vec3 vertex = glm::vec3(vertices[currentIndex*3], vertices[currentIndex*3 + 1], vertices[currentIndex*3 + 2]);
+            glm::vec2 texCoord = glm::vec2(texCoords[currentTexIndex*2], texCoords[currentTexIndex*2 + 1]);
+
+            std::map<int, float> boneToWeightMap;
+            std::vector<int> boneIndices;
+            std::vector<float> weightValues;
+
+            for (int j = arrayOfSums[currentIndex]; j < arrayOfSums[currentIndex] + vCountInts[currentIndex] * 2; j += 2)
+            {
+                boneToWeightMap[vInts[j]] = weights[vInts[j+1]];   
+                weightValues.push_back(weights[vInts[j+1]]);
+            }
+            if (weightValues.size() > 4)
+            {
+                std::sort(weightValues.begin(), weightValues.end());
+                std::reverse(weightValues.begin() , weightValues.end());
+                weightValues.resize(4);
+            }
+            for (int j = 0; j < weightValues.size() ; j++)
+            {
+                for (std::map<int,float>::iterator k = boneToWeightMap.begin(); k != boneToWeightMap.end() ; k++)
+                {
+                    if (weightValues[j] == k->second)
+                    {
+                        boneIndices.push_back(k->first);
+                        break;
+                    }
+                }
+            }
+
+            float sumToNormalize = 0;
+            float factor = 0;
+            for (int j = 0; j < weightValues.size() ; j++)
+            {
+                sumToNormalize += weightValues[j];
+            }
+            factor = 1.0f/sumToNormalize;
+            for (int j = 0; j < weightValues.size() ; j++)
+            {
+                weightValues[j] *= factor;
+            }
+            if (weightValues.size() < 4)
+            {
+                for (int j = 0; j < 4 - weightValues.size(); j++ )
+                {
+                    weightValues.push_back(0.f);
+                    boneIndices.push_back(0);
+                }
+            }
+            // Vertex data
+            bufferData.push_back(vertex.x);
+            bufferData.push_back(vertex.y);
+            bufferData.push_back(vertex.z);
+
+            bufferData.push_back(triangleNormal.x);
+            bufferData.push_back(triangleNormal.y);
+            bufferData.push_back(triangleNormal.z);
+
+            bufferData.push_back(texCoord.x);
+            bufferData.push_back(texCoord.y);
+
+            bufferData.push_back((float)boneIndices[0]);
+            bufferData.push_back((float)boneIndices[1]);
+            bufferData.push_back((float)boneIndices[2]);
+            bufferData.push_back((float)boneIndices[3]);
+
+            bufferData.push_back(weightValues[0]);
+            bufferData.push_back(weightValues[1]);
+            bufferData.push_back(weightValues[2]);
+            bufferData.push_back(weightValues[3]);
+        }
+    }
 }
+
+
 
 std::vector<float> ResourceManager::SplitStringFloat(const std::string& stringData)
 {
