@@ -81,4 +81,32 @@ void Transform::Scale(glm::vec3 scale)
     this->scale += scale;
 }
 
+glm::vec3 Transform::DecomposeScale(glm::mat4 matrix)
+{
+    glm::vec3 scaleX = glm::vec3(matrix[0][0],matrix[0][1],matrix[0][2]);
+    glm::vec3 scaleY = glm::vec3(matrix[1][0],matrix[1][1],matrix[1][2]);
+    glm::vec3 scaleZ = glm::vec3(matrix[2][0],matrix[2][1],matrix[2][2]);
 
+    return glm::vec3(glm::length(scaleX), glm::length(scaleZ), glm::length(scaleZ));
+}
+
+glm::vec3 Transform::DecomposeTranslation(glm::mat4 matrix)
+{
+    return glm::vec3(matrix[3][0],matrix[3][1],matrix[3][2]);
+}
+
+glm::mat4 Transform::DecomposeRotation(glm::mat4 matrix, glm::vec3 scale)
+{
+    matrix[0][0] /= scale.x;
+    matrix[0][1] /= scale.x;
+    matrix[0][2] /= scale.x;
+
+    matrix[1][0] /= scale.y;
+    matrix[1][1] /= scale.y;
+    matrix[1][2] /= scale.y;
+
+    matrix[2][0] /= scale.z;
+    matrix[2][1] /= scale.z;
+    matrix[2][2] /= scale.z;
+    return matrix;
+}

@@ -25,7 +25,7 @@ class ResourceManager
         unsigned int                            LoadTexture(const std::string& filePath);
         void                                    LoadAnimatedObject(std::string filePath);
         std::shared_ptr<BoneTreeNode>           ParseNode(tinyxml2::XMLElement* node, std::vector<std::shared_ptr<Bone>>& bonesVector, glm::mat4 parentOffset);
-        std::vector<std::string>                SplitString(const std::string& stringData);
-        std::vector<int>                        SplitStringInt(const std::string& stringData);
-        std::vector<float>                      SplitStringFloat(const std::string& stringData);
+        std::vector<std::string>                SplitString(std::string& stringData);
+        std::vector<int>                        SplitStringInt(std::string& stringData);
+        std::vector<float>                      SplitStringFloat(std::string& stringData);
 };

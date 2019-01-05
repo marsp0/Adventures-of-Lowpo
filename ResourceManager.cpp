@@ -561,6 +561,79 @@ void ResourceManager::LoadAnimatedObject(std::string filePath)
         }
     }
 
+    XMLElement* libraryAnimations = collada->FirstChildElement("library_animations");
+    std::string inputAttribute = "INPUT";
+    std::string outputAttribute = "OUTPUT";
+    for (XMLElement* currNode = libraryAnimations->FirstChildElement("animation"); currNode != NULL ; currNode = currNode->NextSiblingElement("animation"))
+    {
+        XMLElement* sampler = currNode->FirstChildElement("sampler");
+        std::string inputString;
+        std::string outputString;
+        std::vector<float> startTimes;
+        std::vector<glm::mat4> transforms;
+        for (XMLElement* currInput = sampler->FirstChildElement("input"); currInput != NULL; currInput = currInput->NextSiblingElement("input"))
+        {
+            if (currInput->Attribute("semantic") == inputAttribute)
+            {
+                inputString = currInput->Attribute("source");
+                inputString = inputString.substr(1,inputString.size() - 1);
+            }
+            else if (currInput->Attribute("semantic") == outputAttribute)
+            {
+                outputString = currInput->Attribute("source");
+                outputString = outputString.substr(1, outputString.size() - 1);
+            }
+        }
+
+        for (XMLElement* currSource = currNode->FirstChildElement("source"); currSource != NULL; currSource = currSource->NextSiblingElement("source"))
+        {
+            
+            if (currSource->Attribute("id") == inputString)
+            {
+                XMLElement* floatArrayElement = currSource->FirstChildElement("float_array");
+                std::string floatArrayString = floatArrayElement->GetText();
+                startTimes = this->SplitStringFloat(floatArrayString);
+            }
+            else if (currSource->Attribute("id") == outputString)
+            {
+                XMLElement* floatArrayElement = currSource->FirstChildElement("float_array");
+                std::string floatArrayString = floatArrayElement->GetText();
+                std::vector<float> floatVector = this->SplitStringFloat(floatArrayString);
+
+                for (int i = 0; i < floatVector.size() ; i += 16)
+                {
+                    std::vector<float> matArray(16);
+                    for (int j = i; j < i + 16 ; j++)
+                    {
+                        matArray.push_back(floatVector[j]);
+                    }
+                    transforms.push_back(glm::make_mat4(matArray.data()));
+                }
+            }
+        }
+        std::string boneAnimationName;
+        for (int i = 0; i < bonesVector.size() ; i++)
+        {
+            std::string animationID = currNode->Attribute("id");
+            size_t index = animationID.find(bonesVector[i]->GetName());
+            if (index != std::string::npos)
+            {
+                boneAnimationName = bonesVector[i]->GetName();
+                break;
+            }
+        }
+        std::shared_ptr<BoneAnimation> boneAnimation = std::make_shared<BoneAnimation>(boneAnimationName);
+        for (int i = 0; i < transforms.size() ; i++)
+        {
+            float startTime = startTimes[i];
+            glm::vec3 scale = Transform::DecomposeScale(transforms[i]);
+            glm::vec3 translation = Transform::DecomposeTranslation(transforms[i]);
+            glm::mat4 rotation = Transform::DecomposeRotation(transforms[i], scale);
+            glm::quat quatRotation = glm::quat_cast(rotation);
+            Keyframe keyframe = Keyframe(translation,quatRotation,scale, startTime);
+            boneAnimation->AddKeyframe(keyframe);
+        }
+    }
 }
 
 std::shared_ptr<BoneTreeNode> ResourceManager::ParseNode(tinyxml2::XMLElement* node, std::vector<std::shared_ptr<Bone>>& bonesVector, glm::mat4 parentOffset)
@@ -586,11 +659,12 @@ std::shared_ptr<BoneTreeNode> ResourceManager::ParseNode(tinyxml2::XMLElement* n
 }
 
 
-std::vector<float> ResourceManager::SplitStringFloat(const std::string& stringData)
+std::vector<float> ResourceManager::SplitStringFloat(std::string& stringData)
 {
     std::vector<float> result;
     size_t prevDelimeter = 0;
     size_t currentDelimeter = stringData.find(" ");
+    
     while (currentDelimeter != std::string::npos)
     {
         result.push_back(std::stof(stringData.substr(prevDelimeter, currentDelimeter - prevDelimeter)));
@@ -604,11 +678,15 @@ std::vector<float> ResourceManager::SplitStringFloat(const std::string& stringDa
     return result;
 }
 
-std::vector<int> ResourceManager::SplitStringInt(const std::string& stringData)
+std::vector<int> ResourceManager::SplitStringInt(std::string& stringData)
 {
     std::vector<int> result;
     size_t prevDelimeter = 0;
     size_t currentDelimeter = stringData.find(" ");
+    std::string testString = " ";
+    // there is a space before the end tag </vcount> and it only happens there.
+    if (stringData[stringData.size() - 1] == testString[0])
+        stringData = stringData.substr(0,stringData.size() - 1);
     while (currentDelimeter != std::string::npos)
     {
         result.push_back(std::stoi(stringData.substr(prevDelimeter, currentDelimeter - prevDelimeter)));    
@@ -622,7 +700,7 @@ std::vector<int> ResourceManager::SplitStringInt(const std::string& stringData)
     return result;
 }
 
-std::vector<std::string> ResourceManager::SplitString(const std::string& stringData)
+std::vector<std::string> ResourceManager::SplitString(std::string& stringData)
 {
     std::vector<std::string> result;
     size_t prevDelimeter = 0;

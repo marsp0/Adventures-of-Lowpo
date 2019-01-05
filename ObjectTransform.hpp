@@ -25,6 +25,10 @@ class Transform
         glm::vec3   GetScale();
         void        Scale(glm::vec3 scale);
 
+        static glm::vec3 DecomposeScale(glm::mat4 matrix);
+        static glm::vec3 DecomposeTranslation(glm::mat4 matrix);
+        static glm::mat4 DecomposeRotation(glm::mat4 matrix, glm::vec3 scale);
+
     private:
 
         glm::vec3 position;
