@@ -67,11 +67,12 @@ Game::Game(int width, int height) :
     this->diffuse = 0.6f;
     this->Init();
     this->scene             = std::make_unique<Scene>(Scene((float)this->width, (float)this->height));
-    this->renderer          = std::make_unique<Renderer>(Renderer("vertexShader.glsl","fragmentShader.glsl", "vertexShadowShader.glsl", "fragmentShadowShader.glsl", width, height));
+    this->renderer          = std::make_unique<Renderer>(Renderer("vertexShader.glsl","fragmentShader.glsl", "vertexShadowShader.glsl", "fragmentShadowShader.glsl","vertexShaderAnimated.glsl", "fragmentShaderAnimated.glsl", width, height));
     this->resourseManager   = ResourceManager();
     this->physicsEngine     = PhysicsEngine();
-    this->terrain = this->resourseManager.LoadWorld("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/scene.obj",this->scene);
-    this->resourseManager.LoadAnimatedObject("/home/martin/Downloads/CharacterRunning.dae");
+    // this->terrain = this->resourseManager.LoadWorld("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/scene.obj",this->scene);
+    this->terrain = this->resourseManager.LoadWorld("/home/martin/Downloads/test.obj",this->scene);
+    // this->resourseManager.LoadAnimatedObject("/home/martin/Downloads/CharacterRunning.dae");
 }
 
 void Game::Init()
@@ -125,6 +126,7 @@ void Game::HandleInput(float deltaTime)
 
 void Game::Update(float deltaTime)
 {
+    // TODO : Move this into the Scene class update method.
     for (int i = 0; i < this->scene->gameObjects.size() ; i++)
     {
         this->scene->gameObjects[i]->Update(deltaTime);

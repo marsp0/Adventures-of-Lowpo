@@ -14,6 +14,8 @@
 // TODO : fix this mess
 #include <GLFW/glfw3.h>
 
+#include "Shader.hpp"
+
 class GameObject
 {
     public:
@@ -27,7 +29,7 @@ class GameObject
 
         virtual void    HandleInput(GLFWwindow* window);
         virtual void    Update(float deltaTime);
-        void            Render();
+        virtual void    Render(Shader& shader);
         void            SetVelocity(glm::vec3 velocity);
         glm::vec3       GetVelocity();
         glm::vec3       GetPosition();

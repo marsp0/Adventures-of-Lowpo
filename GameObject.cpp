@@ -25,7 +25,7 @@ void GameObject::Update(float deltaTime)
     this->transform.SetPosition(this->physicsComponent.GetPosition());
 }
 
-void GameObject::Render()
+void GameObject::Render(Shader& shader)
 {
     this->texture->Bind();
     this->mesh->Bind();

@@ -23,7 +23,7 @@ class ResourceManager
         std::shared_ptr<Terrain>                LoadTerrain(std::vector<objl::Vertex>& vertices, int gridSize, int cellSize);
         std::pair<unsigned int,unsigned int>    SetupBuffers(float* data, int size, bool animated);
         unsigned int                            LoadTexture(const std::string& filePath);
-        void                                    LoadAnimatedObject(std::string filePath);
+        void                                    LoadAnimatedObject(std::string filePath, std::unique_ptr<Scene>& scene, std::shared_ptr<Texture> texture);
         std::shared_ptr<BoneTreeNode>           ParseNode(tinyxml2::XMLElement* node, std::vector<std::shared_ptr<Bone>>& bonesVector, glm::mat4 parentOffset);
         std::vector<std::string>                SplitString(std::string& stringData);
         std::vector<int>                        SplitStringInt(std::string& stringData);

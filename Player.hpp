@@ -18,12 +18,14 @@ class Player : public GameObject
         Player( Transform                   transform, 
                 std::shared_ptr<Texture>    texture, 
                 std::shared_ptr<Mesh>       mesh,
-                PhysicsComponent physicsComponent,
-                Material material,
-                float cameraWidth,
-                float cameraHeight);
+                std::shared_ptr<Animator>   animator,
+                PhysicsComponent            physicsComponent,
+                Material                    material,
+                float                       cameraWidth,
+                float                       cameraHeight);
 
         virtual void    HandleInput(GLFWwindow* window);
+        virtual void    Render(Shader& shader);
         void            Update(float deltaTime);
         std::shared_ptr<Camera> GetCamera();
 
@@ -44,5 +46,5 @@ class Player : public GameObject
         float       speed;
 
         // Animations
-        Animator    animator;
+        std::shared_ptr<Animator> animator;
 };

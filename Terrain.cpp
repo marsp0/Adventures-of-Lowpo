@@ -29,7 +29,6 @@ void Terrain::Render()
     glDrawArrays(GL_TRIANGLES,0, this->vertexCount);
     this->Unbind();
     this->texture->Unbind();
-    // std::cout << "terrain should be drawn" << std::endl;
 }
 
 void Terrain::Bind()
@@ -44,10 +43,6 @@ void Terrain::Unbind()
 
 float Terrain::GetHeight(float x, float z)
 {
-    // std::cout << this->heightmap->size() << std::endl;
-    // std::cout << (*heightmap)[0].size() << std::endl;
-    // std::cout << std::endl;
-    // make it in range of the gridsize
     z = -z/this->cellLength;
     x /= this->cellWidth;
 

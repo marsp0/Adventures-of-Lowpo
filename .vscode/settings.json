@@ -41,5 +41,5 @@
         "optional": "cpp",
         "string_view": "cpp"
     },
-    "C_Cpp.dimInactiveRegions": false
+    "C_Cpp.dimInactiveRegions": true
 }

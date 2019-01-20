@@ -1,7 +1,8 @@
+#include <iostream>
 #include "Keyframe.hpp"
 
 Keyframe::Keyframe(const glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, float startTime):
-    translation(translation), rotation(rotation), scale(scale), startTime(startTime)
+    translation(translation), rotation(rotation), scale(1.0f), startTime(startTime)
 {
 
 }
@@ -31,7 +32,6 @@ Keyframe Keyframe::Interpolate(Keyframe& frame1, Keyframe& frame2, float time)
     // interpolate scale
     // interpolate translation
     // interpolate rotation
-
     float dt = frame2.startTime - frame1.startTime;
     float t = (time - frame1.startTime)/dt;
 

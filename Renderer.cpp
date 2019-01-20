@@ -4,9 +4,11 @@
 
 Renderer::Renderer(const char* vertexFile, const char* fragmentFile, 
                     const char* vertexShadowFile, const char* fragmentShadowFile,
+                    const char* vertexAnimationFile, const char* fragmentAnimationFile,
                     int width, int height) :
     shader(vertexFile, fragmentFile),
     shadowShader(vertexShadowFile,fragmentShadowFile),
+    animationShader(vertexAnimationFile, fragmentAnimationFile),
     width(width), height(height),
     shadowHeight(2048),shadowWidth(2048)
 {
@@ -67,10 +69,48 @@ void Renderer::Draw(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terr
 
     // game objects render
     for (int i = 0 ; i < scene->gameObjects.size(); i++)
-    {   
-        glm::mat4 model = scene->gameObjects[i]->transform.GetWorldMatrix();   
-        this->shader.SetMat4("model", model);
-        scene->gameObjects[i]->Render();
+    {
+        // if (typeid(scene->gameObjects[i]) == typeid(GameObject))
+        // {
+        //     this->shader.Use();
+        //     this->shader.SetMat4("projection", projection);
+        //     this->shader.SetMat4("view", view);
+        //     this->shader.SetMat4("lightSpaceMatrix", this->lightSpaceMatrix);
+            
+        //     // light
+        //     float ambient = 0.3f;
+        //     float diffuse = 0.5f;
+        //     this->shader.SetVector3f("light.direction",-48.f, -128.f, 0.f);
+        //     // this->shader.SetVector3f("light.direction",-5.28f, -4.15f, 4.f);
+        //     this->shader.SetVector3f("light.ambient",ambient,ambient,ambient);
+        //     this->shader.SetVector3f("light.diffuse",diffuse,diffuse,diffuse);
+            
+        //     glm::mat4 model = scene->gameObjects[i]->transform.GetWorldMatrix();   
+        //     this->shader.SetMat4("model", model);
+        //     scene->gameObjects[i]->Render();
+        // }
+        // else
+        // {
+            this->animationShader.Use();
+            this->animationShader.SetMat4("projection", projection);
+            this->animationShader.SetMat4("view", view);
+            this->animationShader.SetMat4("lightSpaceMatrix", this->lightSpaceMatrix);
+            
+            // light
+            float ambient = 0.3f;
+            float diffuse = 0.5f;
+            this->animationShader.SetVector3f("light.direction",-48.f, -128.f, 0.f);
+            // this->shader.SetVector3f("light.direction",-5.28f, -4.15f, 4.f);
+            this->animationShader.SetVector3f("light.ambient",ambient,ambient,ambient);
+            this->animationShader.SetVector3f("light.diffuse",diffuse,diffuse,diffuse);
+
+
+            glm::mat4 model = scene->gameObjects[i]->transform.GetWorldMatrix();   
+            this->animationShader.SetMat4("model", model);
+            scene->gameObjects[i]->Render(this->animationShader);
+        // }
+        
+        
     }
 }
 
@@ -89,7 +129,8 @@ void Renderer::DrawShadows(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrai
     {   
         glm::mat4 model = scene->gameObjects[i]->transform.GetWorldMatrix();   
         this->shadowShader.SetMat4("model", model);
-        scene->gameObjects[i]->Render();
+        // NOTE : remove shadow shader from render call
+        scene->gameObjects[i]->Render(this->shadowShader);
     }
     glBindFramebuffer(GL_FRAMEBUFFER,0);
 }

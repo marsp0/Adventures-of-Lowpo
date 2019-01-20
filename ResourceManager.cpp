@@ -1,11 +1,15 @@
 #include <GL/glew.h>
 #include <memory>
+#include <math.h>
 #include <vector>
 #include <fstream>
 #include <sstream>
 #include <map>
 #include <algorithm>
 #include <glm/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include "Player.hpp"
 #include "Mesh.hpp"
@@ -23,7 +27,9 @@ std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath,
 {
     // texture loading
     std::shared_ptr<Texture> texture = std::make_shared<Texture>("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/color_palette.png");
+    this->LoadAnimatedObject("/home/martin/Downloads/Character Running1.dae", scene, texture);
     objl::Loader loader;
+
     loader.LoadFile(filePath);
     bool isHitbox = false;
     std::map<std::string,std::shared_ptr<Mesh>> hitboxMap;
@@ -38,7 +44,8 @@ std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath,
         }
         else if (loader.LoadedMeshes[j].MeshName == "Player")
         {
-            this->LoadPlayer(loader.LoadedMeshes[j].Vertices, scene, texture);
+            // this->LoadPlayer(loader.LoadedMeshes[j].Vertices, scene, texture);
+            this->LoadAnimatedObject("/home/martin/Downloads/CharacterRunning.dae", scene, texture);
         }
         else
         {
@@ -224,12 +231,12 @@ void ResourceManager::LoadPlayer(std::vector<objl::Vertex>& vertices, std::uniqu
 
     std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(data.data(), data.size() * sizeof(float), false);
 
-    std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(buffers.first,buffers.second, vertices.size()));
-    Material material = Material(glm::vec3(),glm::vec3(),glm::vec3(),0.f);
-    std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), texture, mesh, PhysicsComponent(min,max, glm::vec3(0.f,-10.f,0.f) , ObjectType::Dynamic), material,(float)800, (float)600));
-    std::shared_ptr<Camera> camera = player->GetCamera();
-    scene->AddCamera(camera);
-    scene->gameObjects.push_back(player);
+    // std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>(Mesh(buffers.first,buffers.second, vertices.size()));
+    // Material material = Material(glm::vec3(),glm::vec3(),glm::vec3(),0.f);
+    // std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), texture, mesh, PhysicsComponent(min,max, glm::vec3(0.f,-10.f,0.f) , ObjectType::Dynamic), material,(float)800, (float)600));
+    // std::shared_ptr<Camera> camera = player->GetCamera();
+    // scene->AddCamera(camera);
+    // scene->gameObjects.push_back(player);
     
 }
 
@@ -259,10 +266,10 @@ std::pair<unsigned int,unsigned int> ResourceManager::SetupBuffers(float* data, 
     if (animated)
     {
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, floatCount * sizeof(float), (void*)(sizeof(float)*8));
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, floatCount * sizeof(float), (void*)(sizeof(float)*8));
 
         glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, floatCount * sizeof(float), (void*)(sizeof(float)*12));
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, floatCount * sizeof(float), (void*)(sizeof(float)*12));
     }
     return std::make_pair(VAO,VBO);
 }
@@ -293,8 +300,9 @@ unsigned int ResourceManager::LoadTexture(const std::string& filePath)
     return texture;
 }
 
-void ResourceManager::LoadAnimatedObject(std::string filePath)
+void ResourceManager::LoadAnimatedObject(std::string filePath , std::unique_ptr<Scene>& scene, std::shared_ptr<Texture> texture)
 {
+
     using namespace tinyxml2;
     // create and load the collada file.
     XMLDocument document;
@@ -408,7 +416,8 @@ void ResourceManager::LoadAnimatedObject(std::string filePath)
 
     std::vector<std::string>    jointNames;
     std::vector<float>          weights;
-    std::vector<float>          inverseBindMatrices;
+    std::vector<float>          inverseBindMatricesFloats;
+    std::vector<glm::mat4>      inverseBindMatrices;
     std::map<std::string, int>  jointNameToInt;
 
     for (XMLElement* currElement = skin->FirstChildElement("source") ; currElement != NULL ; currElement = currElement->NextSiblingElement("source"))
@@ -428,7 +437,16 @@ void ResourceManager::LoadAnimatedObject(std::string filePath)
         {
             XMLElement* floatArray = currElement->FirstChildElement("float_array");
             std::string floatArrayData = floatArray->GetText();
-            inverseBindMatrices = this->SplitStringFloat(floatArrayData);
+            inverseBindMatricesFloats = this->SplitStringFloat(floatArrayData);
+            for (int k = 0; k < inverseBindMatricesFloats.size() ; k += 16)
+            {
+                std::vector<float> tempVec;
+                for (int x = k; x < k + 16; x++)
+                {
+                    tempVec.push_back(inverseBindMatricesFloats[x]);
+                }
+                inverseBindMatrices.push_back(glm::transpose(glm::make_mat4(tempVec.data())));
+            }
         }
         else if (id == sourceWeightsName)
         {
@@ -466,10 +484,10 @@ void ResourceManager::LoadAnimatedObject(std::string filePath)
         
         glm::vec3 triangleNormal = glm::cross(vertex2-vertex1, vertex3-vertex1);
 
-        for (int i = 0; i < vIndices.size(); i++)
+        for (int x = 0; x < vIndices.size(); x++)
         {
-            int currentIndex = vIndices[i];
-            int currentTexIndex = vTexIndices[i];
+            int currentIndex = vIndices[x];
+            int currentTexIndex = vTexIndices[x];
             glm::vec3 vertex = glm::vec3(vertices[currentIndex*3], vertices[currentIndex*3 + 1], vertices[currentIndex*3 + 2]);
             glm::vec2 texCoord = glm::vec2(texCoords[currentTexIndex*2], texCoords[currentTexIndex*2 + 1]);
 
@@ -513,10 +531,11 @@ void ResourceManager::LoadAnimatedObject(std::string filePath)
             }
             if (weightValues.size() < 4)
             {
-                for (int j = 0; j < 4 - weightValues.size(); j++ )
+                int toPush = 4 - weightValues.size();
+                for (int j = 0; j < toPush; j++ )
                 {
                     weightValues.push_back(0.f);
-                    boneIndices.push_back(0);
+                    boneIndices.push_back(0.f);
                 }
             }
             // Vertex data
@@ -543,6 +562,7 @@ void ResourceManager::LoadAnimatedObject(std::string filePath)
         }
     }
 
+    std::cout << bufferData.size() << std::endl;
     // Load bone structure
 
     XMLElement* libraryVisualScenes = collada->FirstChildElement("library_visual_scenes");
@@ -557,13 +577,20 @@ void ResourceManager::LoadAnimatedObject(std::string filePath)
         if (id == "Armature")
         {
             XMLElement* torsoNode = currNode->FirstChildElement("node");
-            root = this->ParseNode(torsoNode,bonesVector,glm::mat4(1.0));
+            XMLElement* matrixNode      = currNode->FirstChildElement("matrix");
+            std::string matrixNodeData  = matrixNode->GetText();
+            std::vector<float> matrixFloats = this->SplitStringFloat(matrixNodeData);
+            // just to not lose track of this -> https://math.stackexchange.com/questions/688339/product-of-inverse-matrices-ab-1
+            glm::mat4 offsetMat         = glm::inverse(glm::transpose(glm::make_mat4(matrixFloats.data())));
+            root = this->ParseNode(torsoNode,bonesVector,offsetMat);
         }
     }
 
     XMLElement* libraryAnimations = collada->FirstChildElement("library_animations");
     std::string inputAttribute = "INPUT";
     std::string outputAttribute = "OUTPUT";
+    std::vector<std::shared_ptr<BoneAnimation>> boneAnimations;
+    float animationDuration;
     for (XMLElement* currNode = libraryAnimations->FirstChildElement("animation"); currNode != NULL ; currNode = currNode->NextSiblingElement("animation"))
     {
         XMLElement* sampler = currNode->FirstChildElement("sampler");
@@ -599,15 +626,28 @@ void ResourceManager::LoadAnimatedObject(std::string filePath)
                 XMLElement* floatArrayElement = currSource->FirstChildElement("float_array");
                 std::string floatArrayString = floatArrayElement->GetText();
                 std::vector<float> floatVector = this->SplitStringFloat(floatArrayString);
-
                 for (int i = 0; i < floatVector.size() ; i += 16)
                 {
-                    std::vector<float> matArray(16);
+                    std::vector<float> matArray;
                     for (int j = i; j < i + 16 ; j++)
                     {
                         matArray.push_back(floatVector[j]);
                     }
-                    transforms.push_back(glm::make_mat4(matArray.data()));
+                    glm::mat4 normalMat = glm::make_mat4(matArray.data());
+                    glm::mat4 transposedMat = glm::transpose(normalMat);
+                    std::cout << outputString << std::endl;
+                    std::cout << "Imported Matrix" << std::endl;
+                    std::cout << normalMat[0][0] << " "<< normalMat[1][0] << " "<< normalMat[2][0] << " "<< normalMat[3][0] << std::endl;
+                    std::cout << normalMat[0][1] << " "<< normalMat[1][1] << " "<< normalMat[2][1] << " "<< normalMat[3][1] << std::endl;
+                    std::cout << normalMat[0][2] << " "<< normalMat[1][2] << " "<< normalMat[2][2] << " "<< normalMat[3][2] << std::endl;
+                    std::cout << normalMat[0][3] << " "<< normalMat[1][3] << " "<< normalMat[2][3] << " "<< normalMat[3][3] << std::endl;
+                    std::cout << "transposed Matrix" << std::endl;
+                    std::cout << transposedMat[0][0] << " "<< transposedMat[1][0] << " "<< transposedMat[2][0] << " "<< transposedMat[3][0] << std::endl;
+                    std::cout << transposedMat[0][1] << " "<< transposedMat[1][1] << " "<< transposedMat[2][1] << " "<< transposedMat[3][1] << std::endl;
+                    std::cout << transposedMat[0][2] << " "<< transposedMat[1][2] << " "<< transposedMat[2][2] << " "<< transposedMat[3][2] << std::endl;
+                    std::cout << transposedMat[0][3] << " "<< transposedMat[1][3] << " "<< transposedMat[2][3] << " "<< transposedMat[3][3] << std::endl;
+                    std::cout << std::endl;
+                    transforms.push_back(glm::transpose(glm::make_mat4(matArray.data())));
                 }
             }
         }
@@ -626,14 +666,38 @@ void ResourceManager::LoadAnimatedObject(std::string filePath)
         for (int i = 0; i < transforms.size() ; i++)
         {
             float startTime = startTimes[i];
+            // glm::decompose()
             glm::vec3 scale = Transform::DecomposeScale(transforms[i]);
             glm::vec3 translation = Transform::DecomposeTranslation(transforms[i]);
             glm::mat4 rotation = Transform::DecomposeRotation(transforms[i], scale);
-            glm::quat quatRotation = glm::quat_cast(rotation);
+            glm::quat quatRotation = glm::normalize(glm::quat_cast(rotation));
             Keyframe keyframe = Keyframe(translation,quatRotation,scale, startTime);
             boneAnimation->AddKeyframe(keyframe);
         }
+        boneAnimations.push_back(boneAnimation);
+        animationDuration = startTimes[startTimes.size() - 1];
     }
+
+    std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(bufferData.data(), bufferData.size() * sizeof(float), true);
+
+    std::shared_ptr<Animation> animation = std::make_shared<Animation>("walk", 2.4f, 25.f, animationDuration, boneAnimations);
+    std::shared_ptr<Animator> animator = std::make_shared<Animator>(Animator(root, bonesVector[0]->GetOffsetMatrix()));
+    animator->AddAnimation(animation);
+    animator->SetAnimation("walk");
+    for (int i = 0; i < bonesVector.size() ; i++)
+    {
+        glm::mat4 offset = bonesVector[i]->GetOffsetMatrix();
+        glm::mat4 toParentSpace = bonesVector[i]->GetParentSpaceTransform();
+        std::string name = bonesVector[i]->GetName();
+        animator->skeleton->AddBone(offset, toParentSpace, name);
+    }
+
+    std::shared_ptr<Mesh> meshObject = std::make_shared<Mesh>(Mesh(buffers.first,buffers.second, bufferData.size() / 16));
+    Material material = Material(glm::vec3(),glm::vec3(),glm::vec3(),0.f);
+    std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), texture, meshObject ,animator, PhysicsComponent(glm::vec3(0.f,-10.f,0.f),glm::vec3(0.f,-10.f,0.f), glm::vec3(0.f,-10.f,0.f) , ObjectType::Dynamic), material,(float)800, (float)600));
+    std::shared_ptr<Camera> camera = player->GetCamera();
+    scene->AddCamera(camera);
+    scene->gameObjects.push_back(player);
 }
 
 std::shared_ptr<BoneTreeNode> ResourceManager::ParseNode(tinyxml2::XMLElement* node, std::vector<std::shared_ptr<Bone>>& bonesVector, glm::mat4 parentOffset)
@@ -645,15 +709,16 @@ std::shared_ptr<BoneTreeNode> ResourceManager::ParseNode(tinyxml2::XMLElement* n
     std::string matrixNodeData  = matrixNode->GetText();
     std::vector<float> matrixFloats = this->SplitStringFloat(matrixNodeData);
     // just to not lose track of this -> https://math.stackexchange.com/questions/688339/product-of-inverse-matrices-ab-1
-    glm::mat4 offsetMat         = glm::inverse(glm::make_mat4(matrixFloats.data())) * parentOffset;
-    std::shared_ptr<Bone> bone  = std::make_shared<Bone>(boneIndex, offsetMat, name);
+    glm::mat4 toParentSpace = glm::transpose(glm::make_mat4(matrixFloats.data()));
+    glm::mat4 offsetMat         = glm::inverse(toParentSpace) * parentOffset;
+    std::shared_ptr<Bone> bone  = std::make_shared<Bone>(boneIndex, offsetMat, toParentSpace , name);
     bonesVector.push_back(bone);
 
     std::shared_ptr<BoneTreeNode> btn = std::make_shared<BoneTreeNode>();
     btn->boneIndex = boneIndex;
     for (XMLElement* currChild = node->FirstChildElement("node"); currChild != NULL; currChild = currChild->NextSiblingElement("node"))
     {
-        btn->children.push_back(this->ParseNode(currChild, bonesVector, bone->GetOffsetMatrix()));
+        btn->children.push_back(this->ParseNode(currChild, bonesVector, offsetMat));
     }
     return btn;
 }

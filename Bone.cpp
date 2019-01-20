@@ -1,8 +1,10 @@
 #include "Bone.hpp"
+#include <iostream>
 
-Bone::Bone(const int boneIndex, const glm::mat4& offsetMatrix, const std::string& name):
+Bone::Bone(const int boneIndex, const glm::mat4& offsetMatrix, const glm::mat4& toParentSpace, const std::string& name):
         boneIndex(boneIndex),
-        offsetMatrix(offsetMatrix), name(name), localAnimationTransform(1.0), animationTransform(1.0)
+        offsetMatrix(offsetMatrix), name(name), localAnimationTransform(1.0), animationTransform(1.0),
+        toParentSpace(toParentSpace)
 {
 
 }
@@ -20,6 +22,11 @@ int Bone::GetBoneIndex()
 glm::mat4 Bone::GetOffsetMatrix()
 {
     return this->offsetMatrix;
+}
+
+glm::mat4 Bone::GetParentSpaceTransform()
+{
+    return this->toParentSpace;
 }
 
 void Bone::SetAnimationTransform(const glm::mat4& transform)

@@ -9,7 +9,7 @@ class Renderer
 {
     public:
 
-        Renderer(const char* vertexFile, const char* fragmentFile, const char* vertexShadowFile, const char* fragmentShadowFile, int width, int height);
+        Renderer(const char* vertexFile, const char* fragmentFile, const char* vertexShadowFile, const char* fragmentShadowFile, const char* vertexAnimationFile, const char* fragmentAnimationFile, int width, int height);
 
         void Draw(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terrain);
         void DrawShadows(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terrain);
@@ -18,6 +18,7 @@ class Renderer
 
         Shader shader;
         Shader shadowShader;
+        Shader animationShader;
 
         unsigned int frameBuffer;
         unsigned int depthMapTexture;

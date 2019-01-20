@@ -22,8 +22,9 @@ glm::mat4 Transform::GetMatrix()
         0, 0, 1, 0,
         this->position.x, this->position.y, this->position.z, 1
     );
-    glm::mat4 result(1.0f); 
-    result *=  glm::mat4_cast(this->rotation) * scale * translation;
+    glm::mat4 result(1.0f);
+    glm::mat4 rotationMat = glm::mat4_cast(this->rotation);
+    result *=  translation * rotationMat * scale;
     return result;
 }
 
@@ -41,8 +42,9 @@ glm::mat4 Transform::GetWorldMatrix()
         0, 0, 1, 0,
         this->position.x, this->position.y, this->position.z, 1
     );
-    glm::mat4 result(1.0f); 
-    result *=  glm::mat4_cast(this->rotation) * scale * translation;
+    glm::mat4 result(1.0f);
+    glm::mat4 rotationMat = glm::mat4_cast(this->rotation);
+    result *=  translation * rotationMat * scale;
     return result;
 }
 
@@ -83,30 +85,31 @@ void Transform::Scale(glm::vec3 scale)
 
 glm::vec3 Transform::DecomposeScale(glm::mat4 matrix)
 {
-    glm::vec3 scaleX = glm::vec3(matrix[0][0],matrix[0][1],matrix[0][2]);
-    glm::vec3 scaleY = glm::vec3(matrix[1][0],matrix[1][1],matrix[1][2]);
-    glm::vec3 scaleZ = glm::vec3(matrix[2][0],matrix[2][1],matrix[2][2]);
+    glm::vec3 scaleX = glm::vec3(matrix[0].x,matrix[0].y,matrix[0].z);
+    glm::vec3 scaleY = glm::vec3(matrix[1].x,matrix[1].y,matrix[1].z);
+    glm::vec3 scaleZ = glm::vec3(matrix[2].x,matrix[2].y,matrix[2].z);
 
     return glm::vec3(glm::length(scaleX), glm::length(scaleZ), glm::length(scaleZ));
 }
 
 glm::vec3 Transform::DecomposeTranslation(glm::mat4 matrix)
 {
-    return glm::vec3(matrix[3][0],matrix[3][1],matrix[3][2]);
+    glm::vec3 result = glm::vec3(matrix[3].x,matrix[3].y,matrix[3].z);
+    return result;
 }
 
 glm::mat4 Transform::DecomposeRotation(glm::mat4 matrix, glm::vec3 scale)
 {
-    matrix[0][0] /= scale.x;
-    matrix[0][1] /= scale.x;
-    matrix[0][2] /= scale.x;
+    matrix[0].x /= scale.x;
+    matrix[0].y /= scale.x;
+    matrix[0].z /= scale.x;
 
-    matrix[1][0] /= scale.y;
-    matrix[1][1] /= scale.y;
-    matrix[1][2] /= scale.y;
+    matrix[1].x /= scale.y;
+    matrix[1].y /= scale.y;
+    matrix[1].z /= scale.y;
 
-    matrix[2][0] /= scale.z;
-    matrix[2][1] /= scale.z;
-    matrix[2][2] /= scale.z;
+    matrix[2].x /= scale.z;
+    matrix[2].y /= scale.z;
+    matrix[2].z /= scale.z;
     return matrix;
 }

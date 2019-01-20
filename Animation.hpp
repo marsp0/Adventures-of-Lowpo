@@ -6,7 +6,7 @@
 class Animation
 {
     public:
-        Animation();
+        Animation(std::string name, float tickDuration, float ticksPerSecond, float duration, std::vector<std::shared_ptr<BoneAnimation>> boneAnimations);
 
         float                       GetTickForTime(float time);
         std::string                 GetAnimationName();
@@ -16,6 +16,7 @@ class Animation
 
         std::string name;
         // The duration of the animation in ticks.
+        float duration;
         float tickDuration;
         float ticksPerSecond;
         std::vector<std::shared_ptr<BoneAnimation>> boneAnimations;

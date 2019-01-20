@@ -12,16 +12,18 @@ class Bone
 {
     public:
         // METHODS
-        Bone(const int boneIndex,const glm::mat4& offsetMatrix, const std::string& name);
+        Bone(const int boneIndex,const glm::mat4& offsetMatrix, const glm::mat4& toParentSpace, const std::string& name);
 
         void SetBoneIndex(int index);
         int GetBoneIndex();
 
         glm::mat4   GetOffsetMatrix();
+        glm::mat4   GetParentSpaceTransform();
         void        SetAnimationTransform(const glm::mat4& transform);
         glm::mat4   GetAnimationTransform();
         glm::mat4   GetLocalAnimationTransform();
         void        SetLocalAnimationTransform(const glm::mat4& transform);
+
 
         std::string GetName();
 
@@ -36,6 +38,8 @@ class Bone
         // To be able to apply transformations to the bones you need them in bone space
         // To get to that bone space you need to multiply the bone by the inverseBindPose
         glm::mat4   offsetMatrix;
+        // transforms the bone into the parent space
+        glm::mat4   toParentSpace;
         glm::mat4   localAnimationTransform;
         glm::mat4   animationTransform;
         // Name of the bone that we can use to refer to it.
