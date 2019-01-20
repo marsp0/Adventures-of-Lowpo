@@ -138,7 +138,7 @@ std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath,
         {
             std::string first = loader.LoadedMeshes[j].MeshName.substr(0,loader.LoadedMeshes[j].MeshName.find("_"));
             std::string second = loader.LoadedMeshes[j].MeshName.substr(loader.LoadedMeshes[j].MeshName.find("."), 4);
-            std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>(GameObject(Transform(), texture, hitboxMap[first+second], PhysicsComponent(min,max, glm::vec3(0.f,0.f,0.f),ObjectType::Static),material));
+            std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>(GameObject(Transform(), texture, hitboxMap[first+second], PhysicsComponent(min,max, glm::vec3(0.f,0.f,0.f),ObjectType::Static), "shader", "shadowShader"));
             scene->gameObjects.push_back(gameObject);
         }
     }
@@ -680,7 +680,7 @@ void ResourceManager::LoadAnimatedObject(std::string filePath , std::unique_ptr<
 
     std::shared_ptr<Mesh> meshObject = std::make_shared<Mesh>(Mesh(buffers.first,buffers.second, bufferData.size() / 16));
     Material material = Material(glm::vec3(),glm::vec3(),glm::vec3(),0.f);
-    std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), texture, meshObject ,animator, PhysicsComponent(glm::vec3(0.f,-10.f,0.f),glm::vec3(0.f,-10.f,0.f), glm::vec3(0.f,-10.f,0.f) , ObjectType::Dynamic), material,(float)800, (float)600));
+    std::shared_ptr<Player> player = std::make_shared<Player>(Player(Transform(), texture, meshObject ,animator, PhysicsComponent(glm::vec3(0.f,-10.f,0.f),glm::vec3(0.f,-10.f,0.f), glm::vec3(0.f,-10.f,0.f) , ObjectType::Dynamic), "animatedShader", "animatedShadowShader",(float)800, (float)600));
     std::shared_ptr<Camera> camera = player->GetCamera();
     scene->AddCamera(camera);
     scene->gameObjects.push_back(player);

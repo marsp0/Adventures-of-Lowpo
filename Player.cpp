@@ -8,10 +8,11 @@ Player::Player( Transform                   transform,
                 std::shared_ptr<Mesh>       mesh,
                 std::shared_ptr<Animator>   animator,
                 PhysicsComponent physicsComponent,
-                Material material,
+                std::string shader,
+                std::string shadowShader,
                 float cameraWidth,
                 float cameraHeight) :
-                GameObject(transform, texture, mesh,physicsComponent, material)
+                GameObject(transform, texture, mesh,physicsComponent, shader, shadowShader)
                 
 {
     this->direction = glm::vec3(0.f,0.f,-1.f);
@@ -92,7 +93,7 @@ std::shared_ptr<Camera> Player::GetCamera()
     return this->camera;
 }
 
-void Player::Render(Shader& shader)
+void Player::Render(std::shared_ptr<Shader> shader)
 {
     // bind offsets and transforms
     std::vector<glm::mat4> offsets = this->animator->skeleton->GetOffsetMatrices();
@@ -101,8 +102,8 @@ void Player::Render(Shader& shader)
     {
         std::string gBones = "gBones[" + std::to_string(i) + "]";
         std::string gBinds = "offsets[" + std::to_string(i) + "]";
-        shader.SetMat4(gBones.c_str(), anims[i]);
-        shader.SetMat4(gBinds.c_str(), offsets[i]);
+        shader->SetMat4(gBones.c_str(), anims[i]);
+        shader->SetMat4(gBinds.c_str(), offsets[i]);
     }
     GameObject::Render(shader);
 }

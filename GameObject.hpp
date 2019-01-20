@@ -25,11 +25,12 @@ class GameObject
                     std::shared_ptr<Texture>    texture, 
                     std::shared_ptr<Mesh>       mesh,
                     PhysicsComponent physicsComponent,
-                    Material material);
+                    std::string shader,
+                    std::string shadowShader);
 
         virtual void    HandleInput(GLFWwindow* window);
         virtual void    Update(float deltaTime);
-        virtual void    Render(Shader& shader);
+        virtual void    Render(std::shared_ptr<Shader> shader);
         void            SetVelocity(glm::vec3 velocity);
         glm::vec3       GetVelocity();
         glm::vec3       GetPosition();
@@ -38,5 +39,6 @@ class GameObject
         PhysicsComponent            physicsComponent;
         std::shared_ptr<Texture>    texture;
         std::shared_ptr<Mesh>       mesh;
-        Material                    material;
+        std::string                 shader;
+        std::string                 shadowShader;
 };

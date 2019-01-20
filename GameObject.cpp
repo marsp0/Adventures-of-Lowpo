@@ -4,9 +4,9 @@ GameObject::GameObject( Transform                   transform,
                         std::shared_ptr<Texture>    texture, 
                         std::shared_ptr<Mesh>       mesh,
                         PhysicsComponent physicsComponent,
-                        Material material) :
-    transform(transform), physicsComponent(physicsComponent),
-    material(material)
+                        std::string shader,
+                        std::string shadowShader) :
+    transform(transform), physicsComponent(physicsComponent), shader(shader), shadowShader(shadowShader)
 {
     this->mesh = mesh;
     
@@ -25,7 +25,7 @@ void GameObject::Update(float deltaTime)
     this->transform.SetPosition(this->physicsComponent.GetPosition());
 }
 
-void GameObject::Render(Shader& shader)
+void GameObject::Render(std::shared_ptr<Shader> shader)
 {
     this->texture->Bind();
     this->mesh->Bind();

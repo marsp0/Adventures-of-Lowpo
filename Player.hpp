@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Shader.hpp"
 #include "GameObject.hpp"
 #include "Camera.hpp"
 #include "Animator.hpp"
@@ -20,12 +20,13 @@ class Player : public GameObject
                 std::shared_ptr<Mesh>       mesh,
                 std::shared_ptr<Animator>   animator,
                 PhysicsComponent            physicsComponent,
-                Material                    material,
+                std::string                 shader,
+                std::string                 shadowShader,
                 float                       cameraWidth,
                 float                       cameraHeight);
 
         virtual void    HandleInput(GLFWwindow* window);
-        virtual void    Render(Shader& shader);
+        virtual void    Render(std::shared_ptr<Shader> shader);
         void            Update(float deltaTime);
         std::shared_ptr<Camera> GetCamera();
 
