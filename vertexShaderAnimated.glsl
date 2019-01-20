@@ -25,7 +25,6 @@ out vec4 fragPosLightSpace;
 void main()
 {
     uvec4 indices = uvec4(boneIndices);
-    // mat4 boneTransform   = gBones[indices[0]] * offsets[indices[0]] * 1.0;
     mat4 boneTransform   = gBones[indices[0]] * offsets[indices[0]] * weights[0];
     boneTransform       += gBones[indices[1]] * offsets[indices[1]] * weights[1];
     boneTransform       += gBones[indices[2]] * offsets[indices[2]] * weights[2];

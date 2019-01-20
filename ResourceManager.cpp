@@ -633,20 +633,6 @@ void ResourceManager::LoadAnimatedObject(std::string filePath , std::unique_ptr<
                     {
                         matArray.push_back(floatVector[j]);
                     }
-                    glm::mat4 normalMat = glm::make_mat4(matArray.data());
-                    glm::mat4 transposedMat = glm::transpose(normalMat);
-                    std::cout << outputString << std::endl;
-                    std::cout << "Imported Matrix" << std::endl;
-                    std::cout << normalMat[0][0] << " "<< normalMat[1][0] << " "<< normalMat[2][0] << " "<< normalMat[3][0] << std::endl;
-                    std::cout << normalMat[0][1] << " "<< normalMat[1][1] << " "<< normalMat[2][1] << " "<< normalMat[3][1] << std::endl;
-                    std::cout << normalMat[0][2] << " "<< normalMat[1][2] << " "<< normalMat[2][2] << " "<< normalMat[3][2] << std::endl;
-                    std::cout << normalMat[0][3] << " "<< normalMat[1][3] << " "<< normalMat[2][3] << " "<< normalMat[3][3] << std::endl;
-                    std::cout << "transposed Matrix" << std::endl;
-                    std::cout << transposedMat[0][0] << " "<< transposedMat[1][0] << " "<< transposedMat[2][0] << " "<< transposedMat[3][0] << std::endl;
-                    std::cout << transposedMat[0][1] << " "<< transposedMat[1][1] << " "<< transposedMat[2][1] << " "<< transposedMat[3][1] << std::endl;
-                    std::cout << transposedMat[0][2] << " "<< transposedMat[1][2] << " "<< transposedMat[2][2] << " "<< transposedMat[3][2] << std::endl;
-                    std::cout << transposedMat[0][3] << " "<< transposedMat[1][3] << " "<< transposedMat[2][3] << " "<< transposedMat[3][3] << std::endl;
-                    std::cout << std::endl;
                     transforms.push_back(glm::transpose(glm::make_mat4(matArray.data())));
                 }
             }

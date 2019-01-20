@@ -121,15 +121,12 @@ void Renderer::DrawShadows(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrai
     glBindFramebuffer(GL_FRAMEBUFFER,this->frameBuffer);
     glClear(GL_DEPTH_BUFFER_BIT);
     this->shadowShader.SetMat4("lightSpaceMatrix", this->lightSpaceMatrix);
-    // terrain render
     this->shadowShader.SetMat4("model", terrain->transform.GetWorldMatrix());
     terrain->Render();
-    // game objects render
     for (int i = 0 ; i < scene->gameObjects.size(); i++)
     {   
         glm::mat4 model = scene->gameObjects[i]->transform.GetWorldMatrix();   
         this->shadowShader.SetMat4("model", model);
-        // NOTE : remove shadow shader from render call
         scene->gameObjects[i]->Render(this->shadowShader);
     }
     glBindFramebuffer(GL_FRAMEBUFFER,0);
