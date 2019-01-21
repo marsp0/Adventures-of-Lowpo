@@ -45,7 +45,7 @@ std::shared_ptr<Terrain> ResourceManager::LoadWorld(const std::string& filePath,
         else if (loader.LoadedMeshes[j].MeshName == "Player")
         {
             // this->LoadPlayer(loader.LoadedMeshes[j].Vertices, scene, texture);
-            this->LoadAnimatedObject("/home/martin/Downloads/CharacterRunning.dae", scene, texture);
+            // this->LoadAnimatedObject("/home/martin/Downloads/CharacterRunning.dae", scene, texture);
         }
         else
         {

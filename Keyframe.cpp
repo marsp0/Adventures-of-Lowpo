@@ -2,7 +2,7 @@
 #include "Keyframe.hpp"
 
 Keyframe::Keyframe(const glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, float startTime):
-    translation(translation), rotation(rotation), scale(1.0f), startTime(startTime)
+    translation(translation), rotation(rotation), scale(scale), startTime(startTime)
 {
 
 }

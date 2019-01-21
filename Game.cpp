@@ -70,8 +70,8 @@ Game::Game(int width, int height) :
     this->renderer          = std::make_unique<Renderer>("vertex.glsl","fragment.glsl", "vertexShadow.glsl", "fragmentShadow.glsl","vertexAnimated.glsl", "fragmentAnimated.glsl", "vertexAnimatedShadow.glsl", "fragmentShadow.glsl", width, height);
     this->resourseManager   = ResourceManager();
     this->physicsEngine     = PhysicsEngine();
-    // this->terrain = this->resourseManager.LoadWorld("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/scene.obj",this->scene);
-    this->terrain = this->resourseManager.LoadWorld("/home/martin/Downloads/test.obj",this->scene);
+    this->terrain = this->resourseManager.LoadWorld("/home/martin/Documents/Projects/Adventures-of-Lowpo/resources/scene.obj",this->scene);
+    // this->terrain = this->resourseManager.LoadWorld("/home/martin/Downloads/test.obj",this->scene);
     // this->resourseManager.LoadAnimatedObject("/home/martin/Downloads/CharacterRunning.dae");
 }
 
