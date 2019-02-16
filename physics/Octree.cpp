@@ -40,35 +40,35 @@ bool Octree::Insert(glm::vec3 object)
 void Octree::CheckCollisions(std::shared_ptr<OctreeNode> node, std::vector<std::shared_ptr<OctreeNode>>& ancesstors, int currentDepth)
 {
     ancesstors.push_back(node);
-    currentDepth++;
-
-    for (int i = 0; i < currentDepth; i++)
+    for (int i = 0; i < ancesstors.size() ; i++)
     {
         glm::vec3 first;
         glm::vec3 second;
-        std::cout << ancesstors[i]->objects.size() << std::endl;
-        for (int j = 0; j < ancesstors[i]->objects.size() ; j++)
+        for (int j = 0; j < ancesstors[i]->objects.size(); j++)
         {
             first = ancesstors[i]->objects[j];
-            for (int k = 0;k < node->objects.size(); k++)
+            for (int k = 0; k < node->objects.size(); k++)
             {
                 second = node->objects[k];
                 if (first == second)
                 {
-                    break;
+                    continue;
                 }
-                std::cout << "Checking collision between " << first.x << " and " << second.x << std::endl;
+                std::cout << "Checking " << first.x << " " << second.x << std::endl;
+                std::cout << "Checking " << first.y << " " << second.y << std::endl;
+                std::cout << "Checking " << first.z << " " << second.z << std::endl;
+                std::cout << std::endl;
             }
         }
     }
-
-    for (int i = 0; i < node->children.size() ; i++)
+    for (int i = 0; i < node->children.size(); i++)
     {
         if (node->children[i])
         {
-            this->CheckCollisions(node->children[i], ancesstors, currentDepth);
+            this->CheckCollisions(node->children[i],ancesstors,currentDepth);
         }
     }
+    ancesstors.pop_back();
 }
 
 void Octree::Remove(glm::vec3 object)
