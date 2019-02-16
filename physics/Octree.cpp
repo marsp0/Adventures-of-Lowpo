@@ -6,6 +6,7 @@
 Octree::Octree(int maxLevel, glm::vec3 center, float halfWidth)
 {
     this->node = this->BuildOctree(maxLevel, center, halfWidth);
+    std::cout << "built the octree" << std::endl;
 }
 
 std::shared_ptr<OctreeNode> Octree::BuildOctree(int maxLevel, glm::vec3 center, float halfWidth)
@@ -19,15 +20,16 @@ std::shared_ptr<OctreeNode> Octree::BuildOctree(int maxLevel, glm::vec3 center, 
         std::shared_ptr<OctreeNode> node = std::make_shared<OctreeNode>(center, halfWidth);
         glm::vec3 offset;
         float step = halfWidth * 0.5;
-        for (int i = 0; i < 8; i++)
-        {
-            offset.x = ((i & 1) ? step : -step);
-            offset.y = ((i & 2) ? step : -step);
-            offset.z = ((i & 4) ? step : -step);
-            node->children.push_back(this->BuildOctree(maxLevel-1,center + offset,step));
-        }
+        node->children.push_back(this->BuildOctree(maxLevel-1,glm::vec3(center.x + step,center.y + step, center.z + step),step));
+        node->children.push_back(this->BuildOctree(maxLevel-1,glm::vec3(center.x - step,center.y + step, center.z + step),step));
+        node->children.push_back(this->BuildOctree(maxLevel-1,glm::vec3(center.x - step,center.y - step, center.z + step),step));
+        node->children.push_back(this->BuildOctree(maxLevel-1,glm::vec3(center.x + step,center.y - step, center.z + step),step));
+        node->children.push_back(this->BuildOctree(maxLevel-1,glm::vec3(center.x + step,center.y + step, center.z - step),step));
+        node->children.push_back(this->BuildOctree(maxLevel-1,glm::vec3(center.x - step,center.y + step, center.z - step),step));
+        node->children.push_back(this->BuildOctree(maxLevel-1,glm::vec3(center.x - step,center.y - step, center.z - step),step));
+        node->children.push_back(this->BuildOctree(maxLevel-1,glm::vec3(center.x + step,center.y - step, center.z - step),step));
+        return node;
     }
-    return node;
 }
 
 bool Octree::Insert(glm::vec3 object)
@@ -44,6 +46,7 @@ void Octree::CheckCollisions(std::shared_ptr<OctreeNode> node, std::vector<std::
     {
         glm::vec3 first;
         glm::vec3 second;
+        std::cout << ancesstors[i]->objects.size() << std::endl;
         for (int j = 0; j < ancesstors[i]->objects.size() ; j++)
         {
             first = ancesstors[i]->objects[j];

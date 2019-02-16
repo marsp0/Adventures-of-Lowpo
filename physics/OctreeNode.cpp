@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "OctreeNode.hpp"
 
 // *****************************
@@ -13,15 +15,18 @@ OctreeNode::OctreeNode(glm::vec3 center, float halfWidth) :
 bool OctreeNode::Insert(glm::vec3 object)
 {
     // check if fully contained, if not, return false
+    if (this == nullptr)
+    {
+        return false;
+    }
     for (int i = 0; i < 3 ; i++)
     {
         float deltaDistance = object[i] - this->center[i];
-        if (abs(deltaDistance) > this->center[i] + this->halfWidth)
+        if (abs(deltaDistance) > this->halfWidth)
         {
             return false;
         }
     }
-
     // check if can insert in children
     for (int i = 0; i < this->children.size() ; i++)
     {
@@ -30,7 +35,6 @@ bool OctreeNode::Insert(glm::vec3 object)
             return true;
         }
     }
-
     this->objects.push_back(object);
     return true;
 }
