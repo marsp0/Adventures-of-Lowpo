@@ -1,6 +1,6 @@
 #include "Sphere.hpp"
 
-Sphere::Sphere(glm::vec3 center, float radius) : BoundingVolume(center), radius(radius)
+Sphere::Sphere(glm::vec3 center, float radius, bool dynamic) : Collider(center, dynamic), radius(radius)
 {
 
 }

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "BoundingVolume.hpp"
+#include "Collider.hpp"
 #include "Sphere.hpp"
 #include "Triangle.hpp"
 
-class BoundingBox : public BoundingVolume
+class BoundingBox : public Collider
 {
     public:
 

@@ -1,6 +1,6 @@
 #include "Triangle.hpp"
 
-Triangle::Triangle(glm::vec3 center) : BoundingVolume(center)
+Triangle::Triangle(glm::vec3 center, glm::vec3 normal, bool dynamic) : Collider(center, dynamic), normal(normal)
 {
 
 }

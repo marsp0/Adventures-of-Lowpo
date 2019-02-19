@@ -6,16 +6,17 @@ class Triangle;
 class Sphere;
 class BoundingBox;
 
-class BoundingVolume
+class Collider
 {
     public:
 
-        BoundingVolume(glm::vec3 center);
-        virtual ~BoundingVolume();
+        Collider(glm::vec3 center, bool dynamic);
+        virtual ~Collider();
 
         virtual bool CheckCollision(Triangle triangle) = 0;
         virtual bool CheckCollision(Sphere sphere) = 0;
         virtual bool CheckCollision(BoundingBox box) = 0;
 
         glm::vec3 center;
+        bool dynamic;
 };

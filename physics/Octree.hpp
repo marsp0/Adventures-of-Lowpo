@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <memory>
 
-#include "BoundingVolume.hpp"
+#include "Collider.hpp"
 #include "OctreeNode.hpp"
 
 class Octree {
