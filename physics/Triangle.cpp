@@ -1,6 +1,6 @@
 #include "Triangle.hpp"
 
-Triangle::Triangle(glm::vec3 center, glm::vec3 normal, bool dynamic) : Collider(center, dynamic), normal(normal)
+Triangle::Triangle(glm::vec3 center, glm::vec3 normal, std::vector<glm::vec3> points, bool dynamic) : Collider(center, dynamic), normal(normal), points(points)
 {
 
 }

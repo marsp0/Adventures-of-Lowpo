@@ -34,4 +34,11 @@ void Cell::CheckCollisions()
             std::cout << std::endl;
         }
     }
+    if (this->objects.size() > 0)
+    {
+        std::cout << this->center.x << std::endl;
+        std::cout << this->center.z << std::endl;
+        std::cout << this->objects.size() << std::endl;
+    }
+    
 }

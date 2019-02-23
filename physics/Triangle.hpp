@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <vector>
 
 #include "Collider.hpp"
 #include "BoundingBox.hpp"
@@ -9,10 +10,12 @@
 class Triangle : public Collider
 {
     public:
-        Triangle(glm::vec3 center, glm::vec3 normal, bool dynamic);
+        Triangle(glm::vec3 center, glm::vec3 normal, std::vector<glm::vec3> points, bool dynamic);
         bool CheckCollision(Triangle triangle);
         bool CheckCollision(Sphere sphere);
         bool CheckCollision(BoundingBox box);
-    private:
+
         glm::vec3 normal;
+        std::vector<glm::vec3> points;
+    private:
 };
