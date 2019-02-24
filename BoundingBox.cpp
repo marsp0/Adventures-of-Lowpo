@@ -1,7 +1,8 @@
-#include "AABB.hpp"
 #include <iostream>
 
-AABB::AABB(glm::vec3 min, glm::vec3 max, ObjectType type) :
+#include "BoundingBox.hpp"
+
+BoundingBox::BoundingBox(glm::vec3 min, glm::vec3 max, ObjectType type) :
             type(type)
 {
     this->min = min;
@@ -18,7 +19,7 @@ AABB::AABB(glm::vec3 min, glm::vec3 max, ObjectType type) :
 
 }
 
-bool AABB::HandleCollision(const AABB& other)
+bool BoundingBox::HandleCollision(const BoundingBox& other)
 {
     if (this->max.x < other.min.x || this->min.x > other.max.x)
         return false;
@@ -29,7 +30,7 @@ bool AABB::HandleCollision(const AABB& other)
     return true;
 }
 
-void AABB::Update(glm::vec3 position)
+void BoundingBox::Update(glm::vec3 position)
 {
     // if (this->type == ObjectType::Dynamic)
     // {

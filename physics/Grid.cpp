@@ -1,6 +1,7 @@
 #include "Grid.hpp"
 #include <iostream>
 #include <unordered_map>
+#include <set>
 
 Grid::Grid(float gridLength, float halfWidth) : gridLength(gridLength), cellsInRow(ceilf(gridLength / (2 * halfWidth))), halfWidth(halfWidth)
 {
@@ -104,32 +105,16 @@ void Grid::Insert(std::shared_ptr<Triangle> object)
     // get cell of P3
     // if we have 3 different quadrants, then we surely have an angle and thus need to check 
     // if the triangle is intersecting with the 4th cell
-    std::vector<std::pair<int,int>> cellCoordinates;
+    std::set<std::pair<int,int>> cellCoordinates;
     std::unordered_map<int, int> rowSeenMap;
     std::unordered_map<int, int> colSeenMap;
     for (int i = 0; i < object->points.size(); i++)
     {
         int col = this->GetInsertCol(object->points[i]);
         int row = this->GetInsertRow(object->points[i]);
-        if (cellCoordinates.size() == 0)
-        {
-            cellCoordinates.push_back(std::make_pair(row,col));
-            rowSeenMap[row]++;
-            colSeenMap[col]++;
-        }
-        else
-        {
-            for (int j = 0; j < cellCoordinates.size(); j++)
-            {
-                if (row != cellCoordinates[j].first || col != cellCoordinates[j].second)
-                {
-                    cellCoordinates.push_back(std::make_pair(row,col));
-                    rowSeenMap[row]++;
-                    colSeenMap[col]++;
-                    break;
-                }
-            }
-        }
+        rowSeenMap[row]++;
+        colSeenMap[col]++;
+        cellCoordinates.insert(std::make_pair(row,col));
     }
     if (cellCoordinates.size() == 3)
     {
@@ -148,22 +133,54 @@ void Grid::Insert(std::shared_ptr<Triangle> object)
                 col = it->second;
             }
         }
-        cellCoordinates.push_back(std::make_pair(row,col));
+        cellCoordinates.insert(std::make_pair(row,col));
     }
-    for (int i=0; i < cellCoordinates.size(); i++)
+    for (auto it = cellCoordinates.begin(); it != cellCoordinates.end(); it++)
     {
-        int row = cellCoordinates[i].first;
-        int col = cellCoordinates[i].second;
-        this->cells[row][col]->objects.push_back(object);
+        this->cells[it->first][it->second]->objects.push_back(object);
     }
 }
 
 void Grid::Insert(std::shared_ptr<Sphere> object)
 {
-
+    // TODO : Implement
 }
 
-void Grid::Insert(std::shared_ptr<BoundingBox> object)
+void Grid::Insert(std::shared_ptr<AABB> object)
 {
+    std::vector<glm::vec3> pointsToCheck;
+    std::set<std::pair<int,int>> cellCoordinates;
+    // get bottom 4 points of the AABB
+    for (int i = 0; i < 4; i++)
+    {
+        glm::vec3 point;
+        point.y = object->center.y - object->axisRadii.y;
+        if (i % 2 == 0)
+        {
+            point.x = object->center.x - object->axisRadii.x;
+            std::cout << "dsadsadsadsa "<< object->center.x << " " <<  object->axisRadii.x << std::endl;
+        }
+        else
+            point.x = object->center.x + object->axisRadii.x;
 
+        if (i > 1)
+            point.z = object->center.z - object->axisRadii.z;
+        else
+            point.z = object->center.z + object->axisRadii.z;
+        std::cout << point.x << " " << point.y << " "<<point.z<<std::endl;
+        pointsToCheck.push_back(point);
+    }
+    // insert the points
+    for (int i = 0; i < pointsToCheck.size(); i++)
+    {
+        int row = this->GetInsertRow(pointsToCheck[i]);
+        int col = this->GetInsertCol(pointsToCheck[i]);
+        std::cout << "ROW AND COL " << row << "--" << col << std::endl;
+        cellCoordinates.insert(std::make_pair(row,col));
+    }
+    std::cout << "ds " << cellCoordinates.size() << "---" << pointsToCheck.size()<< std::endl;
+    for (auto it = cellCoordinates.begin(); it != cellCoordinates.end() ; it++)
+    {
+        this->cells[it->first][it->second]->objects.push_back(object);
+    }
 }

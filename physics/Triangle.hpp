@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Collider.hpp"
-#include "BoundingBox.hpp"
+#include "AABB.hpp"
 #include "Sphere.hpp"
 
 class Triangle : public Collider
@@ -13,7 +13,7 @@ class Triangle : public Collider
         Triangle(glm::vec3 center, glm::vec3 normal, std::vector<glm::vec3> points, bool dynamic);
         bool CheckCollision(Triangle triangle);
         bool CheckCollision(Sphere sphere);
-        bool CheckCollision(BoundingBox box);
+        bool CheckCollision(AABB box);
 
         glm::vec3 normal;
         std::vector<glm::vec3> points;

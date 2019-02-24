@@ -14,7 +14,7 @@ std::shared_ptr<OctreeNode> Octree::BuildOctree(int maxLevel, glm::vec3 center, 
     if (maxLevel < 0)
     {
         return nullptr;
-    }
+    }   
     else
     {
         std::shared_ptr<OctreeNode> node = std::make_shared<OctreeNode>(center, halfWidth);

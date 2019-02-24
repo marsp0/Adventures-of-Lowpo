@@ -2,9 +2,16 @@
 
 #include <glm/glm.hpp>
 
+enum ColliderType
+{
+    TRIANGLE,
+    SPHERE,
+    AABOX
+};
+
 class Triangle;
 class Sphere;
-class BoundingBox;
+class AABB;
 
 class Collider
 {
@@ -15,7 +22,7 @@ class Collider
 
         virtual bool CheckCollision(Triangle triangle) = 0;
         virtual bool CheckCollision(Sphere sphere) = 0;
-        virtual bool CheckCollision(BoundingBox box) = 0;
+        virtual bool CheckCollision(AABB box) = 0;
 
         glm::vec3 center;
         bool dynamic;

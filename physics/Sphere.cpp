@@ -22,7 +22,7 @@ bool Sphere::CheckCollision(Sphere sphere)
     
 }
 
-bool Sphere::CheckCollision(BoundingBox box)
+bool Sphere::CheckCollision(AABB box)
 {
 
 }

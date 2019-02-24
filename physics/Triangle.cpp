@@ -17,7 +17,7 @@ bool Triangle::CheckCollision(Sphere sphere)
     
 }
 
-bool Triangle::CheckCollision(BoundingBox box)
+bool Triangle::CheckCollision(AABB box)
 {
 
 }

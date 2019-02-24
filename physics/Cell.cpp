@@ -26,13 +26,6 @@ void Cell::CheckCollisions()
     {
         float distanceX = abs(this->objects[i]->center.x - this->center.x);
         float distanceZ = abs(this->objects[i]->center.z - this->center.z);
-        if (distanceX > halfWidth || distanceZ > halfWidth)
-        {
-            std::cout << "WRONG" << std::endl;
-            std::cout << distanceX << std::endl;
-            std::cout << distanceZ << std::endl;
-            std::cout << std::endl;
-        }
     }
     if (this->objects.size() > 0)
     {

@@ -8,14 +8,14 @@ enum ObjectType
     Dynamic
 };
 
-class AABB
+class BoundingBox
 {
     public:
     
         // Methods
-        AABB(glm::vec3 min, glm::vec3 max, ObjectType type);
+        BoundingBox(glm::vec3 min, glm::vec3 max, ObjectType type);
         void Update(glm::vec3 position);
-        bool HandleCollision(const AABB& other);
+        bool HandleCollision(const BoundingBox& other);
         
         // DATA
         ObjectType  type;

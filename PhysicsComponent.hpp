@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "AABB.hpp"
+#include "BoundingBox.hpp"
 
 class PhysicsComponent
 {
@@ -11,7 +11,7 @@ class PhysicsComponent
         // Methods
         PhysicsComponent(glm::vec3 min, glm::vec3 max, glm::vec3 velocity, ObjectType type);
         void        Integrate(float deltaTime);
-        const AABB  GetBoundingBox();
+        const BoundingBox  GetBoundingBox();
 
         void        SetVelocity(glm::vec3 velocity);
         glm::vec3   GetVelocity();
@@ -20,6 +20,6 @@ class PhysicsComponent
         // DATA
         glm::vec3   position;
         glm::vec3   velocity;
-        AABB        boundingBox;
+        BoundingBox        boundingBox;
         
 };
