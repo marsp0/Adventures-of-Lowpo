@@ -14,24 +14,21 @@ Cell::Cell(glm::vec3 center, float halfWidth) : center(center), halfWidth(halfWi
 
 void Cell::CheckCollisions()
 {
-    // for (int i = 0; i < this->objects.size(); i++)
-    // {
-    //     for (int j = i; j < this->objects.size(); j++)
-    //     {
-    //         // test here collisions
-    //         std::cout << "Checking " << i << " and " << j << std::endl;
-    //     }
-    // }
-    for (int i = 0; i < this->objects.size(); i++)
-    {
-        float distanceX = abs(this->objects[i]->center.x - this->center.x);
-        float distanceZ = abs(this->objects[i]->center.z - this->center.z);
-    }
     if (this->objects.size() > 0)
     {
-        std::cout << this->center.x << std::endl;
-        std::cout << this->center.z << std::endl;
-        std::cout << this->objects.size() << std::endl;
+        std::cout << "SIZE " << this->objects.size() << std::endl;
     }
-    
+    for (int i = 0; i < this->objects.size(); i++)
+    {
+        for (int j = i + 1; j < this->objects.size(); j++)
+        {
+            // test here collisions
+            std::cout << "got to here " << std::endl;
+            bool t = this->objects[i]->CheckCollision(this->objects[j]);
+            if (t)
+            {
+                std::cout << "found collision" << std::endl;
+            }
+        }
+    }
 }

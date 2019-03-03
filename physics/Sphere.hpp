@@ -7,11 +7,13 @@
 class Sphere : public Collider
 {
     public:
-        Sphere(glm::vec3 center, float radius, bool dynamic);
+        Sphere(glm::vec3 center, float radius, bool dynamic, ColliderType colliderType);
         ~Sphere();
-        bool CheckCollision(Triangle triangle);
-        bool CheckCollision(Sphere sphere);
-        bool CheckCollision(AABB box);
+
+        bool CheckCollision(std::shared_ptr<Collider> collider);
+        bool CheckCollision(std::shared_ptr<Triangle> triangle);
+        bool CheckCollision(std::shared_ptr<Sphere> sphere);
+        bool CheckCollision(std::shared_ptr<AABB> box);
     private:
         unsigned int radius;
         
