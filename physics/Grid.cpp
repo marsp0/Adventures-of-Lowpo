@@ -1,12 +1,11 @@
 #include "Grid.hpp"
+#include <set>
 #include <iostream>
 #include <unordered_map>
-#include <set>
 
 Grid::Grid(float gridLength, float halfWidth) : gridLength(gridLength), cellsInRow(ceilf(gridLength / (2 * halfWidth))), halfWidth(halfWidth)
 {
-    std::cout << this->cellsInRow << std::endl;
-
+    this->collisionDetector = std::make_shared<CollisionDetector>();
     this->cells.resize(this->cellsInRow);
     for (int row = 0; row < this->cells.size() ; row++)
     {
@@ -18,8 +17,6 @@ Grid::Grid(float gridLength, float halfWidth) : gridLength(gridLength), cellsInR
             this->cells[row][col] = std::make_shared<Cell>(glm::vec3(x, 0.f, z), halfWidth);
         }
     }
-    std::cout << this->cells.size() << std::endl;
-    std::cout << this->cells[0].size() << std::endl;
 }
 
 int Grid::GetInsertCol(glm::vec3 point)
@@ -81,8 +78,7 @@ void Grid::CheckCollisions()
     {
         for (int col = 0; col < this->cells[row].size(); col++)
         {
-
-            this->cells[row][col]->CheckCollisions();
+            this->cells[row][col]->CheckCollisions(this->collisionDetector);
         }
     }
 }
@@ -91,7 +87,7 @@ void Grid::Insert(std::shared_ptr<Collider> object)
 {
     int col = this->GetInsertCol(object->center);
     int row = this->GetInsertRow(object->center);
-    this->cells[row][col]->objects.push_back(object);
+    this->cells[row][col]->Insert(object);
 }
 
 void Grid::Insert(std::shared_ptr<Triangle> object)
@@ -137,7 +133,7 @@ void Grid::Insert(std::shared_ptr<Triangle> object)
     }
     for (auto it = cellCoordinates.begin(); it != cellCoordinates.end(); it++)
     {
-        this->cells[it->first][it->second]->objects.push_back(object);
+        this->cells[it->first][it->second]->Insert(object);
     }
 }
 
@@ -158,7 +154,6 @@ void Grid::Insert(std::shared_ptr<AABB> object)
         if (i % 2 == 0)
         {
             point.x = object->center.x - object->axisRadii.x;
-            std::cout << "dsadsadsadsa "<< object->center.x << " " <<  object->axisRadii.x << std::endl;
         }
         else
             point.x = object->center.x + object->axisRadii.x;
@@ -167,7 +162,6 @@ void Grid::Insert(std::shared_ptr<AABB> object)
             point.z = object->center.z - object->axisRadii.z;
         else
             point.z = object->center.z + object->axisRadii.z;
-        std::cout << point.x << " " << point.y << " "<<point.z<<std::endl;
         pointsToCheck.push_back(point);
     }
     // insert the points
@@ -175,12 +169,10 @@ void Grid::Insert(std::shared_ptr<AABB> object)
     {
         int row = this->GetInsertRow(pointsToCheck[i]);
         int col = this->GetInsertCol(pointsToCheck[i]);
-        std::cout << "ROW AND COL " << row << "--" << col << std::endl;
         cellCoordinates.insert(std::make_pair(row,col));
     }
-    std::cout << "ds " << cellCoordinates.size() << "---" << pointsToCheck.size()<< std::endl;
     for (auto it = cellCoordinates.begin(); it != cellCoordinates.end() ; it++)
     {
-        this->cells[it->first][it->second]->objects.push_back(object);
+        this->cells[it->first][it->second]->Insert(object);
     }
 }

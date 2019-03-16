@@ -24,6 +24,9 @@ class RigidBody
         void SetInertiaTensor(glm::mat3 inertiaTensor);
         glm::mat3 GetInertiaTensor();
 
+        glm::mat3 GetInertiaTensorWorld();
+        glm::mat3 GetInverseInertiaTensorWorld();
+
         void SetInverseInertiaTensor(glm::mat3 inverseInertiaTensor);
         glm::mat3 GetInverseInertiaTensor();
 
@@ -43,8 +46,10 @@ class RigidBody
         glm::vec3 GetAngularVelocity();
 
     private:
+    
         float inverseMass;
         glm::mat3 inverseInertiaTensor;
+        glm::mat3 inverseInertiaTensorWorld;
         glm::vec3 position;
         glm::vec3 velocity;
         glm::vec3 acceleration;

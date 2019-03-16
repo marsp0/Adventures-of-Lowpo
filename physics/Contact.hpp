@@ -1,16 +1,24 @@
 #pragma once
 
 #include <glm/glm.hpp>
-
+/* 
+Contact represents a single contact between 2 colliders.
+ */
 class Contact
 {
     public:
-        // what we need
-        // Collision Point
+
+        /* 
+        Holds the point of contact in _______ space 
+        */
         glm::vec3 contactPoint;
-        // Contact Normal
+        /* 
+        Contact normal 
+        */
         glm::vec3 contactNormal;
-        // Penetration Depth
+        /*
+        Penetration value 
+        */
         float penetration;
     private:
 };

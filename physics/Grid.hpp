@@ -2,25 +2,51 @@
 
 #include <memory>
 #include <vector>
-#include "Collider.hpp"
-#include "Triangle.hpp"
-#include "Sphere.hpp"
 #include "AABB.hpp"
 #include "Cell.hpp"
+#include "Sphere.hpp"
+#include "Collider.hpp"
+#include "Triangle.hpp"
+#include "CollisionDetector.hpp"
 
 class Grid
 {
     public:
         
+        /* 
+        Divides the 3d space into a 2d grid
+         */
         Grid(float gridLength, float halfWidth);
-        void Insert(std::shared_ptr<Sphere>     object);
+        /* 
+        Insert a Collider collider
+         */
         void Insert(std::shared_ptr<Collider>   object);
+        /* 
+        Insert a Sphere collider
+         */
+        void Insert(std::shared_ptr<Sphere>     object);
+        /* 
+        Insert a Triangle collider
+         */
         void Insert(std::shared_ptr<Triangle>   object);
+        /* 
+        Insert an AABB collider
+         */
         void Insert(std::shared_ptr<AABB> object);
 
+        /* 
+        Deletes an object from the grid.
+         */
         void Delete(std::shared_ptr<Collider>   object);
+
+        /* 
+        Update takes care of the collision check and the collision resolution.
+         */
         void Update(std::shared_ptr<Collider>   object);
         
+        /*
+        Performs a collision check on all the cells and generates contact data.
+         */
         void CheckCollisions();
         
         int  GetInsertRow(glm::vec3 point);
@@ -28,8 +54,9 @@ class Grid
 
     private:
 
-        int cellsInRow;
-        float halfWidth;
-        float gridLength;
+        int     cellsInRow;
+        float   halfWidth;
+        float   gridLength;
+        std::shared_ptr<CollisionDetector> collisionDetector;
         std::vector< std::vector< std::shared_ptr<Cell> > > cells;
 };

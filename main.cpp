@@ -17,10 +17,12 @@ int main(int argc, char *argv[])
     points.push_back(glm::vec3(10.f,0.f,12.f));
     points.push_back(glm::vec3(32.f,0.f,19.f));
     points.push_back(glm::vec3(15.f,0.f,38.f));
-    std::shared_ptr<Triangle> triangle = std::make_shared<Triangle>(glm::vec3(20.f,0.f,20.f), glm::vec3(1.0f,1.f,1.f), points,false, ColliderType::TRIANGLE);
+    std::shared_ptr<Triangle> triangle = std::make_shared<Triangle>(glm::vec3(20.f,0.f,20.f), glm::vec3(1.0f,1.f,1.f), points, ColliderType::TRIANGLE, DynamicType::STATIC);
     grid.Insert(triangle);
-    std::shared_ptr<AABB> box = std::make_shared<AABB>(glm::vec3(20.f,20.f,20.f), glm::vec3(15.0f,50.f,15.f),false, ColliderType::BOX);
+    std::shared_ptr<AABB> box = std::make_shared<AABB>(glm::vec3(20.f,49.f,20.f), glm::vec3(15.0f,50.f,15.f), ColliderType::BOX, DynamicType::DYNAMIC);
     grid.Insert(box);
+    // std::shared_ptr<AABB> box1 = std::make_shared<AABB>(glm::vec3(20.f,20.f,20.f), glm::vec3(15.0f,50.f,15.f), ColliderType::BOX, DynamicType::DYNAMIC);
+    // grid.Insert(box1);
     // for (int i = 0; i < 20000; i++)
     // {
     //     std::shared_ptr<Triangle> triangle = std::make_shared<Triangle>(glm::vec3(rand() % 200, rand() % 200, rand() % 200),glm::vec3(1.0f,1.f,1.f), false);

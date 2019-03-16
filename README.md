@@ -1,6 +1,6 @@
 # Adventures of Lowpo
 
-3D game made from scratch (low poly RPG) using C++ and OpenGL. The progress board for the game can be found [here](https://trello.com/b/SIsTXK57/adventures-of-lowpo).
+3D game made from scratch (low poly RPG) using C++ and OpenGL.
 
 ### Credits
 
