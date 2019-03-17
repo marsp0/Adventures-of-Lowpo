@@ -1,6 +1,6 @@
 Physics System:
     ☐ GJK
     ☐ Finish Collision detector implementation
-    ☐ Implement AABB -> Sphere Collision check 
+    ✘ Implement AABB -> Sphere Collision check @cancelled(19-03-17 16:48)
     ☐ Add enum for different type of dynamic types.
         We dont want animals and player to respond to physics forces as normal objects do

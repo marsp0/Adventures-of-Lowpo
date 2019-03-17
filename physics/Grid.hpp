@@ -4,7 +4,6 @@
 #include <vector>
 #include "AABB.hpp"
 #include "Cell.hpp"
-#include "Sphere.hpp"
 #include "Collider.hpp"
 #include "Triangle.hpp"
 #include "CollisionDetector.hpp"
@@ -21,10 +20,6 @@ class Grid
         Insert a Collider collider
          */
         void Insert(std::shared_ptr<Collider>   object);
-        /* 
-        Insert a Sphere collider
-         */
-        void Insert(std::shared_ptr<Sphere>     object);
         /* 
         Insert a Triangle collider
          */

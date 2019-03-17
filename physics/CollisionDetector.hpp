@@ -8,7 +8,6 @@
 #include "AABB.hpp"
 #include "Collider.hpp"
 #include "Triangle.hpp"
-#include "Sphere.hpp"
 
 /* 
 Collision detector contains all the logic that checks if two colliders are intersecting.
@@ -22,15 +21,9 @@ class CollisionDetector
 
         std::shared_ptr<Collision> AABBToAABB(std::shared_ptr<AABB> first, std::shared_ptr<AABB> second);
         bool AABBToTriangle(std::shared_ptr<AABB> box, std::shared_ptr<Triangle> triangle);
-        std::shared_ptr<Collision> AABBToSphere(std::shared_ptr<AABB> box, std::shared_ptr<Sphere> sphere);
 
         std::shared_ptr<Collision> TriangleToTriangle(std::shared_ptr<Triangle> first, std::shared_ptr<Triangle> second);
-        std::shared_ptr<Collision> TriangleToSphere(std::shared_ptr<Triangle> triangle, std::shared_ptr<Sphere> sphere);
         bool TriangleToAABB(std::shared_ptr<Triangle> triangle, std::shared_ptr<AABB> box);
-
-        // std::shared_ptr<Collision> CheckCollision(std::shared_ptr<Sphere> first, std::shared_ptr<Sphere> second);
-        // std::shared_ptr<Collision> CheckCollision(std::shared_ptr<Sphere> sphere, std::shared_ptr<AABB> box);
-        // std::shared_ptr<Collision> CheckCollision(std::shared_ptr<Sphere> sphere, std::shared_ptr<Triangle> triangle);
 
         /* 
         FindDistance

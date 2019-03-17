@@ -148,41 +148,17 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
     return this->FindDistance(pointsA, pointsB);
 }
 
-std::shared_ptr<Collision> CollisionDetector::AABBToSphere(std::shared_ptr<AABB> box, std::shared_ptr<Sphere> sphere)
-{
-    
-}
-
 std::shared_ptr<Collision> CollisionDetector::TriangleToTriangle(std::shared_ptr<Triangle> first, std::shared_ptr<Triangle> second)
 {
 
 }
 
-std::shared_ptr<Collision> CollisionDetector::TriangleToSphere(std::shared_ptr<Triangle> triangle, std::shared_ptr<Sphere> sphere)
-{
-
-}
 
 // std::shared_ptr<Collision> CollisionDetector::CheckCollision(std::shared_ptr<Triangle> triangle, std::shared_ptr<AABB> box)
 bool CollisionDetector::TriangleToAABB(std::shared_ptr<Triangle> triangle, std::shared_ptr<AABB> box)
 {
     return this->AABBToTriangle(box, triangle);
 }
-
-// std::shared_ptr<Collision> CollisionDetector::CheckCollision(std::shared_ptr<Sphere> first, std::shared_ptr<Sphere> second)
-// {
-
-// }
-
-// std::shared_ptr<Collision> CollisionDetector::CheckCollision(std::shared_ptr<Sphere> sphere, std::shared_ptr<AABB> box)
-// {
-
-// }
-
-// std::shared_ptr<Collision> CollisionDetector::CheckCollision(std::shared_ptr<Sphere> sphere, std::shared_ptr<Triangle> triangle)
-// {
-
-// }
 
 bool CollisionDetector::FindDistance(std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB)
 {

@@ -137,11 +137,6 @@ void Grid::Insert(std::shared_ptr<Triangle> object)
     }
 }
 
-void Grid::Insert(std::shared_ptr<Sphere> object)
-{
-    // TODO : Implement
-}
-
 void Grid::Insert(std::shared_ptr<AABB> object)
 {
     std::vector<glm::vec3> pointsToCheck;

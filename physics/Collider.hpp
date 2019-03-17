@@ -7,7 +7,6 @@
 enum ColliderType
 {
     TRIANGLE,
-    SPHERE,
     BOX,
     PLANE
 };
