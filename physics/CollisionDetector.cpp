@@ -46,103 +46,6 @@ std::shared_ptr<Collision> CollisionDetector::AABBToAABB(std::shared_ptr<AABB> f
 // std::shared_ptr<Collision> CollisionDetector::CheckCollision(std::shared_ptr<AABB> box, std::shared_ptr<Triangle> triangle)
 bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_ptr<Triangle> triangle)
 {
-//     // general idea
-//     // 1. test 9 axis resulting from the cross products of the edges of the AABB and the edges of the triangle
-//     //      - the edges of the AABB correspond with the directions of the world coordinates.
-//     // 2. test the 3 normals of the AABB
-//     // 3. test the triangle normal
-
-//     // p0,p1,p2 - the points projected on the current axis.
-//     // r - "radius" of the AABB on the current axis. The AABB center is on the origin of the axis.
-//     float projectedPoint0, projectedPoint1, projectedPoint2;
-//     float radius;
-//     float min;
-//     float max;
-
-//     // Moving triangle as conceptually moving the AABB to the origin
-//     glm::vec3 trianglePoint0 = triangle->points[0] - box->center;
-//     glm::vec3 trianglePoint1 = triangle->points[1] - box->center;
-//     glm::vec3 trianglePoint2 = triangle->points[2] - box->center;
-//     std::vector<glm::vec3> trianglePoints{trianglePoint0,trianglePoint1,trianglePoint2};
-
-//     // Triangle Edge vectors
-//     glm::vec3 triangleVector0 = trianglePoint1 - trianglePoint0;
-//     glm::vec3 triangleVector1 = trianglePoint2 - trianglePoint1;
-//     glm::vec3 triangleVector2 = trianglePoint0 - trianglePoint2;
-//     std::vector<glm::vec3> triangleVectors{triangleVector0, triangleVector1, triangleVector2};
-//     std::vector<glm::vec3> worldVectors{glm::vec3(1.f,0.f,0.f), glm::vec3(0.f,1.f,0.f), glm::vec3(0.f,0.f,1.f)};
-
-//     // AABB radius projected onto vector n
-//     // r = halfwidth.x * abs(dot(i,n)) + halfwidth.y * abs(dot(j,n)) + halfwidth.z * abs(dot(k,n))
-    
-//     for (int i = 0; i < worldVectors.size(); i++)
-//     {
-//         for (int j = 0; j < triangleVectors.size(); j++)
-//         {
-//             glm::vec3 projectionAxis = glm::cross(worldVectors[i],triangleVectors[j]);
-//             radius = box->axisRadii.x * abs(glm::dot(worldVectors[0],projectionAxis)) + \
-//                      box->axisRadii.y * abs(glm::dot(worldVectors[1],projectionAxis)) + \
-//                      box->axisRadii.z * abs(glm::dot(worldVectors[2],projectionAxis));
-//             projectedPoint0 = glm::dot(triangleVector0,projectionAxis);
-//             projectedPoint1 = glm::dot(triangleVector1,projectionAxis);
-//             projectedPoint2 = glm::dot(triangleVector2,projectionAxis);
-//             std::vector<float> temp{projectedPoint0, projectedPoint1, projectedPoint2};
-//             min = projectedPoint0;
-//             max = projectedPoint0;
-//             for (int k = 0; k < 3; k++)
-//             {
-//                 if (temp[k] < min)
-//                     min = temp[k];
-//                 if (temp[k] > max)
-//                     max = temp[k];
-//             }
-//             if (min > radius || max < -radius)
-//                 return nullptr;
-//         }
-//     }
-//     // test aabb normals
-//     float minX = trianglePoint0.x;
-//     float maxX = trianglePoint0.x;
-
-//     float minY = trianglePoint0.y;
-//     float maxY = trianglePoint0.y;
-
-//     float minZ = trianglePoint0.z;
-//     float maxZ = trianglePoint0.z;
-
-//     for (int i = 0; i < trianglePoints.size(); i++)
-//     {
-//         glm::vec3 current = trianglePoints[i];
-//         if (current.x < minX)
-//             minX = current.x;
-//         if (current.x > maxX)
-//             maxX = current.x;
-
-//         if (current.y < minY)
-//             minY = current.y;
-//         if (current.y > maxY)
-//             maxY = current.y;
-
-//         if (current.z < minZ)
-//             minZ = current.z;
-//         if (current.z > maxZ)
-//             maxZ = current.z;
-//     }
-
-//     if (maxX < -box->axisRadii.x || minX > box->axisRadii.x)
-//         return nullptr;
-//     if (maxY < -box->axisRadii.y || minY > box->axisRadii.y)
-//         return nullptr;
-//     if (maxZ < -box->axisRadii.z || minZ > box->axisRadii.z)
-//         return nullptr;
-
-//     // test triangle normal
-//     glm::vec3 triangleNormal = glm::cross(triangleVector0, triangleVector1);
-//     float normal = glm::dot(triangleNormal,trianglePoint0);
-//     radius = box->axisRadii.x * abs(triangleNormal.x) + box->axisRadii.y * abs(triangleNormal.y) + box->axisRadii.z * abs(triangleNormal.z);
-//     float s = glm::dot(triangleNormal,box->center) - glm::dot(triangleNormal,trianglePoint0);
-
-//     return abs(s) <= radius;
     std::vector<glm::vec3> pointsA = box->GetPoints();
     std::vector<glm::vec3> pointsB = triangle->GetPoints();
     return this->FindDistance(pointsA, pointsB);
@@ -169,10 +72,13 @@ bool CollisionDetector::FindDistance(std::vector<glm::vec3>& pointsA, std::vecto
     glm::vec3 d;
     int simplexSize = 1;
     direction = -b;
+    // TODO : add max_number_of_iterations or something to keep
+    // the loop from going infinity war.
     while(true)
     {
         a = this->GetSupportPoint(pointsA, direction) - this->GetSupportPoint(pointsB, -direction);
         simplexSize++;
+        std::cout << simplexSize << std::endl;
         if (glm::dot(direction,a) <= 0)
         {
             std::cout << "WE ARE NOT INTERSECTING" << std::endl;
@@ -180,7 +86,12 @@ bool CollisionDetector::FindDistance(std::vector<glm::vec3>& pointsA, std::vecto
         }
         if (this->DoSimplex(a,b,c,d,direction,simplexSize))
         {
-            std::cout << "INTERSECTION FOUND " << std::endl;
+            std::cout << "EPA CALL" << std::endl;
+            glm::vec3 minumTranslationVector = this->ExpandingPolytope(a,b,c,d,pointsA,pointsB);
+            std::cout << "MTV is" << std::endl;
+            std::cout << minumTranslationVector.x << std::endl;
+            std::cout << minumTranslationVector.y << std::endl;
+            std::cout << minumTranslationVector.z << std::endl;
             return true;
         }
     }
@@ -286,7 +197,6 @@ bool CollisionDetector::DoSimplex(glm::vec3& a, glm::vec3& b, glm::vec3& c, glm:
 
 glm::vec3 CollisionDetector::GetSupportPoint(std::vector<glm::vec3>& points, glm::vec3 direction)
 {
-    std::cout << points.size() << std::endl;
     assert(points.size() != 0);
     float max = glm::dot(direction, points[0]);
     int index = 0;
@@ -300,4 +210,125 @@ glm::vec3 CollisionDetector::GetSupportPoint(std::vector<glm::vec3>& points, glm
         }
     }
     return points[index];
+}
+
+glm::vec3 CollisionDetector::ExpandingPolytope(glm::vec3& a, glm::vec3& b, glm::vec3& c, glm::vec3& d, std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB)
+{
+    float EPA_TOLERANCE = 0.0001;
+    int EPA_MAX_NUM_FACES = 64;
+    int EPA_MAX_NUM_LOOSE_EDGES = 32;
+    int EPA_MAX_NUM_ITERATIONS = 64;
+
+    glm::vec3 faces[EPA_MAX_NUM_FACES][4];
+    glm::vec3 loose_edges[EPA_MAX_NUM_LOOSE_EDGES][2];
+
+    int num_faces = 4;
+    int num_loose_edges;
+
+    faces[0][0] = a;
+    faces[0][1] = b;
+    faces[0][2] = c;
+    faces[0][3] = glm::normalize(glm::cross(b - a, c - a));
+
+    faces[1][0] = a;
+    faces[1][1] = c;
+    faces[1][2] = d;
+    faces[1][3] = glm::normalize(glm::cross(c - a, d - a));
+
+    faces[2][0] = a;
+    faces[2][1] = d;
+    faces[2][2] = b;
+    faces[2][3] = glm::normalize(glm::cross(d - a, b - a));
+
+    faces[3][0] = b;
+    faces[3][1] = d;
+    faces[3][2] = c;
+    faces[3][3] = glm::normalize(glm::cross(d - b, c - b));
+
+    int index = 0;
+    for (int i = 0; i < EPA_MAX_NUM_ITERATIONS; i++)
+    {
+        // get the face closest to the origin.
+        float minDot = glm::dot(faces[0][3], faces[0][0]);
+        for (int j = 0; j < num_faces; j++)
+        {
+            float current = glm::dot(faces[j][3], faces[j][0]);
+            if (current < minDot)
+            {
+                minDot = current;
+                index = j;
+            }
+        }
+
+        glm::vec3 direction = faces[index][3];
+        glm::vec3 newPoint = this->GetSupportPoint(pointsA, direction) - this->GetSupportPoint(pointsB, -direction);
+
+        float temp = glm::dot(direction, newPoint) - minDot;
+        if ( temp < EPA_TOLERANCE)
+        {
+            return direction * glm::dot(newPoint, direction);
+        }
+
+        for (int k = 0; k < num_faces; k++)
+        {
+            // 6. if the current face "sees" the point. dot(face.normal, support.point - face.vertex[0]) > 0
+            glm::vec3 currentNormal = faces[k][3];
+            glm::vec3 currentVertex = faces[k][0];
+            if (glm::dot(currentNormal, newPoint - currentVertex) > 0)
+            {
+                // 7. add edges of triangle to loose edge list. If edges are there, delete them from the array.
+                for (int j = 0; j < 3; j++)
+                {
+                    glm::vec3 currentEdge[2] = {faces[k][j], faces[k][(j + 1) % 3]};
+                    bool found = false;
+                    for (int t = 0; t < num_loose_edges; t++)
+                    {
+                        if (loose_edges[t][1] == currentEdge[0] && loose_edges[t][0] == currentEdge[1])
+                        {
+                            loose_edges[t][0] = loose_edges[num_loose_edges-1][0];
+                            loose_edges[t][1] = loose_edges[num_loose_edges-1][1];
+                            num_loose_edges--;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        if (num_loose_edges >= EPA_MAX_NUM_LOOSE_EDGES) break;
+                        loose_edges[num_loose_edges][0] = currentEdge[0];
+                        loose_edges[num_loose_edges][1] = currentEdge[1];
+                        num_loose_edges++;
+                    }
+                }
+                faces[k][0] = faces[num_faces-1][0];
+                faces[k][1] = faces[num_faces-1][1];
+                faces[k][2] = faces[num_faces-1][2];
+                faces[k][3] = faces[num_faces-1][3];
+                num_faces--;
+                k--;
+            }
+        }
+
+        // Add faces to polytope.
+        for (int k =0; k < num_loose_edges; k++)
+        {
+            if (num_faces >= EPA_MAX_NUM_FACES) break;
+            faces[num_faces][0] = loose_edges[k][0];
+            faces[num_faces][1] = loose_edges[k][1];
+            faces[num_faces][2] = newPoint;
+            faces[num_faces][3] = glm::normalize(glm::cross(loose_edges[k][1] - loose_edges[k][0], newPoint - loose_edges[k][0]));
+
+            //Check for wrong normal to maintain CCW winding
+            float bias = 0.000001; //in case dot result is only slightly < 0 (because origin is on face)
+            if(dot(faces[num_faces][0], faces[num_faces][3]) + bias < 0){
+                glm::vec3 temp = faces[num_faces][0];
+                faces[num_faces][0] = faces[num_faces][1];
+                faces[num_faces][1] = temp;
+                faces[num_faces][3] = -faces[num_faces][3];
+            }
+            num_faces++;
+        }
+    }
+    std::cout << "EPA did not converge" << std::endl;
+    return faces[index][3] * glm::dot(faces[index][3], faces[index][0]);
 }

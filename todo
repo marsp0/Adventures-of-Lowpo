@@ -1,6 +1,10 @@
 Physics System:
-    ☐ GJK
+    ✔ GJK @done(19-03-18 19:22)
+    ✔ Expanding Polytope Algorithm @done(19-03-18 19:22)
     ☐ Finish Collision detector implementation
     ✘ Implement AABB -> Sphere Collision check @cancelled(19-03-17 16:48)
     ☐ Add enum for different type of dynamic types.
         We dont want animals and player to respond to physics forces as normal objects do
+
+19.03.2018:
+    ☐ Debug EPA failures
