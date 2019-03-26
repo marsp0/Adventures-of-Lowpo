@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <unordered_map>
 #include "CollisionDetector.hpp"
 
 
@@ -11,6 +11,7 @@ CollisionDetector::CollisionDetector()
 bool CollisionDetector::CheckCollision(std::shared_ptr<Collider> first, std::shared_ptr<Collider> second)
 {
     if (first->colliderType == ColliderType::BOX && second->colliderType == ColliderType::TRIANGLE || first->colliderType == ColliderType::TRIANGLE && second->colliderType == ColliderType::BOX)
+    {
         if (first->colliderType == ColliderType::BOX)
         {
             std::shared_ptr<AABB> box = std::dynamic_pointer_cast<AABB>(first);
@@ -20,7 +21,11 @@ bool CollisionDetector::CheckCollision(std::shared_ptr<Collider> first, std::sha
         std::shared_ptr<AABB> box = std::dynamic_pointer_cast<AABB>(second);
         std::shared_ptr<Triangle> triangle = std::dynamic_pointer_cast<Triangle>(first);
         return this->AABBToTriangle(box,triangle);
+    }
+    else if (first->colliderType == ColliderType::BOX && second->colliderType == ColliderType::BOX)
+    {
         
+    }
 }
 
 std::shared_ptr<Collision> CollisionDetector::AABBToAABB(std::shared_ptr<AABB> first, std::shared_ptr<AABB> second)
@@ -65,33 +70,65 @@ bool CollisionDetector::TriangleToAABB(std::shared_ptr<Triangle> triangle, std::
 
 bool CollisionDetector::FindDistance(std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB)
 {
+    std::vector<glm::vec3> supportMapA;
+    std::vector<glm::vec3> supportMapB;
+    std::vector<glm::vec3> supportMap;
+    // Setting an initial direction in which search for support points.
     glm::vec3 direction = glm::vec3(1.f,1.f,1.f);
+    // a,b,c,d will be the points of the generated simplices
+    // a will always be the newest point.
     glm::vec3 a;
-    glm::vec3 b = this->GetSupportPoint(pointsA, direction) - this->GetSupportPoint(pointsB, -direction);
+    glm::vec3 supportPointA = this->GetSupportPoint(pointsA, direction);
+    glm::vec3 supportPointB = this->GetSupportPoint(pointsB, -direction);
+    glm::vec3 b = supportPointA - supportPointB;
+    supportMapA.push_back(supportPointA);
+    supportMapB.push_back(supportPointB);
+    supportMap.push_back(b);
     glm::vec3 c;
     glm::vec3 d;
     int simplexSize = 1;
+    // setting the next search direction to the opposite of the vector that represents the point that was found above.
+    // This means that we want to go in the direction of the origin.
     direction = -b;
     // TODO : add max_number_of_iterations or something to keep
     // the loop from going infinity war.
     while(true)
     {
-        a = this->GetSupportPoint(pointsA, direction) - this->GetSupportPoint(pointsB, -direction);
+        glm::vec3 supportPointA = this->GetSupportPoint(pointsA, direction);
+        glm::vec3 supportPointB = this->GetSupportPoint(pointsB, -direction);
+        // getting the newest support point in the direction of the origin.
+        a = supportPointA - supportPointB;
+        supportMapA.push_back(supportPointA);
+        supportMapB.push_back(supportPointB);
+        supportMap.push_back(a);
         simplexSize++;
-        std::cout << simplexSize << std::endl;
+        // if the dot product between the direction and the found point is less then 0, it means
+        // that the point has not crossed the origin and so we dont have intersection.
+        //    p\
+        //      \    /a
+        //       \  /
+        //       /\/
+        //    d /  \
+        // p - plane passing through O
+        // d - search direction
+        // a - the newly found point.
         if (glm::dot(direction,a) <= 0)
         {
-            std::cout << "WE ARE NOT INTERSECTING" << std::endl;
             return false;
         }
+        // if they are in the same direction
+        // we want to check of the simplex we have is encapsulating the origin
+        // in our engine we only care for the tetrahedron as we are in 3D.
         if (this->DoSimplex(a,b,c,d,direction,simplexSize))
         {
-            std::cout << "EPA CALL" << std::endl;
-            glm::vec3 minumTranslationVector = this->ExpandingPolytope(a,b,c,d,pointsA,pointsB);
-            std::cout << "MTV is" << std::endl;
-            std::cout << minumTranslationVector.x << std::endl;
-            std::cout << minumTranslationVector.y << std::endl;
-            std::cout << minumTranslationVector.z << std::endl;
+            // if we have a tetrahedron encapsulating the origin, then
+            // we want to generate :
+            // Contact Normal - Done
+            // Penetration Depth - Done
+            // ContactPointA - IN PROGRESS
+            // ContactPointB - IN PROGRESS
+            glm::vec3 minumTranslationVector = this->ExpandingPolytope(a,b,c,d,pointsA,pointsB, supportMap, supportMapA, supportMapB);
+            // Call generate contact
             return true;
         }
     }
@@ -212,19 +249,31 @@ glm::vec3 CollisionDetector::GetSupportPoint(std::vector<glm::vec3>& points, glm
     return points[index];
 }
 
-glm::vec3 CollisionDetector::ExpandingPolytope(glm::vec3& a, glm::vec3& b, glm::vec3& c, glm::vec3& d, std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB)
+glm::vec3 CollisionDetector::ExpandingPolytope(glm::vec3& a, glm::vec3& b, glm::vec3& c, glm::vec3& d, std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB, std::vector<glm::vec3>& supportMap, std::vector<glm::vec3>& supportMapA, std::vector<glm::vec3>& supportMapB)
 {
     float EPA_TOLERANCE = 0.0001;
     int EPA_MAX_NUM_FACES = 64;
     int EPA_MAX_NUM_LOOSE_EDGES = 32;
     int EPA_MAX_NUM_ITERATIONS = 64;
 
+    
+    // faces will contain all the triangles of the polytop that we are generating.
+    // first 3 elements are the points and the last one is the normal to the triangle.
     glm::vec3 faces[EPA_MAX_NUM_FACES][4];
+    // 
     glm::vec3 loose_edges[EPA_MAX_NUM_LOOSE_EDGES][2];
 
     int num_faces = 4;
-    int num_loose_edges;
+    int num_loose_edges = 0;
 
+    // Generate the initial tetrahedron from the points we got from GJK.
+    // Triangle wounding is important. We are going counterclockwise
+    // b
+    // |\
+    // | \ a
+    // | /
+    // |/
+    // c
     faces[0][0] = a;
     faces[0][1] = b;
     faces[0][2] = c;
@@ -260,18 +309,63 @@ glm::vec3 CollisionDetector::ExpandingPolytope(glm::vec3& a, glm::vec3& b, glm::
             }
         }
 
+        // get a point in the direction of the normal to the triangle that is closest to the origin.
         glm::vec3 direction = faces[index][3];
-        glm::vec3 newPoint = this->GetSupportPoint(pointsA, direction) - this->GetSupportPoint(pointsB, -direction);
+        glm::vec3 supportPointA = this->GetSupportPoint(pointsA, direction);
+        glm::vec3 supportPointB = this->GetSupportPoint(pointsB, -direction);
+        glm::vec3 newPoint = supportPointA - supportPointB;
+        supportMapA.push_back(supportPointA);
+        supportMapB.push_back(supportPointB);
+        supportMap.push_back(newPoint);
 
-        float temp = glm::dot(direction, newPoint) - minDot;
-        if ( temp < EPA_TOLERANCE)
+        if ( glm::dot(direction, newPoint) - minDot < EPA_TOLERANCE)
         {
-            return direction * glm::dot(newPoint, direction);
+            glm::vec3 projectedPoint = direction * glm::dot(direction, newPoint);
+            std::cout << "Projected point" << std::endl;
+            std::cout << projectedPoint.x << std::endl;
+            std::cout << projectedPoint.y << std::endl;
+            std::cout << projectedPoint.z << std::endl;
+            std::vector<float> barycentricResult = this->BarycentricCoordinates(faces[index][0], faces[index][1], faces[index][2], projectedPoint);
+            float u = barycentricResult[0];
+            float v = barycentricResult[1];
+            float w = barycentricResult[2];
+            glm::vec3 Aa, Ab, Ac;
+            glm::vec3 Ba, Bb, Bc;
+            for (int i = 0; i < supportMap.size(); i++)
+            {
+                if (supportMap[i] == faces[index][0])
+                {
+                    Aa = supportMapA[i];
+                    Ba = supportMapB[i];
+                }
+                else if (supportMap[i] == faces[index][1])
+                {
+                    Ab = supportMapA[i];
+                    Bb = supportMapB[i];
+                }
+                else if (supportMap[i] == faces[index][2])
+                {
+                    Ac = supportMapA[i];
+                    Bc = supportMapB[i];
+                }
+            }
+            glm::vec3 contactPointA = (u * Aa + v * Ab + w * Ac);
+            glm::vec3 contactPointB = (u * Ba + v * Bb + w * Bc);
+            std::cout << "Object A - " << pointsA.size() << std::endl;
+            std::cout << contactPointA.x << std::endl;
+            std::cout << contactPointA.y << std::endl;
+            std::cout << contactPointA.z << std::endl;
+            std::cout << "-------" << std::endl;
+            std::cout << "Object B - " << pointsB.size() << std::endl;
+            std::cout << contactPointB.x << std::endl;
+            std::cout << contactPointB.y << std::endl;
+            std::cout << contactPointB.z << std::endl;
+            std::cout << "-------" << std::endl;
+            return projectedPoint;
         }
 
         for (int k = 0; k < num_faces; k++)
         {
-            // 6. if the current face "sees" the point. dot(face.normal, support.point - face.vertex[0]) > 0
             glm::vec3 currentNormal = faces[k][3];
             glm::vec3 currentVertex = faces[k][0];
             if (glm::dot(currentNormal, newPoint - currentVertex) > 0)
@@ -331,4 +425,25 @@ glm::vec3 CollisionDetector::ExpandingPolytope(glm::vec3& a, glm::vec3& b, glm::
     }
     std::cout << "EPA did not converge" << std::endl;
     return faces[index][3] * glm::dot(faces[index][3], faces[index][0]);
+}
+
+std::vector<float> CollisionDetector::BarycentricCoordinates(const glm::vec3 a, const glm::vec3 b, const glm::vec3 c, const glm::vec3 p)
+{
+    glm::vec3 v0 = b - a;
+    glm::vec3 v1 = c - a;
+    glm::vec3 v2 = p - a;
+
+    float d00 = glm::dot(v0, v0);
+    float d01 = glm::dot(v0, v1);
+    float d11 = glm::dot(v1, v1);
+    float d20 = glm::dot(v2, v0);
+    float d21 = glm::dot(v2, v1);
+
+    float denom = d00 * d11 - d01 * d01;
+
+    float v = (d11 * d20 - d01 * d21) / denom;
+    float w = (d00 * d21 - d01 * d20) / denom;
+    float u = 1.f - v - w;
+
+    return std::vector<float>{u,v,w};
 }

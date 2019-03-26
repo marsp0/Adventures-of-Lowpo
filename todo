@@ -1,10 +1,25 @@
 Physics System:
     ✔ GJK @done(19-03-18 19:22)
     ✔ Expanding Polytope Algorithm @done(19-03-18 19:22)
+    ☐ Contact point from EPA
     ☐ Finish Collision detector implementation
-    ✘ Implement AABB -> Sphere Collision check @cancelled(19-03-17 16:48)
+    ☐ Fix the support map vectors that we are using to get the points used to create a minkowski point. (ExpandingPolytopeAlgorithm)
     ☐ Add enum for different type of dynamic types.
         We dont want animals and player to respond to physics forces as normal objects do
+    ✘ Implement AABB -> Sphere Collision check @cancelled(19-03-17 16:48)
 
-19.03.2018:
-    ☐ Debug EPA failures
+24.03.2019 - 26.03.2019:
+    ☐ Document my GJK and EPA implementation;
+    ☐ Getting contact point/s
+        this is done with the help of the directions used to generate the support points for each convex object.
+
+23.03.2019:
+    http://chrishecker.com/Rigid_Body_Dynamics
+    ✔ Angular Motion Understanding @done(19-03-24 11:52)
+    ✔ Linear Motion Understanding @done(19-03-24 11:52)
+
+20.03.2019:
+    ✔ Modelling the scene @done(19-03-20 11:55)
+
+19.03.2019:
+    ✔ Debug EPA failures @done(19-03-19 21:25)

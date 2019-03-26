@@ -14,12 +14,12 @@ int main(int argc, char *argv[])
 //     game.Run();
     Grid grid = Grid(200.f, 10.f);
     std::vector<glm::vec3> points;
-    points.push_back(glm::vec3(1.f,0.f,0.f));
-    points.push_back(glm::vec3(2.f,2.f,2.f));
-    points.push_back(glm::vec3(3.f,1.f,0.f));
+    points.push_back(glm::vec3(0.f,0.f,0.f));
+    points.push_back(glm::vec3(1.f,0.f,2.f));
+    points.push_back(glm::vec3(2.f,0.f,0.f));
     std::shared_ptr<Triangle> triangle = std::make_shared<Triangle>(glm::vec3(20.f,0.f,20.f), glm::vec3(1.0f,1.f,1.f), points, ColliderType::TRIANGLE, DynamicType::STATIC);
     grid.Insert(triangle);
-    std::shared_ptr<AABB> box = std::make_shared<AABB>(glm::vec3(3.f,1.f,1.f), glm::vec3(1.0f,1.f,1.f), ColliderType::BOX, DynamicType::DYNAMIC);
+    std::shared_ptr<AABB> box = std::make_shared<AABB>(glm::vec3(2.3f,0.5f,.5f), glm::vec3(0.5f,0.5f,0.5f), ColliderType::BOX, DynamicType::DYNAMIC);
     grid.Insert(box);
     // std::shared_ptr<AABB> box1 = std::make_shared<AABB>(glm::vec3(20.f,20.f,20.f), glm::vec3(15.0f,50.f,15.f), ColliderType::BOX, DynamicType::DYNAMIC);
     // grid.Insert(box1);

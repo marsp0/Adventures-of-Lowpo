@@ -37,12 +37,17 @@ class CollisionDetector
          */
         glm::vec3 GetSupportPoint(std::vector<glm::vec3>& points, glm::vec3 direction);
 
+        /* 
+        DoSimplex return true if we have managed to encapsulate the origin in our simplex.
+         */
         bool DoSimplex(glm::vec3& a, glm::vec3& b, glm::vec3& c, glm::vec3& d, glm::vec3& direction, int& simplexSize);
 
         /* 
         EPA - very well explained implementation here : https://github.com/kevinmoran/GJK/blob/master/GJK.h
          */
-        glm::vec3 ExpandingPolytope(glm::vec3& a, glm::vec3& b, glm::vec3& c, glm::vec3& d, std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB);
+        glm::vec3 ExpandingPolytope(glm::vec3& a, glm::vec3& b, glm::vec3& c, glm::vec3& d, std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB, std::vector<glm::vec3>& supportMap, std::vector<glm::vec3>& supportMapA, std::vector<glm::vec3>& supportMapB);
+
+        std::vector<float> BarycentricCoordinates(const glm::vec3 a, const glm::vec3 b, const glm::vec3 c, const glm::vec3 p);
 
     private:
 };
