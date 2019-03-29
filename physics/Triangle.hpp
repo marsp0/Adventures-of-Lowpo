@@ -6,6 +6,16 @@
 
 #include "Collider.hpp"
 
+/* 
+Triangle Collider
+Points - {a,b,c}
+    // b
+    // |\
+    // | \ a
+    // | /
+    // |/
+    // c
+ */
 class Triangle : public Collider
 {
     public:

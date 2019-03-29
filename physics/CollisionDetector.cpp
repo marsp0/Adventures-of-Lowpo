@@ -45,15 +45,55 @@ std::shared_ptr<Collision> CollisionDetector::AABBToAABB(std::shared_ptr<AABB> f
     {
         return nullptr;
     }
-    // return true;
+    
 }
 
 // std::shared_ptr<Collision> CollisionDetector::CheckCollision(std::shared_ptr<AABB> box, std::shared_ptr<Triangle> triangle)
 bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_ptr<Triangle> triangle)
 {
+    // Strategy
+    // 1. check the axes of the AABB (world axes)
+    // 2. Check the cross products between the world axes and the edges of the triangle
+
     std::vector<glm::vec3> pointsA = box->GetPoints();
     std::vector<glm::vec3> pointsB = triangle->GetPoints();
-    return this->FindDistance(pointsA, pointsB);
+
+    std::vector<glm::vec3> separatingAxis;
+    glm::vec3 x = glm::vec3(1.f,0.f,0.f);
+    glm::vec3 y = glm::vec3(0.f,1.f,0.f);
+    glm::vec3 z = glm::vec3(0.f,0.f,1.f);
+    glm::vec3 a = pointsB[0];
+    glm::vec3 b = pointsB[1];
+    glm::vec3 c = pointsB[2];
+    glm::vec3 triangleNormal = glm::cross(b-a, c-a);
+
+    separatingAxis.push_back(x);
+    separatingAxis.push_back(y);
+    separatingAxis.push_back(z);
+
+    glm::vec3 ab = glm::cross(glm::cross(b - a, triangleNormal), b - a);
+    separatingAxis.push_back(glm::cross(x, ab));
+    separatingAxis.push_back(glm::cross(y, ab));
+    separatingAxis.push_back(glm::cross(z ,ab));
+
+    glm::vec3 ac = glm::cross(glm::cross(c - a, triangleNormal), c - a);
+    separatingAxis.push_back(glm::cross(x, ac));
+    separatingAxis.push_back(glm::cross(y, ac));
+    separatingAxis.push_back(glm::cross(z, ac));
+
+    glm::vec3 bc = glm::cross(glm::cross(c - b, triangleNormal), c - b);
+    separatingAxis.push_back(glm::cross(x, bc));
+    separatingAxis.push_back(glm::cross(y, bc));
+    separatingAxis.push_back(glm::cross(z, bc));
+
+    for (int i = 0; i < separatingAxis.size(); i++)
+    {
+        if (this->IsSeparatingAxis(pointsA, pointsB, separatingAxis[i]))
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 std::shared_ptr<Collision> CollisionDetector::TriangleToTriangle(std::shared_ptr<Triangle> first, std::shared_ptr<Triangle> second)
@@ -66,6 +106,19 @@ std::shared_ptr<Collision> CollisionDetector::TriangleToTriangle(std::shared_ptr
 bool CollisionDetector::TriangleToAABB(std::shared_ptr<Triangle> triangle, std::shared_ptr<AABB> box)
 {
     return this->AABBToTriangle(box, triangle);
+}
+
+bool CollisionDetector::IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB, glm::vec3 direction)
+{
+    float minA = glm::dot(direction, this->GetSupportPoint(pointsA, -direction));
+    float maxA = glm::dot(direction, this->GetSupportPoint(pointsA, direction));
+    float minB = glm::dot(direction, this->GetSupportPoint(pointsB, -direction));
+    float maxB = glm::dot(direction, this->GetSupportPoint(pointsB, direction));
+    if (minA > maxB || maxA < minB)
+    {
+        return true;
+    }
+    return false;
 }
 
 bool CollisionDetector::FindDistance(std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB)
