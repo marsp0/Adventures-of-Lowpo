@@ -25,7 +25,7 @@ class CollisionDetector
         std::shared_ptr<Collision> TriangleToTriangle(std::shared_ptr<Triangle> first, std::shared_ptr<Triangle> second);
         bool TriangleToAABB(std::shared_ptr<Triangle> triangle, std::shared_ptr<AABB> box);
 
-        bool IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB, glm::vec3 direction);
+        bool IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB, glm::vec3 direction, float& tempPenDepth);
         /* 
         NOT USED : FindDistance 
         Uses GJK to return the shortest distance between two convex polyhedras.

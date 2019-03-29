@@ -58,6 +58,10 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
     std::vector<glm::vec3> pointsA = box->GetPoints();
     std::vector<glm::vec3> pointsB = triangle->GetPoints();
 
+    float penetrationDepth = 10000.f;
+    float tempPenetrationDepth = 0.f;
+    glm::vec3 axis;
+
     std::vector<glm::vec3> separatingAxis;
     glm::vec3 x = glm::vec3(1.f,0.f,0.f);
     glm::vec3 y = glm::vec3(0.f,1.f,0.f);
@@ -88,9 +92,14 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
 
     for (int i = 0; i < separatingAxis.size(); i++)
     {
-        if (this->IsSeparatingAxis(pointsA, pointsB, separatingAxis[i]))
+        if (this->IsSeparatingAxis(pointsA, pointsB, separatingAxis[i], tempPenetrationDepth))
         {
             return false;
+        }
+        if (tempPenetrationDepth < penetrationDepth)
+        {
+            axis = separatingAxis[i];
+            penetrationDepth = tempPenetrationDepth;
         }
     }
     return true;
@@ -108,7 +117,7 @@ bool CollisionDetector::TriangleToAABB(std::shared_ptr<Triangle> triangle, std::
     return this->AABBToTriangle(box, triangle);
 }
 
-bool CollisionDetector::IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB, glm::vec3 direction)
+bool CollisionDetector::IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB, glm::vec3 direction, float& tempPenDepth)
 {
     float minA = glm::dot(direction, this->GetSupportPoint(pointsA, -direction));
     float maxA = glm::dot(direction, this->GetSupportPoint(pointsA, direction));
@@ -117,6 +126,14 @@ bool CollisionDetector::IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::v
     if (minA > maxB || maxA < minB)
     {
         return true;
+    }
+    if (minA < maxB)
+    {
+        tempPenDepth = abs(maxB - minA);
+    }
+    else
+    {
+        tempPenDepth = abs(maxA - minB);
     }
     return false;
 }
