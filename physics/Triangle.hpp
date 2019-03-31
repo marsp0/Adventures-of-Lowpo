@@ -24,8 +24,8 @@ class Triangle : public Collider
                     std::vector<glm::vec3>  points, 
                     ColliderType            colliderType,
                     DynamicType             dynamicType);
-        std::vector<glm::vec3> GetPoints();
+
+        // DATA
         glm::vec3 normal;
-        std::vector<glm::vec3> points;
     private:
 };

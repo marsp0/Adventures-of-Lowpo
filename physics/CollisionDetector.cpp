@@ -58,49 +58,114 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
     std::vector<glm::vec3> pointsA = box->GetPoints();
     std::vector<glm::vec3> pointsB = triangle->GetPoints();
 
-    float penetrationDepth = 10000.f;
-    float tempPenetrationDepth = 0.f;
-    glm::vec3 axis;
+    float       tempPenetrationDepth = 0.f;
+    float       penetrationDepthFace = 10000.f;
+    float       penetrationDepthEdge = 10000.f;
 
-    std::vector<glm::vec3> separatingAxis;
-    glm::vec3 x = glm::vec3(1.f,0.f,0.f);
-    glm::vec3 y = glm::vec3(0.f,1.f,0.f);
-    glm::vec3 z = glm::vec3(0.f,0.f,1.f);
-    glm::vec3 a = pointsB[0];
-    glm::vec3 b = pointsB[1];
-    glm::vec3 c = pointsB[2];
-    glm::vec3 triangleNormal = glm::cross(b-a, c-a);
+    glm::vec3   axisFace;
+    glm::vec3   axisEdge;
 
-    separatingAxis.push_back(x);
-    separatingAxis.push_back(y);
-    separatingAxis.push_back(z);
+    int indexEdgeA;
+    int indexEdgeB;
 
-    glm::vec3 ab = glm::cross(glm::cross(b - a, triangleNormal), b - a);
-    separatingAxis.push_back(glm::cross(x, ab));
-    separatingAxis.push_back(glm::cross(y, ab));
-    separatingAxis.push_back(glm::cross(z ,ab));
-
-    glm::vec3 ac = glm::cross(glm::cross(c - a, triangleNormal), c - a);
-    separatingAxis.push_back(glm::cross(x, ac));
-    separatingAxis.push_back(glm::cross(y, ac));
-    separatingAxis.push_back(glm::cross(z, ac));
-
-    glm::vec3 bc = glm::cross(glm::cross(c - b, triangleNormal), c - b);
-    separatingAxis.push_back(glm::cross(x, bc));
-    separatingAxis.push_back(glm::cross(y, bc));
-    separatingAxis.push_back(glm::cross(z, bc));
-
-    for (int i = 0; i < separatingAxis.size(); i++)
+    // NEW IMPLEMENTATION
+    // get edges and faces
+    const std::vector<std::pair<glm::vec3, float>>& facesA = box->GetFaces();
+    const std::vector<std::pair<glm::vec3, float>>& facesB = triangle->GetFaces();
+    const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesA = box->GetEdges();
+    const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesB = triangle->GetEdges();
+    for (int i = 0; i < facesA.size(); i++)
     {
-        if (this->IsSeparatingAxis(pointsA, pointsB, separatingAxis[i], tempPenetrationDepth))
+        if (this->IsSeparatingAxis(pointsA, pointsB, facesA[i].first, tempPenetrationDepth))
         {
             return false;
         }
-        if (tempPenetrationDepth < penetrationDepth)
+        if (tempPenetrationDepth < penetrationDepthFace)
         {
-            axis = separatingAxis[i];
-            penetrationDepth = tempPenetrationDepth;
+            axisFace = facesA[i].first;
+            penetrationDepthFace = tempPenetrationDepth; 
         }
+    }
+
+    for (int i = 0; i < facesB.size(); i++)
+    {
+        if (this->IsSeparatingAxis(pointsA, pointsB, facesB[i].first, tempPenetrationDepth))
+        {
+            return false;
+        }
+        if (tempPenetrationDepth < penetrationDepthFace)
+        {
+            axisFace = facesB[i].first;
+            penetrationDepthFace = tempPenetrationDepth; 
+        }
+    }
+
+    for (int i = 0; i < edgesA.size(); i++)
+    {
+        for (int j = 0; j < edgesB.size(); j++)
+        {
+            // take the cross
+            glm::vec3 edgeA = edgesA[i].second - edgesA[i].first;
+            glm::vec3 edgeB = edgesB[j].second - edgesB[j].first;
+            glm::vec3 separatingAxis = glm::cross(edgeA, edgeB);
+
+            // maintain normal orientation
+            if (glm::dot(edgesA[i].first - box->center, separatingAxis) < 0)
+            {
+                separatingAxis = -separatingAxis;
+            }
+
+            // SAT check
+            if (this->IsSeparatingAxis(pointsA, pointsB, separatingAxis, tempPenetrationDepth) && glm::length(separatingAxis) > 0.f)
+            {
+                return false;
+            }
+            if (tempPenetrationDepth < penetrationDepthEdge)
+            {
+                axisEdge = separatingAxis;
+                penetrationDepthEdge = tempPenetrationDepth;
+                indexEdgeA = i;
+                indexEdgeB = j;
+            }
+        }
+    }
+
+    // check if contact is edge edge or face whatever
+    if (penetrationDepthEdge < penetrationDepthFace)
+    {
+        // 1. retrieve edges
+        std::pair<glm::vec3, glm::vec3> edgeA = edgesA[indexEdgeA];
+        std::pair<glm::vec3, glm::vec3> edgeB = edgesB[indexEdgeB];
+        // 2. compute shortest distance between the two edges (perp vector to both of the edges)
+        // page 146 in Real-Time Collision Detection book
+        glm::vec3 d1 = edgeA.second - edgeA.first;
+        glm::vec3 d2 = edgeB.second - edgeB.first;
+        glm::vec3 r = edgeA.first - edgeB.first;
+        float a = glm::dot(d1, d1);
+        float b = glm::dot(d1, d2);
+        float c = glm::dot(d1, r);
+        float e = glm::dot(d2, d2);
+        float f = glm::dot(d2, r);
+        float d = a * e - b * b;
+        std::cout << d << std::endl;
+        assert(d != 0.f);
+
+        float s = (b * f - c * e) / d;
+        float t = (a * f - b * c) / d;
+
+        glm::vec3 l1 = edgeA.first + s * d1;
+        glm::vec3 l2 = edgeB.first + t * d2;
+
+        glm::vec3 result = 0.5f * (l2 - l1);
+        std::cout << result.x << std::endl;
+        std::cout << result.y << std::endl;
+        std::cout << result.z << std::endl;
+        // 3. return the point that is halfway through the vector in the same direction.
+    }
+    else
+    {
+        // face face contact logic here
+        
     }
     return true;
 }
@@ -123,17 +188,17 @@ bool CollisionDetector::IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::v
     float maxA = glm::dot(direction, this->GetSupportPoint(pointsA, direction));
     float minB = glm::dot(direction, this->GetSupportPoint(pointsB, -direction));
     float maxB = glm::dot(direction, this->GetSupportPoint(pointsB, direction));
-    if (minA > maxB || maxA < minB)
+    if (minA >= maxB || maxA <= minB)
     {
         return true;
     }
     if (minA < maxB)
     {
-        tempPenDepth = abs(maxB - minA);
+        tempPenDepth = maxB - minA;
     }
     else
     {
-        tempPenDepth = abs(maxA - minB);
+        tempPenDepth = maxA - minB;
     }
     return false;
 }
