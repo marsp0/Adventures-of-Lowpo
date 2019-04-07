@@ -14,10 +14,8 @@ int main(int argc, char *argv[])
 //     game.Run();
     Grid grid = Grid(200.f, 10.f);
     std::vector<glm::vec3> points;
-    // points.push_back(glm::vec3(0.0f,0.5f,0.0f));
-    points.push_back(glm::vec3(-0.07f,0.12f,0.0f));
+    points.push_back(glm::vec3(0.0f,0.0f,0.0f));
     points.push_back(glm::vec3(2.62f,0.58f,2.0f));
-    // points.push_back(glm::vec3(2.0f,0.5f,1.09f));
     points.push_back(glm::vec3(2.42,-0.32,0.5));
     std::shared_ptr<Triangle> triangle = std::make_shared<Triangle>(glm::vec3(20.0f,0.0f,20.0f), glm::vec3(1.0f,1.f,1.f), points, ColliderType::TRIANGLE, DynamicType::STATIC);
     grid.Insert(triangle);

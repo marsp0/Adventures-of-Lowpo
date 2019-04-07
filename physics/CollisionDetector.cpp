@@ -69,6 +69,7 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
 
     int indexEdgeA;
     int indexEdgeB;
+    int indexFace;
     bool indexFaceA = false;
 
     // NEW IMPLEMENTATION
@@ -90,6 +91,7 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
             axisFace = facesA[i].first;
             penetrationDepthFace = tempPenetrationDepth;
             indexFaceA = true;
+            indexFace = i;
         }
     }
 
@@ -105,6 +107,7 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
             axisFace = facesB[i].first;
             penetrationDepthFace = tempPenetrationDepth; 
             indexFaceA = false;
+            indexFace = i;
         }
     }
 
@@ -130,7 +133,7 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
             }
             // we need this as we can have multiple edges with the same penetration depth,
             // but where the actual distance between the edges is different. AABB one such collider
-            float edgeDistance = this->GetShortestDistanceBetweenEdges(edgesA[i], edgesB[j]);
+            float edgeDistance = this->ShortestDistanceBetweenEdges(edgesA[i], edgesB[j]);
             if (tempPenetrationDepth <= penetrationDepthEdge && edgeDistance < minDistanceBetweenEdges)
             {
                 // Add this check to the if above to make sure that we get the correct edge
@@ -146,7 +149,7 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
     // check if contact is edge edge or face whatever
     if (penetrationDepthEdge < penetrationDepthFace)
     {
-        // TODO : Refactor this part as the same chunk is present in GetShortestDistanceBetweenEdges
+        // TODO : Refactor this part as the same chunk is present in ShortestDistanceBetweenEdges
 
         // 1. retrieve edges
         std::pair<glm::vec3, glm::vec3> edgeA = edgesA[indexEdgeA];
@@ -179,88 +182,30 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
         // normal is the axis
         if (indexFaceA)
         {
-            // clip against the face of the box
-
-            // get 4 distinct planes 
-            std::vector<glm::vec3> planeNormals;
-            std::vector<glm::vec3> alreadyChecked;
-            std::vector<std::pair<glm::vec3, glm::vec3>> planeEdges;
-            for (int i = 0; i < edgesA.size(); i++)
+            // get all 4 planes to clip against
+            // clip the remaining points against the plane of the AABB with the same normal as the axisFase
+            std::vector<std::pair<glm::vec3, float>> planes;
+            for (int i = 0; i < box->faces.size(); i++)
             {
-                glm::vec3 first = edgesA[i].first;
-                glm::vec3 second = edgesA[i].second;
-                glm::vec3 edge = second - first;
-                glm::vec3 planeNormal = glm::cross(edge, axisFace);
-                if (glm::dot(first - box->center, planeNormal) < 0.0f)
+                glm::vec3 normal = box->faces[i].first;
+                if (glm::dot(normal, axisFace) == 0.0f)
                 {
-                    planeNormal = -planeNormal;
-                }
-                if (glm::dot(edge, axisFace) == 0.f)
-                {
-                    bool shouldAdd = true;
-                    for (int j = 0; j < planeNormals.size(); j++)
-                    {
-                        if (planeNormal == planeNormals[j])
-                        {
-                            shouldAdd = false;
-                            break;
-                        }
-                    }
-                    if (shouldAdd)
-                    {
-                        
-                        planeNormals.push_back(planeNormal);
-                        planeEdges.push_back(edgesA[i]);
-                    }
+                    planes.push_back(box->faces[i]);
                 }
             }
-            // clip against all
-            std::vector<glm::vec3> result;
-            for (int i = 0 ; i < planeEdges.size(); i++)
+            std::vector<glm::vec3> clippedPoints = this->Clip(pointsB, planes);
+            std::cout << clippedPoints.size() << std::endl;
+            for (int i = 0; i < clippedPoints.size(); i++)
             {
-                glm::vec3 first = planeEdges[i].first;
-                glm::vec3 second = planeEdges[i].second;
-                glm::vec3 currentEdge = second - first;
-                glm::vec3 planeNormal = planeNormals[i];
-
-                float d =   -planeNormal.x * first.x - \
-                            -planeNormal.y * first.y - \
-                            -planeNormal.z * first.z;
-                
-                std::vector<glm::vec3> temp = this->Clip(edgesB, std::make_pair(planeNormal, d));
-                result.insert(result.end(), temp.begin(), temp.end());
+                std::cout << clippedPoints[i].x << std::endl;
+                std::cout << clippedPoints[i].y << std::endl;
+                std::cout << clippedPoints[i].z << std::endl;
+                std::cout << "------------------" << std::endl;
             }
-            std::cout << result.size() <<std::endl;
-            // clip the result against (result is a vector of points and not edges. DOt product to determine
-            // if the points are below or above wont work)
         }
         else
         {
-            // clip against the face of the triangle
-
-            // construct the planes surrounding the triangle.
-            // we can use the edges and their normals to construct the planes.
-
-            // Clip against 3 planes
-            // get points "inside" of those 3 planes
             
-            std::vector<glm::vec3> result;
-            for (int i = 0; i < edgesB.size(); i++)
-            {
-                std::pair<glm::vec3, glm::vec3> currentEdge = edgesB[i];
-                glm::vec3 currentEdgeNormal = glm::cross(axisFace, currentEdge.second - currentEdge.first);
-                // flip normal if pointing in the wrong direction
-                if (glm::dot(currentEdge.first - triangle->center, currentEdgeNormal) < 0.f)
-                {
-                    currentEdgeNormal = -currentEdgeNormal;
-                }
-                float d =   -currentEdgeNormal.x * currentEdge.first.x - \
-                            -currentEdgeNormal.y * currentEdge.first.y - \
-                            -currentEdgeNormal.z * currentEdge.first.z;
-                std::vector<glm::vec3> temp = this->Clip(edgesB, std::make_pair(currentEdgeNormal, d));
-                result.insert(result.end(), temp.begin(), temp.end());
-            }
-            // clip against triangle face.
         }
     }
     return true;
@@ -297,7 +242,7 @@ bool CollisionDetector::IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::v
     return false;
 }
 
-float CollisionDetector::GetShortestDistanceBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
+float CollisionDetector::ShortestDistanceBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
 {
     glm::vec3 d1 = edgeA.second - edgeA.first;
     glm::vec3 d2 = edgeB.second - edgeB.first;
@@ -318,35 +263,38 @@ float CollisionDetector::GetShortestDistanceBetweenEdges(const std::pair<glm::ve
     return glm::length(l2 - l1);
 }
 
-std::vector<glm::vec3> CollisionDetector::Clip(const std::vector<std::pair<glm::vec3, glm::vec3>>& edges,  std::pair<glm::vec3, float> plane)
+std::vector<glm::vec3> CollisionDetector::Clip(std::vector<glm::vec3> points, std::vector<std::pair<glm::vec3, float>> planes)
 {
     // Used Sutherland-Hodgman for the clipping
     // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
 
     // NOTE : output may contain multiples of a single point.
-    std::vector<glm::vec3> output;
-    for (int i = 0; i < edges.size(); i++)
+    std::vector<glm::vec3> output = points;
+    for (int j = 0; j < planes.size(); j++)
     {
-        // compute intersection points
-        glm::vec3 v1 = edges[i].first;
-        glm::vec3 v2 = edges[i].second;
-        glm::vec3 intersectionPoint;
-        if (this->IntersectLinePlane(v1, v2, plane, intersectionPoint))
+        std::vector<glm::vec3> input = output;
+        output.clear();
+        std::pair<glm::vec3, float> plane = planes[j];
+        for (int i = 0; i < input.size(); i++)
         {
-            if (glm::dot(plane.first, v2) < 0)
+            // compute intersection points
+            glm::vec3 v1 = input[i];
+            glm::vec3 v2 = input[(i+1) % input.size()];
+            glm::vec3 intersectionPoint = this->IntersectLinePlane(v1, v2, plane);
+            if (glm::dot(plane.first, v2) < plane.second)
             {
-                if (glm::dot(plane.first, v1) > 0)
+                if (glm::dot(plane.first, v1) > plane.second)
                 {
                     output.push_back(intersectionPoint);
                 }
                 output.push_back(v2);
             }
-            else if (glm::dot(plane.first, v1) < 0)
+            else if (glm::dot(plane.first, v1) < plane.second)
             {
                 output.push_back(intersectionPoint);
             }
+            // check positions of points
         }
-        // check positions of points
     }
     return output;
 }
@@ -368,15 +316,23 @@ glm::vec3 CollisionDetector::GetSupportPoint(std::vector<glm::vec3>& points, glm
     return points[index];
 }
 
-bool CollisionDetector::IntersectLinePlane(glm::vec3 a, glm::vec3 b, std::pair<glm::vec3, float> plane, glm::vec3& result)
+glm::vec3 CollisionDetector::IntersectLinePlane(glm::vec3 a, glm::vec3 b, std::pair<glm::vec3, float> plane)
 {
     // line 175 of real-time collision detection.
     glm::vec3 ab = b - a;
+    glm::vec3 result = glm::vec3(0.f,0.f,0.f);
     float t = (plane.second - glm::dot(plane.first, a)) / (glm::dot(plane.first, ab));
     if (t >= 0.f && t <= 1.0f)
     {
         result = a + t * ab;
-        return true;
     }
-    return false;
+    return result;
+}
+
+glm::vec3 CollisionDetector::ProjectPointOntoPlane(glm::vec3 point, std::pair<glm::vec3, float> plane)
+{
+    glm::vec3 normal = plane.first;
+    glm::vec3 pointOnPlane = normal * plane.second;
+    glm::vec3 r = point - (glm::dot(normal, point - pointOnPlane)) * plane.first;
+    return r;
 }
