@@ -4,46 +4,65 @@
 AABB::AABB(glm::vec3 center, glm::vec3 axisRadii, std::vector<glm::vec3> points, ColliderType colliderType, DynamicType dynamicType) : 
                         Collider(center, points, colliderType, dynamicType), axisRadii(axisRadii)
 {
+    this->ComputeDerivedData();
+}
+
+void AABB::ComputeDerivedData()
+{
+    // compute points
+    this->points.clear();
+    this->points.push_back(glm::vec3(this->center.x - this->axisRadii.x, this->center.y - this->axisRadii.y, this->center.z - this->axisRadii.z));
+    this->points.push_back(glm::vec3(this->center.x + this->axisRadii.x, this->center.y - this->axisRadii.y, this->center.z - this->axisRadii.z));
+    this->points.push_back(glm::vec3(this->center.x + this->axisRadii.x, this->center.y - this->axisRadii.y, this->center.z + this->axisRadii.z));
+    this->points.push_back(glm::vec3(this->center.x - this->axisRadii.x, this->center.y - this->axisRadii.y, this->center.z + this->axisRadii.z));
+    this->points.push_back(glm::vec3(this->center.x - this->axisRadii.x, this->center.y + this->axisRadii.y, this->center.z - this->axisRadii.z));
+    this->points.push_back(glm::vec3(this->center.x + this->axisRadii.x, this->center.y + this->axisRadii.y, this->center.z - this->axisRadii.z));
+    this->points.push_back(glm::vec3(this->center.x + this->axisRadii.x, this->center.y + this->axisRadii.y, this->center.z + this->axisRadii.z));
+    this->points.push_back(glm::vec3(this->center.x - this->axisRadii.x, this->center.y + this->axisRadii.y, this->center.z + this->axisRadii.z));
+
     // compute edges
-    glm::vec3 a = this->points[0];
-    glm::vec3 b = this->points[1];
-    glm::vec3 c = this->points[2];
-    glm::vec3 d = this->points[3];
-    glm::vec3 e = this->points[4];
-    glm::vec3 f = this->points[5];
-    glm::vec3 g = this->points[6];
-    glm::vec3 h = this->points[7];
-    this->edges.push_back(std::make_pair(a, b));
-    this->edges.push_back(std::make_pair(a, d));
-    this->edges.push_back(std::make_pair(a, e));
-    this->edges.push_back(std::make_pair(b, c));
-    this->edges.push_back(std::make_pair(b, f));
-    this->edges.push_back(std::make_pair(c, d));
-    this->edges.push_back(std::make_pair(c, g));
-    this->edges.push_back(std::make_pair(d, h));
-    this->edges.push_back(std::make_pair(e, f));
-    this->edges.push_back(std::make_pair(e, h));
-    this->edges.push_back(std::make_pair(f, g));
-    this->edges.push_back(std::make_pair(g, h));
+    this->edges.clear();
+    this->edges.push_back(std::make_pair(this->points[0], this->points[1]));
+    this->edges.push_back(std::make_pair(this->points[0], this->points[3]));
+    this->edges.push_back(std::make_pair(this->points[0], this->points[4]));
+    this->edges.push_back(std::make_pair(this->points[1], this->points[2]));
+    this->edges.push_back(std::make_pair(this->points[1], this->points[5]));
+    this->edges.push_back(std::make_pair(this->points[2], this->points[3]));
+    this->edges.push_back(std::make_pair(this->points[2], this->points[6]));
+    this->edges.push_back(std::make_pair(this->points[3], this->points[7]));
+    this->edges.push_back(std::make_pair(this->points[4], this->points[5]));
+    this->edges.push_back(std::make_pair(this->points[4], this->points[7]));
+    this->edges.push_back(std::make_pair(this->points[5], this->points[6]));
+    this->edges.push_back(std::make_pair(this->points[6], this->points[7]));
 
     // compute faces
+    this->faces.clear();
 
     glm::vec3 x = glm::vec3(1.f,0.f,0.f);
     glm::vec3 y = glm::vec3(0.f,1.f,0.f);
     glm::vec3 z = glm::vec3(0.f,0.f,1.f);
 
-    float distance = glm::dot(x, b);
+    float distance = glm::dot(x, this->points[1]);
     this->faces.push_back(std::make_pair(x, distance));
-    distance = glm::dot(-x, a);
+    distance = glm::dot(-x, this->points[0]);
     this->faces.push_back(std::make_pair(-x, distance));
 
-    distance = glm::dot(y, e);
+    distance = glm::dot(y, this->points[4]);
     this->faces.push_back(std::make_pair(y, distance));
-    distance = glm::dot(-y, a);
+    distance = glm::dot(-y, this->points[0]);
     this->faces.push_back(std::make_pair(-y, distance));
 
-    distance = glm::dot(z, c);
+    distance = glm::dot(z, this->points[2]);
     this->faces.push_back(std::make_pair(z, distance));
-    distance = glm::dot(-z, a);
+    distance = glm::dot(-z, this->points[0]);
     this->faces.push_back(std::make_pair(-z, distance));
+
+    // compute points on faces.
+    this->pointsOnFaces.clear();
+    this->pointsOnFaces.push_back(this->points[1]);
+    this->pointsOnFaces.push_back(this->points[0]);
+    this->pointsOnFaces.push_back(this->points[4]);
+    this->pointsOnFaces.push_back(this->points[0]);
+    this->pointsOnFaces.push_back(this->points[2]);
+    this->pointsOnFaces.push_back(this->points[0]);
 }

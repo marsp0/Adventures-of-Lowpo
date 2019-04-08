@@ -133,7 +133,8 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
             }
             // we need this as we can have multiple edges with the same penetration depth,
             // but where the actual distance between the edges is different. AABB one such collider
-            float edgeDistance = this->ShortestDistanceBetweenEdges(edgesA[i], edgesB[j]);
+            glm::vec3 shortestVec = this->ShortestVectorBetweenEdges(edgesA[i], edgesB[j]);
+            float edgeDistance = glm::length(shortestVec);
             if (tempPenetrationDepth <= penetrationDepthEdge && edgeDistance < minDistanceBetweenEdges)
             {
                 // Add this check to the if above to make sure that we get the correct edge
@@ -242,7 +243,7 @@ bool CollisionDetector::IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::v
     return false;
 }
 
-float CollisionDetector::ShortestDistanceBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
+glm::vec3 CollisionDetector::ShortestVectorBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
 {
     glm::vec3 d1 = edgeA.second - edgeA.first;
     glm::vec3 d2 = edgeB.second - edgeB.first;
@@ -260,7 +261,7 @@ float CollisionDetector::ShortestDistanceBetweenEdges(const std::pair<glm::vec3,
 
     glm::vec3 l1 = edgeA.first + s * d1;
     glm::vec3 l2 = edgeB.first + t * d2;
-    return glm::length(l2 - l1);
+    return l2 - l1;
 }
 
 std::vector<glm::vec3> CollisionDetector::Clip(std::vector<glm::vec3> points, std::vector<std::pair<glm::vec3, float>> planes)

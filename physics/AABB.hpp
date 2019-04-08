@@ -7,7 +7,7 @@ class AABB : public Collider
     public:
 
         AABB(glm::vec3 center, glm::vec3 axisRadii, std::vector<glm::vec3> points, ColliderType colliderType, DynamicType dynamicType);
-
+        virtual void ComputeDerivedData();
         glm::vec3 axisRadii;
 
     private:

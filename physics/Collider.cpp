@@ -27,3 +27,9 @@ const std::vector<std::pair<glm::vec3, glm::vec3>>& Collider::GetEdges()
     assert(this->edges.size() > 0);
     return this->edges;
 }
+
+const std::vector<glm::vec3>& Collider::GetPointsOnFaces()
+{
+    assert(this->pointsOnFaces.size() > 0);
+    return this->pointsOnFaces;
+}

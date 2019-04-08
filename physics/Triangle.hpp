@@ -25,6 +25,8 @@ class Triangle : public Collider
                     ColliderType            colliderType,
                     DynamicType             dynamicType);
 
+        virtual void ComputeDerivedData();
+
         // DATA
         glm::vec3 normal;
     private:

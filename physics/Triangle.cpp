@@ -14,6 +14,11 @@ Triangle::Triangle( glm::vec3 center,
     {
         this->normal = -this->normal;
     }
+    this->ComputeDerivedData();
+}
+
+void Triangle::ComputeDerivedData()
+{
     // compute edges
     glm::vec3 a = this->points[0];
     glm::vec3 b = this->points[1];
@@ -21,11 +26,11 @@ Triangle::Triangle( glm::vec3 center,
     this->edges.push_back(std::make_pair(a, b));
     this->edges.push_back(std::make_pair(a, c));
     this->edges.push_back(std::make_pair(b, c));
-    
+
     // compute face
     // using the formula - nx(x - x0) + ny(y - y0) + nz(z - z0)
     // where n is the normal
     // x0, y0, z0 is a point on the plane
     float distance = normal.x * (- a.x) + normal.y * (- a.y) + normal.z * (- a.z);
-    this->faces.push_back(std::make_pair(normal, distance));  
+    this->faces.push_back(std::make_pair(normal, distance)); 
 }

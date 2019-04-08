@@ -36,12 +36,16 @@ class Collider
         const std::vector<glm::vec3>& GetPoints();
         const std::vector<std::pair<glm::vec3, glm::vec3>>& GetEdges();
         const std::vector<std::pair<glm::vec3, float>>& GetFaces();
+        const std::vector<glm::vec3>& GetPointsOnFaces();
+        virtual void ComputeDerivedData() = 0;
 
-        glm::vec3               center;
-        DynamicType             dynamicType;
-        ColliderType            colliderType;
-        std::vector<glm::vec3>  points;
+        glm::vec3    center;
+        DynamicType  dynamicType;
+        ColliderType colliderType;
 
-        std::vector<std::pair<glm::vec3, float>>        faces;
-        std::vector<std::pair<glm::vec3, glm::vec3>>    edges;
+        std::vector<glm::vec3> points;
+        std::vector<glm::vec3> pointsOnFaces;
+
+        std::vector<std::pair<glm::vec3, float>>     faces;
+        std::vector<std::pair<glm::vec3, glm::vec3>> edges;
 };

@@ -25,7 +25,7 @@ class CollisionDetector
         std::shared_ptr<Collision>  TriangleToTriangle(std::shared_ptr<Triangle> first, std::shared_ptr<Triangle> second);
         
         bool                        IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB, glm::vec3 direction, float& tempPenDepth);
-        float                       ShortestDistanceBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB);
+        glm::vec3                   ShortestVectorBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB);
         glm::vec3                   IntersectLinePlane(glm::vec3 a, glm::vec3 b, std::pair<glm::vec3, float> plane);
         glm::vec3                   ProjectPointOntoPlane(glm::vec3 point, std::pair<glm::vec3, float> plane);
         /* 
