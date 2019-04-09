@@ -151,31 +151,9 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
     if (penetrationDepthEdge < penetrationDepthFace)
     {
         // TODO : Refactor this part as the same chunk is present in ShortestDistanceBetweenEdges
-
-        // 1. retrieve edges
         std::pair<glm::vec3, glm::vec3> edgeA = edgesA[indexEdgeA];
         std::pair<glm::vec3, glm::vec3> edgeB = edgesB[indexEdgeB];
-        // 2. compute shortest distance between the two edges (perp vector to both of the edges)
-        // page 146 in Real-Time Collision Detection book
-        glm::vec3 d1 = edgeA.second - edgeA.first;
-        glm::vec3 d2 = edgeB.second - edgeB.first;
-        glm::vec3 r  = edgeA.first - edgeB.first;
-        float a = glm::dot(d1, d1);
-        float b = glm::dot(d1, d2);
-        float c = glm::dot(d1, r);
-        float e = glm::dot(d2, d2);
-        float f = glm::dot(d2, r);
-        float d = a * e - b * b;
-        assert(d != 0.f);
-
-        float s = (b * f - c * e) / d;
-        float t = (a * f - b * c) / d;
-
-        glm::vec3 l1 = edgeA.first + s * d1;
-        glm::vec3 l2 = edgeB.first + t * d2;
-
-        glm::vec3 result = 0.5f * (l2 - l1);
-        // 3. return the point that is halfway through the vector in the same direction.
+        glm::vec3 result = this->ShortestVectorBetweenEdges(edgeA, edgeB);
     }
     else
     {
@@ -194,19 +172,40 @@ bool CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_pt
                     planes.push_back(box->faces[i]);
                 }
             }
+            // find the 2 faces that are on the same axis
+            int secondFaceIndex;
+            for (int i = 0; i < facesA.size(); i++)
+            {
+                float dotProduct = glm::dot(facesA[i].first, axisFace);
+                if (dotProduct == -1.0f)
+                {
+                    secondFaceIndex = i;
+                }
+            }
             std::vector<glm::vec3> clippedPoints = this->Clip(pointsB, planes);
-            std::cout << clippedPoints.size() << std::endl;
+            std::vector<glm::vec3> result;
             for (int i = 0; i < clippedPoints.size(); i++)
             {
-                std::cout << clippedPoints[i].x << std::endl;
-                std::cout << clippedPoints[i].y << std::endl;
-                std::cout << clippedPoints[i].z << std::endl;
-                std::cout << "------------------" << std::endl;
+                float dotFaceOne = glm::dot(axisFace, clippedPoints[i] - box->pointsOnFaces[indexFace]);
+                float dotFaceTwo = glm::dot(facesA[secondFaceIndex].first, clippedPoints[i] - box->pointsOnFaces[secondFaceIndex]);
+                if ( dotFaceOne <= 0.f && dotFaceTwo <= 0.f)
+                {
+                    result.push_back(clippedPoints[i]);
+                }
+                
             }
         }
         else
         {
-            
+            std::vector<glm::vec3> result;
+            for (int i = 0; i < pointsA.size(); i++)
+            {
+                float dotProduct = glm::dot(axisFace, pointsA[i] - pointsB[0]);
+                if (dotProduct <= 0.f)
+                {
+                    result.push_back(pointsA[i]);
+                }
+            }
         }
     }
     return true;
