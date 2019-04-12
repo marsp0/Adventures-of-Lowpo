@@ -10,7 +10,7 @@ Triangle::Triangle( glm::vec3 center,
             Collider(center, points, colliderType, dynamicType), normal(normal)
 {
     // TODO : Decide if the normal will be passed or generated on the fly by the points passed
-    if (glm::dot(glm::vec3(0.f,1.f,0.f), this->normal) < 0)
+    if (glm::dot(glm::vec3(0.f,1.f,0.f), this->normal) < 0.f)
     {
         this->normal = -this->normal;
     }

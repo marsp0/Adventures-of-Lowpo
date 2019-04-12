@@ -17,7 +17,7 @@ void Cell::CheckCollisions(std::shared_ptr<CollisionDetector> detector)
         {
             std::shared_ptr<Collider> first = this->dynamicObjects[i];
             std::shared_ptr<Collider> second = this->staticObjects[j];
-            if (detector->CheckCollision(first,second))
+            if (detector->CheckCollision(first,second) != nullptr)
             {
                 std::cout << "Found one" << std::endl;
             }
@@ -30,7 +30,7 @@ void Cell::CheckCollisions(std::shared_ptr<CollisionDetector> detector)
         {
             std::shared_ptr<Collider> first = this->dynamicObjects[i];
             std::shared_ptr<Collider> second = this->dynamicObjects[j];
-            if (detector->CheckCollision(first,second))
+            if (detector->CheckCollision(first,second) != nullptr)
             {
                 std::cout << "Found one" << std::endl;
             }

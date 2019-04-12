@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     points.push_back(glm::vec3(0.0f,0.0f,0.0f));
     points.push_back(glm::vec3(2.62f,0.58f,2.0f));
     points.push_back(glm::vec3(2.42,-0.32,0.5));
-    std::shared_ptr<Triangle> triangle = std::make_shared<Triangle>(glm::vec3(20.0f,0.0f,20.0f), glm::vec3(1.0f,1.f,1.f), points, ColliderType::TRIANGLE, DynamicType::STATIC);
+    std::shared_ptr<Triangle> triangle = std::make_shared<Triangle>(glm::vec3(20.0f,0.0f,20.0f), glm::cross(points[1] - points[0], points[2] - points[0]), points, ColliderType::TRIANGLE, DynamicType::STATIC);
     grid.Insert(triangle);
     points.clear();
     glm::vec3 center = glm::vec3(2.3f,0.5f,.5f);
@@ -32,6 +32,20 @@ int main(int argc, char *argv[])
     points.push_back(glm::vec3(center.x - axisRadii.x, center.y + axisRadii.y, center.z + axisRadii.z));
     std::shared_ptr<AABB> box = std::make_shared<AABB>(center, axisRadii, points, ColliderType::BOX, DynamicType::DYNAMIC);
     grid.Insert(box);
+
+    points.clear();
+    center = glm::vec3(12.f,0.5f,.5f);
+    axisRadii = glm::vec3(0.5f,0.5f,0.5f);
+    points.push_back(glm::vec3(center.x - axisRadii.x, center.y - axisRadii.y, center.z - axisRadii.z));
+    points.push_back(glm::vec3(center.x + axisRadii.x, center.y - axisRadii.y, center.z - axisRadii.z));
+    points.push_back(glm::vec3(center.x + axisRadii.x, center.y - axisRadii.y, center.z + axisRadii.z));
+    points.push_back(glm::vec3(center.x - axisRadii.x, center.y - axisRadii.y, center.z + axisRadii.z));
+    points.push_back(glm::vec3(center.x - axisRadii.x, center.y + axisRadii.y, center.z - axisRadii.z));
+    points.push_back(glm::vec3(center.x + axisRadii.x, center.y + axisRadii.y, center.z - axisRadii.z));
+    points.push_back(glm::vec3(center.x + axisRadii.x, center.y + axisRadii.y, center.z + axisRadii.z));
+    points.push_back(glm::vec3(center.x - axisRadii.x, center.y + axisRadii.y, center.z + axisRadii.z));
+    std::shared_ptr<AABB> box1 = std::make_shared<AABB>(center, axisRadii, points, ColliderType::BOX, DynamicType::DYNAMIC);
+    grid.Insert(box1);
     // std::shared_ptr<AABB> box1 = std::make_shared<AABB>(glm::vec3(20.f,20.f,20.f), glm::vec3(15.0f,50.f,15.f), ColliderType::BOX, DynamicType::DYNAMIC);
     // grid.Insert(box1);
     // for (int i = 0; i < 20000; i++)
