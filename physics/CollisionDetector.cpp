@@ -72,11 +72,12 @@ std::shared_ptr<Collision> CollisionDetector::AABBToAABB(std::shared_ptr<AABB> f
     for (int i = 0; i < collisionPoints.size() ; i++)
     {
         Contact contact;
-        contact.contactPoint = collisionPoints[i];
-        contact.contactNormal = separatingAxis;
         contact.penetration = minPenetration;
+        contact.contactNormal = separatingAxis;
+        contact.contactPoint = collisionPoints[i];
+        collision->contacts.push_back(contact);
     }
-    return nullptr;
+    return collision;
 }
 
 std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_ptr<Triangle> triangle)
