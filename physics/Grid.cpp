@@ -101,40 +101,9 @@ void Grid::Insert(std::shared_ptr<Triangle> object)
     // get cell of P3
     // if we have 3 different quadrants, then we surely have an angle and thus need to check 
     // if the triangle is intersecting with the 4th cell
-    std::set<std::pair<int,int>> cellCoordinates;
-    std::unordered_map<int, int> rowSeenMap;
-    std::unordered_map<int, int> colSeenMap;
-    for (int i = 0; i < object->points.size(); i++)
-    {
-        int col = this->GetInsertCol(object->points[i]);
-        int row = this->GetInsertRow(object->points[i]);
-        rowSeenMap[row]++;
-        colSeenMap[col]++;
-        cellCoordinates.insert(std::make_pair(row,col));
-    }
-    if (cellCoordinates.size() == 3)
-    {
-        int row, col;
-        for (auto it=rowSeenMap.begin(); it != rowSeenMap.end(); it++)
-        {
-            if (it->second == 1)
-            {
-                row = it->second;
-            }
-        }
-        for (auto it=colSeenMap.begin(); it != colSeenMap.end(); it++)
-        {
-            if (it->second == 1)
-            {
-                col = it->second;
-            }
-        }
-        cellCoordinates.insert(std::make_pair(row,col));
-    }
-    for (auto it = cellCoordinates.begin(); it != cellCoordinates.end(); it++)
-    {
-        this->cells[it->first][it->second]->Insert(object);
-    }
+    int col = this->GetInsertCol(object->center);
+    int row = this->GetInsertRow(object->center);
+    this->cells[row][col]->Insert(object);
 }
 
 void Grid::Insert(std::shared_ptr<AABB> object)

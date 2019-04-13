@@ -36,11 +36,16 @@ std::shared_ptr<Collision> CollisionDetector::AABBToAABB(std::shared_ptr<AABB> f
 {
     std::vector<glm::vec3> pointsA = first->GetPoints();
     std::vector<glm::vec3> pointsB = second->GetPoints();
+    const std::vector<glm::vec3>   pointsOnFacesA = first->GetPointsOnFaces();
     const std::vector<std::pair<glm::vec3, float>> facesA = first->GetFaces();
 
-    float minPenetration = 100000.0f;
-    float tempMinPenetration = 0.f;
     int faceIndex;
+    glm::vec3 separatingAxis;
+    float tempMinPenetration = 0.f;
+    float minPenetration = 100000.0f;
+
+    std::vector<glm::vec3> collisionPoints;
+
     for (int i = 0; i < facesA.size(); i++)
     {
         if (this->IsSeparatingAxis(pointsA, pointsB, facesA[i].first, tempMinPenetration))
@@ -51,9 +56,26 @@ std::shared_ptr<Collision> CollisionDetector::AABBToAABB(std::shared_ptr<AABB> f
         {
             minPenetration = tempMinPenetration;
             faceIndex = i;
+            separatingAxis = facesA[i].first;
         }
     }
-
+    for (int i = 0; i < pointsB.size(); i++)
+    {
+        float dotProduct = glm::dot(separatingAxis, pointsB[i] - pointsOnFacesA[faceIndex]);
+        if (dotProduct <= 0.f)
+        {
+            collisionPoints.push_back(pointsB[i]);
+        }
+    }
+    std::vector<Contact> contacts;
+    std::shared_ptr<Collision> collision = std::make_shared<Collision>(first, second, contacts);
+    for (int i = 0; i < collisionPoints.size() ; i++)
+    {
+        Contact contact;
+        contact.contactPoint = collisionPoints[i];
+        contact.contactNormal = separatingAxis;
+        contact.penetration = minPenetration;
+    }
     return nullptr;
 }
 
@@ -78,10 +100,12 @@ std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AAB
     // NEW IMPLEMENTATION
     // get edges and faces
     std::vector<glm::vec3> pointsA = box->GetPoints();
+    const std::vector<glm::vec3> pointsOnFacesA = box->GetPointsOnFaces();
     const std::vector<std::pair<glm::vec3, float>>&     facesA = box->GetFaces();
     const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesA = box->GetEdges();
 
     std::vector<glm::vec3> pointsB = triangle->GetPoints();
+    const std::vector<glm::vec3> pointsOnFacesB = triangle->GetPointsOnFaces();
     const std::vector<std::pair<glm::vec3, float>>&     facesB = triangle->GetFaces();
     const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesB = triangle->GetEdges();
 
@@ -92,8 +116,11 @@ std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AAB
         {
             return nullptr;
         }
-        if (tempPenetrationDepth <= minPenetrationDepth)
-        {
+        bool smaller = tempPenetrationDepth < minPenetrationDepth;
+        bool equal = tempPenetrationDepth == minPenetrationDepth;
+        bool sameDir = glm::dot(triangle->center - box->center, facesA[i].first) > 0.f;
+        if (smaller || equal && sameDir)
+        {   
             indexFace = i;
             indexFaceA = true;
             isFaceCollision = true;
@@ -174,12 +201,12 @@ std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AAB
             // get all 4 planes to clip against
             // clip the remaining points against the plane of the AABB with the same normal as the axisFase
             std::vector<std::pair<glm::vec3, float>> planes;
-            for (int i = 0; i < box->faces.size(); i++)
+            for (int i = 0; i < facesA.size(); i++)
             {
-                glm::vec3 normal = box->faces[i].first;
+                glm::vec3 normal = facesA[i].first;
                 if (glm::dot(normal, separatingAxis) == 0.0f)
                 {
-                    planes.push_back(box->faces[i]);
+                    planes.push_back(facesA[i]);
                 }
             }
             // find the 2 faces that are on the same axis
@@ -195,8 +222,8 @@ std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AAB
             std::vector<glm::vec3> clippedPoints = this->Clip(pointsB, planes);
             for (int i = 0; i < clippedPoints.size(); i++)
             {
-                float dotFaceOne = glm::dot(separatingAxis, clippedPoints[i] - box->pointsOnFaces[indexFace]);
-                float dotFaceTwo = glm::dot(facesA[secondFaceIndex].first, clippedPoints[i] - box->pointsOnFaces[secondFaceIndex]);
+                float dotFaceOne = glm::dot(separatingAxis, clippedPoints[i] - pointsOnFacesA[indexFace]);
+                float dotFaceTwo = glm::dot(facesA[secondFaceIndex].first, clippedPoints[i] - pointsOnFacesA[secondFaceIndex]);
                 if ( dotFaceOne <= 0.f && dotFaceTwo <= 0.f)
                 {
                     collisionPoints.push_back(clippedPoints[i]);
@@ -220,9 +247,12 @@ std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AAB
     std::shared_ptr<Collision> collision = std::make_shared<Collision>(box, triangle, contacts);
     for (int i = 0; i < collisionPoints.size(); i++)
     {
+        glm::vec3 point = collisionPoints[i];
         Contact contact = Contact();
+        // TODO : does the pen depth of each point need be the correct one ? 
+        // contact.penetration = glm::length(point - this->ProjectPointOntoPlane(point, ));
         contact.penetration = minPenetrationDepth;
-        contact.contactPoint = collisionPoints[i];
+        contact.contactPoint = point;
         contact.contactNormal = separatingAxis;
         collision->contacts.push_back(contact);
     }
@@ -254,7 +284,7 @@ bool CollisionDetector::IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::v
     return false;
 }
 
-glm::vec3 GetContactBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
+glm::vec3 CollisionDetector::GetContactBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
 {
     glm::vec3 d1 = edgeA.second - edgeA.first;
     glm::vec3 d2 = edgeB.second - edgeB.first;

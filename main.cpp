@@ -17,7 +17,9 @@ int main(int argc, char *argv[])
     points.push_back(glm::vec3(0.0f,0.0f,0.0f));
     points.push_back(glm::vec3(2.62f,0.58f,2.0f));
     points.push_back(glm::vec3(2.42,-0.32,0.5));
-    std::shared_ptr<Triangle> triangle = std::make_shared<Triangle>(glm::vec3(20.0f,0.0f,20.0f), glm::cross(points[1] - points[0], points[2] - points[0]), points, ColliderType::TRIANGLE, DynamicType::STATIC);
+    // glm::vec3 normal = glm::cross(points[1] - points[0], points[2] - points[0]);
+    glm::vec3 normal = glm::vec3(1.f,1.f,1.f);
+    std::shared_ptr<Triangle> triangle = std::make_shared<Triangle>(glm::vec3(1.43f,0.02f,0.6), normal, points, ColliderType::TRIANGLE, DynamicType::STATIC);
     grid.Insert(triangle);
     points.clear();
     glm::vec3 center = glm::vec3(2.3f,0.5f,.5f);

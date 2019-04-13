@@ -43,6 +43,8 @@ class Collider
         DynamicType  dynamicType;
         ColliderType colliderType;
 
+    protected:
+
         std::vector<glm::vec3> points;
         std::vector<glm::vec3> pointsOnFaces;
 

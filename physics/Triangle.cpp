@@ -32,5 +32,8 @@ void Triangle::ComputeDerivedData()
     // where n is the normal
     // x0, y0, z0 is a point on the plane
     float distance = normal.x * (- a.x) + normal.y * (- a.y) + normal.z * (- a.z);
-    this->faces.push_back(std::make_pair(normal, distance)); 
+    this->faces.push_back(std::make_pair(normal, distance));
+
+    this->pointsOnFaces.clear();
+    this->pointsOnFaces.push_back(this->points[0]);
 }
