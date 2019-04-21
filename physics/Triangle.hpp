@@ -23,7 +23,8 @@ class Triangle : public Collider
                     glm::vec3               normal, 
                     std::vector<glm::vec3>  points, 
                     ColliderType            colliderType,
-                    DynamicType             dynamicType);
+                    DynamicType             dynamicType,
+                    std::shared_ptr<RigidBody> rigidBody);
 
         virtual void ComputeDerivedData();
 

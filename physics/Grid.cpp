@@ -19,68 +19,33 @@ Grid::Grid(float gridLength, float halfWidth) : gridLength(gridLength), cellsInR
     }
 }
 
-int Grid::GetInsertCol(glm::vec3 point)
+void Grid::Update(float deltaTime)
 {
-    // binary search for row
-    int low = 0;
-    int high = this->cellsInRow - 1;
-    while (high > low)
+    // integrate
+    for (int i = 0; i < this->objects.size(); i++)
     {
-        int mid = (high + low) / 2;
-        std::shared_ptr<Cell> midCell = this->cells[0][mid];
-        float distance = abs(point.x - midCell->center.x);
-        if (distance < this->halfWidth)
-        {
-            high = mid;
-            break;
-        }
-        else if (point.x < midCell->center.x)
-        {
-            high = mid - 1;
-        }
-        else if (point.x > midCell->center.x)
-        {
-            low = mid + 1;
-        }
+        this->objects[i]->Integrate(deltaTime);
     }
-    return high;
+    // perform collision check
+    std::vector<std::shared_ptr<Collision>> collisions = this->CheckCollisions();
+    // resolve the contacts from the previous step
+    this->collisionResolver->Solve(collisions);
+    // resolve interpenetration.
 }
 
-int Grid::GetInsertRow(glm::vec3 point)
+std::vector<std::shared_ptr<Collision>> Grid::CheckCollisions()
 {
-    int low = 0;
-    int high = this->cellsInRow - 1;
-    while (high > low)
-    {
-        int mid = (high + low) / 2;
-        std::shared_ptr<Cell> midCell = this->cells[mid][0];
-        float distance = abs(point.z - midCell->center.z);
-        if (distance < this->halfWidth)
-        {
-            high = mid;
-            break;
-        }
-        else if (point.z < midCell->center.z)
-        {
-            high = mid - 1;
-        }
-        else if (point.z > midCell->center.z)
-        {
-            low = mid + 1;
-        }
-    }
-    return high;
-}
-
-void Grid::CheckCollisions()
-{
-    for (int row =0; row < this->cells.size() ; row++)
+    // check current and adjacent cells
+    std::vector<std::shared_ptr<Collision>> collisions;
+    for (int row = 0; row < this->cells.size() ; row++)
     {
         for (int col = 0; col < this->cells[row].size(); col++)
         {
-            this->cells[row][col]->CheckCollisions(this->collisionDetector);
+            std::vector<std::shared_ptr<Collision>> temp = this->cells[row][col]->CheckCollisions(this->collisionDetector);
+            collisions.insert(collisions.end(), temp.begin(), temp.end());
         }
     }
+    return collisions;
 }
 
 void Grid::Insert(std::shared_ptr<Collider> object)
@@ -139,4 +104,57 @@ void Grid::Insert(std::shared_ptr<AABB> object)
     {
         this->cells[it->first][it->second]->Insert(object);
     }
+}
+
+int Grid::GetInsertCol(glm::vec3 point)
+{
+    // binary search for row
+    int low = 0;
+    int high = this->cellsInRow - 1;
+    while (high > low)
+    {
+        int mid = (high + low) / 2;
+        std::shared_ptr<Cell> midCell = this->cells[0][mid];
+        float distance = abs(point.x - midCell->center.x);
+        if (distance < this->halfWidth)
+        {
+            high = mid;
+            break;
+        }
+        else if (point.x < midCell->center.x)
+        {
+            high = mid - 1;
+        }
+        else if (point.x > midCell->center.x)
+        {
+            low = mid + 1;
+        }
+    }
+    return high;
+}
+
+int Grid::GetInsertRow(glm::vec3 point)
+{
+    int low = 0;
+    int high = this->cellsInRow - 1;
+    while (high > low)
+    {
+        int mid = (high + low) / 2;
+        std::shared_ptr<Cell> midCell = this->cells[mid][0];
+        float distance = abs(point.z - midCell->center.z);
+        if (distance < this->halfWidth)
+        {
+            high = mid;
+            break;
+        }
+        else if (point.z < midCell->center.z)
+        {
+            high = mid - 1;
+        }
+        else if (point.z > midCell->center.z)
+        {
+            low = mid + 1;
+        }
+    }
+    return high;
 }

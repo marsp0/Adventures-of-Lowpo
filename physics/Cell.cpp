@@ -8,8 +8,9 @@ Cell::Cell(glm::vec3 center, float halfWidth) : center(center), halfWidth(halfWi
 {
 }
 
-void Cell::CheckCollisions(std::shared_ptr<CollisionDetector> detector)
+std::vector<std::shared_ptr<Collision>> Cell::CheckCollisions(std::shared_ptr<CollisionDetector> detector)
 {
+    std::vector<std::shared_ptr<Collision>> collisions;
     // Environment collisions
     for (int i = 0; i < this->dynamicObjects.size(); i++)
     {
@@ -17,9 +18,10 @@ void Cell::CheckCollisions(std::shared_ptr<CollisionDetector> detector)
         {
             std::shared_ptr<Collider> first = this->dynamicObjects[i];
             std::shared_ptr<Collider> second = this->staticObjects[j];
-            if (detector->CheckCollision(first,second) != nullptr)
+            std::shared_ptr<Collision> collision = detector->CheckCollision(first,second);
+            if (collision != nullptr)
             {
-                std::cout << "Found one" << std::endl;
+                collisions.push_back(collision);
             }
         }
     }
@@ -30,17 +32,19 @@ void Cell::CheckCollisions(std::shared_ptr<CollisionDetector> detector)
         {
             std::shared_ptr<Collider> first = this->dynamicObjects[i];
             std::shared_ptr<Collider> second = this->dynamicObjects[j];
-            if (detector->CheckCollision(first,second) != nullptr)
+            std::shared_ptr<Collision> collision = detector->CheckCollision(first,second);
+            if (collision != nullptr)
             {
-                std::cout << "Found one" << std::endl;
+                collisions.push_back(collision);
             }
         }
     }
+    return collisions;
 }
 
 void Cell::Insert(std::shared_ptr<Collider> object)
 {
-    if (object->dynamicType == DynamicType::DYNAMIC || object->dynamicType == DynamicType::DYNAMIC_LIVE)
+    if (object->dynamicType == DynamicType::Dynamic || object->dynamicType == DynamicType::WithPhysics)
         this->dynamicObjects.push_back(object);
     else
         this->staticObjects.push_back(object);
@@ -48,7 +52,7 @@ void Cell::Insert(std::shared_ptr<Collider> object)
 
 void Cell::Remove(std::shared_ptr<Collider> object)
 {
-    if (object->dynamicType == DynamicType::DYNAMIC || object->dynamicType == DynamicType::DYNAMIC_LIVE)
+    if (object->dynamicType == DynamicType::Dynamic || object->dynamicType == DynamicType::WithPhysics)
     {
         for (int i = 0; i < this->dynamicObjects.size(); i++)
         {

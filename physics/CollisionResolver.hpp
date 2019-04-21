@@ -2,18 +2,14 @@
 
 #include <glm/glm.hpp>
 
+#include "Collision.hpp"
+
 class CollisionResolver
 {
     public:
 
         CollisionResolver();
 
-        // Utilities
-
-        /* 
-        Generates orthonormal vectors from a given axis. 
-        x - contact normal
-        */
-        void GenerateOrthonormalBasis(glm::vec3& x, glm::vec3& y, glm::vec3& z);
+        void Solve(std::vector<std::shared_ptr<Collision>>& collisions);
     private:
 };

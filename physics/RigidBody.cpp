@@ -43,7 +43,7 @@ float RigidBody::GetInverseMass()
 
 bool RigidBody::HasFiniteMass()
 {
-    return this->inverseMass >= 0.f;
+    return this->inverseMass > 0.f;
 }
 
 void RigidBody::SetInertiaTensor(glm::mat3 inertiaTensor)
@@ -86,6 +86,26 @@ glm::vec3 RigidBody::GetPosition()
     return this->position;
 }
 
+void RigidBody::SetVelocity(glm::vec3 velocity)
+{
+    this->velocity = velocity;
+}
+
+glm::vec3 RigidBody::GetVelocity()
+{
+    return this->velocity;
+}
+
+void RigidBody::SetAcceleration(glm::vec3 acceleration)
+{
+    this->acceleration = acceleration;
+}
+
+glm::vec3 RigidBody::GetAcceleration()
+{
+    return this->acceleration;
+}
+
 void RigidBody::SetOrientation(glm::quat orientation)
 {
     this->orientation = orientation;
@@ -94,4 +114,24 @@ void RigidBody::SetOrientation(glm::quat orientation)
 glm::quat RigidBody::GetOrientation()
 {
     return this->orientation;
+}
+
+void RigidBody::SetAngularVelocity(glm::vec3 angularVelocity)
+{
+    this->angularVelocity = angularVelocity;
+}
+
+glm::vec3 RigidBody::GetAngularVelocity()
+{
+    return this->angularVelocity;
+}
+
+void RigidBody::SetAngularAcceleration(glm::vec3 acceleration)
+{
+    this->angularAcceleration = acceleration;
+}
+
+glm::vec3 RigidBody::GetAngularAcceleration()
+{
+    return this->angularAcceleration;
 }

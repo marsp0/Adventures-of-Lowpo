@@ -7,6 +7,7 @@
 #include "Collider.hpp"
 #include "Triangle.hpp"
 #include "CollisionDetector.hpp"
+#include "CollisionResolver.hpp"
 
 class Grid
 {
@@ -37,14 +38,21 @@ class Grid
         /* 
         Update takes care of the collision check and the collision resolution.
          */
-        void Update(std::shared_ptr<Collider>   object);
+        void Update(float deltaTime);
         
         /*
         Performs a collision check on all the cells and generates contact data.
          */
-        void CheckCollisions();
+        std::vector<std::shared_ptr<Collision>> CheckCollisions();
         
+        /* 
+        GetInsertRow returns the row of the cell that the object needs to get inserted into
+         */
         int  GetInsertRow(glm::vec3 point);
+
+        /* 
+        GetInsertCol returns the column of the cell where the object should be inserted.
+         */
         int  GetInsertCol(glm::vec3 point);
 
     private:
@@ -52,6 +60,8 @@ class Grid
         int     cellsInRow;
         float   halfWidth;
         float   gridLength;
+        std::vector<std::shared_ptr<RigidBody>> objects;
         std::shared_ptr<CollisionDetector> collisionDetector;
+        std::shared_ptr<CollisionResolver> collisionResolver;
         std::vector< std::vector< std::shared_ptr<Cell> > > cells;
 };

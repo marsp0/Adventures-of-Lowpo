@@ -1,8 +1,13 @@
 #include "AABB.hpp"
 #include <iostream>
 
-AABB::AABB(glm::vec3 center, glm::vec3 axisRadii, std::vector<glm::vec3> points, ColliderType colliderType, DynamicType dynamicType) : 
-                        Collider(center, points, colliderType, dynamicType), axisRadii(axisRadii)
+AABB::AABB( glm::vec3 center, 
+            glm::vec3 axisRadii, 
+            ColliderType colliderType, 
+            DynamicType dynamicType, 
+            std::shared_ptr<RigidBody> rigidBody) : \
+            Collider(center, rigidBody, colliderType, dynamicType), 
+            axisRadii(axisRadii)
 {
     this->ComputeDerivedData();
 }

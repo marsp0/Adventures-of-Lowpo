@@ -3,8 +3,9 @@
 #include <memory>
 #include <vector>
 
-#include "Collider.hpp"
 #include "Contact.hpp"
+#include "Collider.hpp"
+#include "RigidBody.hpp"
 
 /* 
 Collision represents a collision between 2 colliders. It contains one or more contacts
@@ -12,11 +13,15 @@ Collision represents a collision between 2 colliders. It contains one or more co
 class Collision
 {
     public:
-        Collision(std::shared_ptr<Collider> first,
-                    std::shared_ptr<Collider> second,
+        Collision(std::shared_ptr<RigidBody> first,
+                    std::shared_ptr<Collider> firstCollider,
+                    std::shared_ptr<RigidBody> second,
+                    std::shared_ptr<Collider> secondCollider,
                     std::vector<Contact> contacts);
-        std::shared_ptr<Collider> first;
-        std::shared_ptr<Collider> second;
+        std::shared_ptr<RigidBody> first;
+        std::shared_ptr<Collider> firstCollider;
+        std::shared_ptr<RigidBody> second;
+        std::shared_ptr<Collider> secondCollider;
         std::vector<Contact> contacts;
     private:
 };

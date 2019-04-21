@@ -45,21 +45,24 @@ class RigidBody
         void SetAngularVelocity(glm::vec3 angularVelocity);
         glm::vec3 GetAngularVelocity();
 
+        void SetAngularAcceleration(glm::vec3 angularAcceleration);
+        glm::vec3 GetAngularAcceleration();
+
     private:
     
+        // Linear Components
         float inverseMass;
-        glm::mat3 inverseInertiaTensor;
-        glm::mat3 inverseInertiaTensorWorld;
         glm::vec3 position;
         glm::vec3 velocity;
         glm::vec3 acceleration;
-        glm::vec3 lastFrameAcceleration;
-        glm::quat orientation;
-        // angular velocity;
-        glm::vec3 angularVelocity;
-
-        glm::mat4 transform;
-
         glm::vec3 forceAccumulator;
+        // Angular Components
+        glm::quat orientation;
+        glm::vec3 angularVelocity;
         glm::vec3 torqueAccumulator;
+        glm::vec3 angularAcceleration;
+        glm::mat3 inverseInertiaTensor;
+        glm::mat3 inverseInertiaTensorWorld;
+        
+        glm::mat4 transform;
 };

@@ -26,7 +26,7 @@ class Cell
         Since we are going to have a lot more environment colliders than dynamic ones in a cell.
         The collisionm check was divided into two loops.
          */
-        void CheckCollisions(std::shared_ptr<CollisionDetector> detector);
+        std::vector<std::shared_ptr<Collision>> CheckCollisions(std::shared_ptr<CollisionDetector> detector);
 
         /* 
         Inserts a collider shared pointer into the cell. Could be in dynamicObjects or staticObjects 

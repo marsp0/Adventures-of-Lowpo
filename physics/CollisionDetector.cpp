@@ -68,7 +68,7 @@ std::shared_ptr<Collision> CollisionDetector::AABBToAABB(std::shared_ptr<AABB> f
         }
     }
     std::vector<Contact> contacts;
-    std::shared_ptr<Collision> collision = std::make_shared<Collision>(first, second, contacts);
+    std::shared_ptr<Collision> collision = std::make_shared<Collision>(first->GetParent(), first, second->GetParent(), second, contacts);
     for (int i = 0; i < collisionPoints.size() ; i++)
     {
         Contact contact;
@@ -245,7 +245,7 @@ std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AAB
         }
     }
     std::vector<Contact> contacts;
-    std::shared_ptr<Collision> collision = std::make_shared<Collision>(box, triangle, contacts);
+    std::shared_ptr<Collision> collision = std::make_shared<Collision>(box->GetParent(), box, triangle->GetParent(), triangle, contacts);
     for (int i = 0; i < collisionPoints.size(); i++)
     {
         glm::vec3 point = collisionPoints[i];
