@@ -39,7 +39,13 @@
         "cstdarg": "cpp",
         "string": "cpp",
         "optional": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "ctime": "cpp",
+        "iomanip": "cpp",
+        "ratio": "cpp",
+        "variant": "cpp"
     },
     "C_Cpp.dimInactiveRegions": true
 }
