@@ -13,6 +13,8 @@ const std::string TEXCOORD      = "TEXCOORD";
 const std::string JOINT         = "JOINT";
 const std::string INVBINDMAT    = "INV_BIND_MATRIX";
 const std::string WEIGHT        = "WEIGHT";
+const std::string ANIMATION_INPUT = "INPUT";
+const std::string ANIMATION_OUTPUT = "OUTPUT";
 
 void Loader::LoadFile(std::string filename)
 {
@@ -84,44 +86,7 @@ std::unordered_map<std::string, std::shared_ptr<Geometry>> Loader::ParseGeometry
         XMLElement* p = trianglesNode->FirstChildElement("p");
         std::string pData = p->GetText();
         std::vector<int> indices = Loader::SplitStringInt(pData);
-        std::vector<float> vertices;
-        std::vector<float> normals;
-        std::vector<float> texCoords;
-        for (int i = 0; i < indices.size(); i += 3 * stride)
-        {
-            int v1Index = indices[i];
-            int v2Index = indices[i + stride];
-            int v3Index = indices[i + 2 * stride];
-            std::vector<int> vIndices{v1Index,v2Index,v3Index};
-
-            int v1TexIndex = indices[i + texCoordsOffset];
-            int v2TexIndex = indices[i + stride + texCoordsOffset];
-            int v3TexIndex = indices[i + 2 * stride + texCoordsOffset];
-            std::vector<int> vTexIndices{v1TexIndex,v2TexIndex,v3TexIndex};
-
-            glm::vec3 vertex1 = glm::vec3(vertexValues[v1Index*3], vertexValues[v1Index*3 + 1], vertexValues[v1Index*3 + 2]);
-            glm::vec3 vertex2 = glm::vec3(vertexValues[v2Index*3], vertexValues[v2Index*3 + 1], vertexValues[v2Index*3 + 2]);
-            glm::vec3 vertex3 = glm::vec3(vertexValues[v3Index*3], vertexValues[v3Index*3 + 1], vertexValues[v3Index*3 + 2]);
-            
-            // calculate normal
-            glm::vec3 triangleNormal = glm::cross(vertex2-vertex1, vertex3-vertex1);
-            for (int j = 0; j < vIndices.size(); j++)
-            {
-                int currentIndex = vIndices[j];
-                int currentTexIndex = vTexIndices[j];
-                glm::vec3 vertex = glm::vec3(vertexValues[currentIndex*3], vertexValues[currentIndex*3 + 1], vertexValues[currentIndex*3 + 2]);
-                glm::vec2 texCoord = glm::vec2(texCoordValues[currentTexIndex*2], texCoordValues[currentTexIndex*2 + 1]);
-                vertices.push_back(vertex.x);
-                vertices.push_back(vertex.y);
-                vertices.push_back(vertex.z);
-                normals.push_back(triangleNormal.x);
-                normals.push_back(triangleNormal.y);
-                normals.push_back(triangleNormal.z);
-                texCoords.push_back(texCoord.x);
-                texCoords.push_back(texCoord.y);
-            }
-        }
-        std::shared_ptr<Geometry> geometry = std::make_shared<Geometry>(Geometry(name, vertices, normals, texCoords));
+        std::shared_ptr<Geometry> geometry = std::make_shared<Geometry>(Geometry(name, indices, vertexValues, texCoordValues));
         result[name] = geometry;
     }
     return result;
@@ -135,6 +100,8 @@ std::unordered_map<std::string, std::shared_ptr<Controller>> Loader::ParseContro
         XMLElement* skin = controller->FirstChildElement("skin");
         XMLElement* joints = skin->FirstChildElement("joints");
 
+        // the joints node contains input nodes that point to the right sources
+        // for the matrices and the joints.
         std::string sourceJoint;
         std::string sourceInvBind;
         std::string sourceWeights;
@@ -281,6 +248,59 @@ std::unordered_map<std::string, std::shared_ptr<Controller>> Loader::ParseContro
     return result;
 }
 
+std::unordered_map<std::string, std::shared_ptr<AnimationNode>> Loader::ParseAnimations(XMLElement* libraryAnimations)
+{
+    std::unordered_map<std::string, std::shared_ptr<AnimationNode>> result;
+    for (XMLElement* animation = libraryAnimations->FirstChildElement("animation"); animation != NULL; animation = animation->NextSiblingElement("animation"))
+    {
+        std::string             inputID;
+        std::string             outputID;
+        std::vector<float>      timeStamps;
+        std::vector<glm::mat4>  matrices;
+        XMLElement* sampler = animation->FirstChildElement("sampler");
+        for (XMLElement* input = sampler->FirstChildElement("input"); input != NULL; input = input->NextSiblingElement("input"))
+        {
+            std::string semantic = input->Attribute("semantic");
+            if (semantic == ANIMATION_INPUT)
+            {
+                inputID = input->Attribute("source");
+                inputID = inputID.substr(1, inputID.size() - 1);
+            }
+            else if (semantic == ANIMATION_OUTPUT)
+            {
+                outputID = input->Attribute("source");
+                outputID = outputID.substr(1, outputID.size() - 1);
+            }
+        }
+        for (XMLElement* source = animation->FirstChildElement("source"); source != NULL; source = source->NextSiblingElement("source"))
+        {
+            std::string id = source->Attribute("id");
+            if (id == inputID)
+            {
+                std::string timeStampsString = source->FirstChildElement("float_array")->GetText();
+                timeStamps = Loader::SplitStringFloat(timeStampsString);
+            }
+            else if (id == outputID)
+            {
+                std::string matricesString = source->FirstChildElement("float_array")->GetText();
+                std::vector<float> matricesFloat = Loader::SplitStringFloat(matricesString);
+                for (int i = 0; i < matricesFloat.size(); i += 16)
+                {
+                    std::vector<float> temp;
+                    for (int j = i; j < i + 16; j++)
+                    {
+                        temp.push_back(matricesFloat[j]);
+                    }
+                    matrices.push_back(glm::make_mat4(temp.data()));
+                }
+            }
+        }
+        std::string id = animation->Attribute("id");
+        result[id] = std::make_shared<AnimationNode>(AnimationNode(id, timeStamps, matrices));
+    }
+    return result;
+}
+
 // =================
 // UTILITY FUNCTIONS
 // =================
@@ -349,12 +369,12 @@ std::vector<std::string> Loader::SplitString(std::string& stringData)
 // ====================================================
 
 Geometry::Geometry( std::string name, 
+                    std::vector<int> indices,
                     std::vector<float> vertices, 
-                    std::vector<float> normals, 
                     std::vector<float> texCoords) : \
                     name(name),
+                    indices(indices),
                     vertices(vertices),
-                    normals(normals),
                     texCoords(texCoords)
 {
 
@@ -370,4 +390,14 @@ Controller::Controller(std::string id,
                         weights(weights)
 {
 
+}
+
+AnimationNode::AnimationNode(   std::string id, 
+                                std::vector<float> timeStamps, 
+                                std::vector<glm::mat4> matrices) : \
+                                id(id),
+                                timeStamps(timeStamps),
+                                matrices(matrices)
+{
+    
 }

@@ -17,22 +17,22 @@ TEST_CASE("Geometry parsing")
     // Plane tests
     std::shared_ptr<Geometry> plane = result["Plane"];
     REQUIRE(plane->name == "Plane");
-    REQUIRE(plane->vertices.size() == 18);
-    REQUIRE(plane->normals.size() == 18);
+    REQUIRE(plane->indices.size() == 18);
+    REQUIRE(plane->vertices.size() == 12);
     REQUIRE(plane->texCoords.size() == 12);
 
     // Plane tests
     std::shared_ptr<Geometry> cube = result["Cube.000"];
     REQUIRE(cube->name == "Cube.000");
-    REQUIRE(cube->vertices.size() == 108);
-    REQUIRE(cube->normals.size() == 108);
+    REQUIRE(cube->indices.size() == 108);
+    REQUIRE(cube->vertices.size() == 24);
     REQUIRE(cube->texCoords.size() == 72);
 
     // Plane tests
     std::shared_ptr<Geometry> cube1 = result["Cube.001"];
     REQUIRE(cube1->name == "Cube.001");
-    REQUIRE(cube1->vertices.size() == 108);
-    REQUIRE(cube1->normals.size() == 108);
+    REQUIRE(cube1->indices.size() == 108);
+    REQUIRE(cube1->vertices.size() == 24);
     REQUIRE(cube1->texCoords.size() == 72);
 }
 
@@ -51,4 +51,23 @@ TEST_CASE("Controller parsing")
     REQUIRE(controller->name == "Armature");
     REQUIRE(controller->indices.size() == 740 * 4);
     REQUIRE(controller->weights.size() == 740 * 4);
+}
+
+TEST_CASE("Animations parsing")
+{
+    std::string filename = "./test/files/controllers.dae";
+    tinyxml2::XMLDocument document;
+    tinyxml2::XMLError error = document.LoadFile(filename.c_str());
+    tinyxml2::XMLElement* collada = document.FirstChildElement("COLLADA");
+    tinyxml2::XMLElement* libraryAnimations = collada->FirstChildElement("library_animations");
+    std::unordered_map<std::string, std::shared_ptr<AnimationNode>> result = Loader::ParseAnimations(libraryAnimations);
+
+    REQUIRE(result.size() == 21);
+    for (std::unordered_map<std::string, std::shared_ptr<AnimationNode>>::iterator it = result.begin(); it != result.end(); it++)
+    {
+        std::shared_ptr<AnimationNode> animation = it->second;
+        REQUIRE(animation->id.size() > 0);
+        REQUIRE(animation->matrices.size() == 21);
+        REQUIRE(animation->timeStamps.size() == 21);
+    }
 }
