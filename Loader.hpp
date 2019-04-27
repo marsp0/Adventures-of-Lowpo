@@ -41,7 +41,13 @@ class AnimationNode
 class SkeletonNode
 {
     public:
-        SkeletonNode();
+        SkeletonNode(std::string id, std::string name, std::string sid, glm::mat4 matrix, std::vector<std::shared_ptr<SkeletonNode>> children);
+
+        std::string id;
+        std::string sid;
+        std::string name;
+        glm::mat4   matrix;
+        std::vector<std::shared_ptr<SkeletonNode>> children;
 };
 
 class InstanceGeometry
@@ -68,13 +74,17 @@ class Loader
 {
     public:
         static void LoadFile(std::string filename);
+
+        static std::shared_ptr<SkeletonNode>                                        ParseSkeletonNodes(tinyxml2::XMLElement* node);
         static std::unordered_map<std::string, std::shared_ptr<Geometry>>           ParseGeometry(tinyxml2::XMLElement* libraryGeometry);
         static std::unordered_map<std::string, std::shared_ptr<Controller>>         ParseControllers(tinyxml2::XMLElement* libraryControllers);
+        static std::unordered_map<std::string, std::shared_ptr<SkeletonNode>>       ParseVisualScenesSkeletons(tinyxml2::XMLElement* libraryVisualScenes);
         static std::unordered_map<std::string, std::shared_ptr<AnimationNode>>      ParseAnimations(tinyxml2::XMLElement* libraryAnimations);
         static std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>>   ParseVisualScenesStatic(tinyxml2::XMLElement* libraryVisualScenes);
         static std::unordered_map<std::string, std::shared_ptr<InstanceController>> ParseVisualScenesAnimated(tinyxml2::XMLElement* libraryVisualScenes);
-        
+        // =======
         // UTILITY
+        // =======
         static std::vector<int>         SplitStringInt(std::string& stringData);
         static std::vector<float>       SplitStringFloat(std::string& stringData);
         static std::vector<std::string> SplitString(std::string& stringData);

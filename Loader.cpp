@@ -342,6 +342,51 @@ std::unordered_map<std::string, std::shared_ptr<InstanceController>> Loader::Par
     return result;
 }
 
+std::unordered_map<std::string, std::shared_ptr<SkeletonNode>> Loader::ParseVisualScenesSkeletons(XMLElement* libraryVisualScenes)
+{
+    std::unordered_map<std::string, std::shared_ptr<SkeletonNode>> result;
+    XMLElement* visualScene = libraryVisualScenes->FirstChildElement("visual_scene");
+    for (XMLElement* node = visualScene->FirstChildElement("node"); node != NULL; node = node->NextSiblingElement("node"))
+    {
+        XMLElement* instanceGeometry = node->FirstChildElement("instance_geometry");
+        XMLElement* instanceControllers = node->FirstChildElement("instance_controller");
+        if (instanceControllers == nullptr && instanceGeometry == nullptr)
+        {
+            std::string id = node->Attribute("id");
+            std::string name = node->Attribute("name");
+            std::string sid = "";
+            std::string matrixString = node->FirstChildElement("matrix")->GetText();
+            glm::mat4 matrix = glm::make_mat4(Loader::SplitStringFloat(matrixString).data());
+            std::vector<std::shared_ptr<SkeletonNode>> children;
+            for (XMLElement* child = node->FirstChildElement("node"); child != NULL; child = child->NextSiblingElement("node"))
+            {
+                std::shared_ptr<SkeletonNode> childNode = Loader::ParseSkeletonNodes(child);
+                children.push_back(childNode);
+            }
+            std::shared_ptr<SkeletonNode> skeleton = std::make_shared<SkeletonNode>(SkeletonNode(id, name, sid, matrix, children));
+            result[id] = skeleton;  
+        }
+    }
+    return result;
+}
+
+std::shared_ptr<SkeletonNode> Loader::ParseSkeletonNodes(tinyxml2::XMLElement* node)
+{
+    std::string id = node->Attribute("id");
+    std::string name = node->Attribute("name");
+    std::string sid = node->Attribute("sid");
+    std::string matrixString = node->FirstChildElement("matrix")->GetText();
+    glm::mat4 matrix = glm::make_mat4(Loader::SplitStringFloat(matrixString).data());
+    std::vector<std::shared_ptr<SkeletonNode>> children;
+    for (XMLElement* child = node->FirstChildElement("node"); child != NULL; child = child->NextSiblingElement("node"))
+    {
+        std::shared_ptr<SkeletonNode> childNode = Loader::ParseSkeletonNodes(child);
+        children.push_back(childNode);
+    }
+    std::shared_ptr<SkeletonNode> skeleton = std::make_shared<SkeletonNode>(SkeletonNode(id, name, sid, matrix, children));
+    return skeleton;
+}
+
 // =================
 // UTILITY FUNCTIONS
 // =================
@@ -459,6 +504,20 @@ InstanceController::InstanceController( std::string id,
                                         id(id),
                                         name(name),
                                         url(url)
+{
+
+}
+
+SkeletonNode::SkeletonNode( std::string id, 
+                            std::string name, 
+                            std::string sid,
+                            glm::mat4 matrix, 
+                            std::vector<std::shared_ptr<SkeletonNode>> children) : \
+                            id(id),
+                            name(name),
+                            sid(sid),
+                            matrix(matrix),
+                            children(children)
 {
 
 }
