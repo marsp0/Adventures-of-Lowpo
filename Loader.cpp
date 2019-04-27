@@ -301,6 +301,47 @@ std::unordered_map<std::string, std::shared_ptr<AnimationNode>> Loader::ParseAni
     return result;
 }
 
+std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>> Loader::ParseVisualScenesStatic(XMLElement* libraryVisualScenes)
+{
+    std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>> result;
+    XMLElement* visualScene = libraryVisualScenes->FirstChildElement("visual_scene");
+    for (XMLElement* node = visualScene->FirstChildElement("node"); node != NULL; node = node->NextSiblingElement("node"))
+    {
+        XMLElement* instanceGeometry = node->FirstChildElement("instance_geometry");
+        if (instanceGeometry != nullptr)
+        {
+            std::string id = instanceGeometry->Attribute("url");
+            std::string name = instanceGeometry->Attribute("name");
+            XMLElement* matrixNode = node->FirstChildElement("matrix");
+            std::string matrixString = matrixNode->GetText();
+            glm::mat4 matrix = glm::make_mat4(Loader::SplitStringFloat(matrixString).data());
+            std::shared_ptr<InstanceGeometry> instance = std::make_shared<InstanceGeometry>(InstanceGeometry(id, name, matrix));
+            result[id] = instance;
+        }
+    }
+    return result;
+}
+
+std::unordered_map<std::string, std::shared_ptr<InstanceController>> Loader::ParseVisualScenesAnimated(XMLElement* libraryVisualScenes)
+{
+    std::unordered_map<std::string, std::shared_ptr<InstanceController>> result;
+    XMLElement* visualScene = libraryVisualScenes->FirstChildElement("visual_scene");
+    for (XMLElement* node = visualScene->FirstChildElement("node"); node != NULL; node = node->NextSiblingElement("node"))
+    {
+        XMLElement* instanceController = node->FirstChildElement("instance_controller");
+        if (instanceController != nullptr)
+        {
+            std::string id = node->Attribute("id");
+            std::string name = node->Attribute("name");
+            std::string url = instanceController->Attribute("url");
+            url = url.substr(1, url.size() - 1);
+            std::shared_ptr<InstanceController> instance = std::make_shared<InstanceController>(InstanceController(id, name, url));
+            result[id] = instance;
+        }
+    }
+    return result;
+}
+
 // =================
 // UTILITY FUNCTIONS
 // =================
@@ -400,4 +441,24 @@ AnimationNode::AnimationNode(   std::string id,
                                 matrices(matrices)
 {
     
+}
+
+InstanceGeometry::InstanceGeometry( std::string id,
+                                    std::string name,
+                                    glm::mat4 matrix) : \
+                                    id(id),
+                                    name(name),
+                                    matrix(matrix)
+{
+
+}
+
+InstanceController::InstanceController( std::string id,
+                                        std::string name,
+                                        std::string url) : \
+                                        id(id),
+                                        name(name),
+                                        url(url)
+{
+
 }

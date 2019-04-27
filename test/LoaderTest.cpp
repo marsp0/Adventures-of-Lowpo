@@ -71,3 +71,36 @@ TEST_CASE("Animations parsing")
         REQUIRE(animation->timeStamps.size() == 21);
     }
 }
+
+TEST_CASE("Visual Scene Static parsing")
+{
+    std::string filename = "./test/files/book_scene.dae";
+    tinyxml2::XMLDocument document;
+    tinyxml2::XMLError error = document.LoadFile(filename.c_str());
+    tinyxml2::XMLElement* collada = document.FirstChildElement("COLLADA");
+    tinyxml2::XMLElement* libraryAnimations = collada->FirstChildElement("library_visual_scenes");
+    std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>> result = Loader::ParseVisualScenesStatic(libraryAnimations);
+    REQUIRE(result.size() == 14);
+    for (std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>>::iterator it = result.begin(); it != result.end(); it++)
+    {
+        REQUIRE(it->second->id.size() > 0);
+        REQUIRE(it->second->name.size() > 0);
+    }
+}
+
+TEST_CASE("Visual Scene Animated parsing")
+{
+    std::string filename = "./test/files/book_scene.dae";
+    tinyxml2::XMLDocument document;
+    tinyxml2::XMLError error = document.LoadFile(filename.c_str());
+    tinyxml2::XMLElement* collada = document.FirstChildElement("COLLADA");
+    tinyxml2::XMLElement* libraryAnimations = collada->FirstChildElement("library_visual_scenes");
+    std::unordered_map<std::string, std::shared_ptr<InstanceController>> result = Loader::ParseVisualScenesAnimated(libraryAnimations);
+    
+    REQUIRE(result.size() == 1);
+    
+    std::shared_ptr<InstanceController> instance = result["Cube"];
+    REQUIRE(instance->id == "Cube");
+    REQUIRE(instance->name == "Cube");
+    REQUIRE(instance->url == "Armature_Cube-skin");
+}
