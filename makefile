@@ -1,22 +1,46 @@
-SRC_DIR := .
-OBJ_DIR := ./pobj
-SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
-OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
-LDFLAGS := -lGL -lGLEW -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi
-# CPPFLAGS := -std=c++14 -Wall -pedantic
-CPPFLAGS := -std=c++14
-CXXFLAGS := ...
+CXX           	:= g++
+LD            	:= g++
 
-output.out: $(OBJ_FILES)
-	g++ -o $@ $^ $(LDFLAGS)
+EXECUTABLE    	:= output
+CXXFLAGS      	:= -std=c++14 
+LDFLAGS       	:= -lGL -lGLEW -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi
+SRC           	:= $(wildcard ./*.cpp)
+OBJ           	:= $(SRC:./%.cpp=out/%.o)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	# g++ $(CPPFLAGS) -c -o $@ $<
-	g++ $(CPPFLAGS) -c -g -o $@ $<
+EXECUTABLE_TEST := test
+CXXFLAGS_TEST 	:= $(CXXFLAGS)
+LDFLAGS_TEST  	:= $(LDFLAGS)
+SRC_TEST      	:= $(wildcard test/*.cpp)
+OBJ_TEST      	:= $(filter-out out/main.o, $(OBJ)) $(SRC_TEST:test/%.cpp=out/%.o)
 
-clean:
-	rm -rf $(OBJ_DIR)/*.o
-	rm -rf output.out
+.SUFFIXES:
+
+# --------------------------------------------------------------
 
 .PHONY: all
-	$(SRC_DIR)/%.cpp
+all: out/$(EXECUTABLE)
+
+out/$(EXECUTABLE): $(OBJ)
+	@$(LD) $^ -o $@ $(LDFLAGS) && echo "[OK]  $@"
+
+# --------------------------------------------------------------
+
+.PHONY: test
+test: out/$(EXECUTABLE_TEST)
+
+out/$(EXECUTABLE_TEST): $(OBJ_TEST)
+	@$(LD) $^ -o $@ $(LDFLAGS_TEST) && echo "[OK]  $@"
+
+# --------------------------------------------------------------
+
+out/%.o: ./%.cpp
+	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@ .o"
+
+out/%.o: test/%.cpp
+	@$(CXX) $(CXXFLAGS_TEST) -c -g $< -o $@ && echo "[OK]  $@"
+
+# --------------------------------------------------------------
+
+.PHONY: clean, clear
+clean clear:
+	@rm -f out/* && echo "[CL]  out/"
