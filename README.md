@@ -4,7 +4,7 @@
 
 #### Credits
 
-1. [OBJ-Loader](https://github.com/Bly7/OBJ-Loader)
+1. [Catch](https://github.com/catchorg/Catch2)
 2. [tinyxml2](https://github.com/leethomason/tinyxml2)
 3. [Book Scene](https://sketchfab.com/stefan.lengyel1)
 
