@@ -10,8 +10,9 @@
 class Geometry
 {
     public:
-        Geometry(std::string name, std::vector<int> indices, std::vector<float> vertices, std::vector<float> texCoords);
+        Geometry(std::string name, int stride, std::vector<int> indices, std::vector<float> vertices, std::vector<float> texCoords);
 
+        int stride;
         std::string name;
         std::vector<int> indices;
         std::vector<float> vertices;
@@ -73,7 +74,7 @@ class InstanceController
 class Loader
 {
     public:
-        static void LoadFile(std::string filename);
+        static tinyxml2::XMLElement* LoadFile(std::string filename);
 
         static std::shared_ptr<SkeletonNode>                                        ParseSkeletonNodes(tinyxml2::XMLElement* node);
         static std::unordered_map<std::string, std::shared_ptr<Geometry>>           ParseGeometry(tinyxml2::XMLElement* libraryGeometry);

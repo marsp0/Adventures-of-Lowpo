@@ -16,7 +16,7 @@ const std::string WEIGHT        = "WEIGHT";
 const std::string ANIMATION_INPUT = "INPUT";
 const std::string ANIMATION_OUTPUT = "OUTPUT";
 
-void Loader::LoadFile(std::string filename)
+XMLElement* Loader::LoadFile(std::string filename)
 {
     XMLDocument document;
     // TODO : check for the extension and report error if different from .dae
@@ -26,8 +26,7 @@ void Loader::LoadFile(std::string filename)
     // the document represents the "whole" file so we need to qu
     // is always Collada
     XMLElement* collada = document.FirstChildElement("COLLADA");
-    XMLElement* libraryGeometries = collada->FirstChildElement("library_geometries");
-    std::unordered_map<std::string, std::shared_ptr<Geometry>> geometries = Loader::ParseGeometry(libraryGeometries);
+    return collada;
 }
 
 std::unordered_map<std::string, std::shared_ptr<Geometry>> Loader::ParseGeometry(XMLElement* libraryGeometries)
@@ -86,7 +85,7 @@ std::unordered_map<std::string, std::shared_ptr<Geometry>> Loader::ParseGeometry
         XMLElement* p = trianglesNode->FirstChildElement("p");
         std::string pData = p->GetText();
         std::vector<int> indices = Loader::SplitStringInt(pData);
-        std::shared_ptr<Geometry> geometry = std::make_shared<Geometry>(Geometry(name, indices, vertexValues, texCoordValues));
+        std::shared_ptr<Geometry> geometry = std::make_shared<Geometry>(Geometry(name, stride, indices, vertexValues, texCoordValues));
         result[name] = geometry;
     }
     return result;
@@ -455,6 +454,7 @@ std::vector<std::string> Loader::SplitString(std::string& stringData)
 // ====================================================
 
 Geometry::Geometry( std::string name, 
+                    int stride,
                     std::vector<int> indices,
                     std::vector<float> vertices, 
                     std::vector<float> texCoords) : \

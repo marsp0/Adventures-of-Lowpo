@@ -20,7 +20,6 @@ class GameObject
 {
     public:
         
-        // GameObject(Transform transform, std::shared_ptr<Texture> texture, std::shared_ptr<Mesh> mesh, PhysicsComponent physicsComponent);
         GameObject( Transform                   transform, 
                     std::shared_ptr<Texture>    texture, 
                     std::shared_ptr<Mesh>       mesh,

@@ -1,6 +1,7 @@
 #include <limits>
 
 #include "RigidBody.hpp"
+#include "Collider.hpp"
 
 RigidBody::RigidBody()
 {
@@ -134,4 +135,14 @@ void RigidBody::SetAngularAcceleration(glm::vec3 acceleration)
 glm::vec3 RigidBody::GetAngularAcceleration()
 {
     return this->angularAcceleration;
+}
+
+void RigidBody::AddCollider(std::shared_ptr<Collider> collider)
+{
+    this->colliders.push_back(collider);
+}
+
+const std::vector<std::shared_ptr<Collider>> RigidBody::GetColliders()
+{
+    return this->colliders;
 }

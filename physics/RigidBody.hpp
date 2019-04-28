@@ -1,7 +1,10 @@
 #pragma once
 
+#include <memory>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+
+class Collider;
 
 class RigidBody
 {
@@ -48,6 +51,9 @@ class RigidBody
         void SetAngularAcceleration(glm::vec3 angularAcceleration);
         glm::vec3 GetAngularAcceleration();
 
+        void AddCollider(std::shared_ptr<Collider> collider);
+        const std::vector<std::shared_ptr<Collider>> GetColliders();
+
     private:
     
         // Linear Components
@@ -65,4 +71,5 @@ class RigidBody
         glm::mat3 inverseInertiaTensorWorld;
         
         glm::mat4 transform;
+        std::vector<std::shared_ptr<Collider>> colliders;
 };

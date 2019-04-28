@@ -30,7 +30,7 @@ Texture::Texture(const std::string& fileName) : ID()
 
 Texture::~Texture()
 {
-    // glDeleteTextures(1,&this->ID);
+    glDeleteTextures(1,&this->ID);
 }
 
 void Texture::Bind()
