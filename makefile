@@ -43,4 +43,4 @@ out/%.o: test/%.cpp
 
 .PHONY: clean, clear
 clean clear:
-@rm -f out/* && echo "[CL]  out/"
+	@rm -f out/* && echo "[CL]  out/"
