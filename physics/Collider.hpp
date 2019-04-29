@@ -33,6 +33,7 @@ class Collider
         that can be rotated/translated etc when forces are applied to it.
         */
         Collider( glm::vec3 center,
+                  std::string name,
                   std::shared_ptr<RigidBody> rigidBody,   
                   ColliderType colliderType, 
                   DynamicType dynamicType);
@@ -47,9 +48,10 @@ class Collider
         virtual void ComputeDerivedData() = 0;
         void Update(glm::vec3 position);
 
-        glm::vec3                   center;
-        DynamicType                 dynamicType;
-        ColliderType                colliderType;
+        glm::vec3    center;
+        std::string  name;
+        DynamicType  dynamicType;
+        ColliderType colliderType;
 
     protected:
 

@@ -22,7 +22,7 @@ XMLElement* Loader::LoadFile(std::string filename)
     // TODO : check for the extension and report error if different from .dae
     XMLError error = document.LoadFile(filename.c_str());
     if (error != 0)
-        return;
+        return nullptr;
     // the document represents the "whole" file so we need to qu
     // is always Collada
     XMLElement* collada = document.FirstChildElement("COLLADA");
@@ -35,6 +35,7 @@ std::unordered_map<std::string, std::shared_ptr<Geometry>> Loader::ParseGeometry
     for (XMLElement* current = libraryGeometries->FirstChildElement("geometry"); current != NULL ; current = current->NextSiblingElement("geometry"))
     {
         std::string name = current->Attribute("name");
+        std::string geometryID = current->Attribute("id");
         XMLElement* mesh = current->FirstChildElement("mesh");
         XMLElement* verticesNode = mesh->FirstChildElement("vertices");
         
@@ -85,7 +86,7 @@ std::unordered_map<std::string, std::shared_ptr<Geometry>> Loader::ParseGeometry
         XMLElement* p = trianglesNode->FirstChildElement("p");
         std::string pData = p->GetText();
         std::vector<int> indices = Loader::SplitStringInt(pData);
-        std::shared_ptr<Geometry> geometry = std::make_shared<Geometry>(Geometry(name, stride, indices, vertexValues, texCoordValues));
+        std::shared_ptr<Geometry> geometry = std::make_shared<Geometry>(Geometry(geometryID, name, stride, indices, vertexValues, texCoordValues));
         result[name] = geometry;
     }
     return result;
@@ -453,12 +454,14 @@ std::vector<std::string> Loader::SplitString(std::string& stringData)
 // Library Classes
 // ====================================================
 
-Geometry::Geometry( std::string name, 
+Geometry::Geometry( std::string id,
+                    std::string name, 
                     int stride,
                     std::vector<int> indices,
                     std::vector<float> vertices, 
                     std::vector<float> texCoords) : \
                     name(name),
+                    id(id),
                     indices(indices),
                     vertices(vertices),
                     texCoords(texCoords)

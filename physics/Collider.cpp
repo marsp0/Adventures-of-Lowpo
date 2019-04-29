@@ -1,10 +1,12 @@
 #include "Collider.hpp"
 
 Collider::Collider( glm::vec3 center, 
+                    std::string name,
                     std::shared_ptr<RigidBody> rigidBody, 
                     ColliderType colliderType, 
                     DynamicType dynamicType) : \
                     center(center), 
+                    name(name),
                     colliderType(colliderType), 
                     dynamicType(dynamicType),
                     rigidBody(rigidBody)

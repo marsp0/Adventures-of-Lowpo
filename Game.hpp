@@ -23,7 +23,6 @@ class Game
         Game(int width,int height);
 
         void Init();
-        void InitWorld();
         void Run();
         void HandleInput(float deltaTime);
         void Update(float deltaTime);

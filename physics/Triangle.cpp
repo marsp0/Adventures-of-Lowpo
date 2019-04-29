@@ -3,12 +3,13 @@
 #include <iostream>
 
 Triangle::Triangle( glm::vec3 center, 
+                    std::string name,
                     glm::vec3 normal, 
                     std::vector<glm::vec3> points, 
                     ColliderType colliderType,
                     DynamicType dynamicType,
                     std::shared_ptr<RigidBody> rigidBody) : 
-            Collider(center, rigidBody, colliderType, dynamicType), normal(normal)
+            Collider(center, name, rigidBody, colliderType, dynamicType), normal(normal)
 {
     // TODO : Decide if the normal will be passed or generated on the fly by the points passed
     if (glm::dot(glm::vec3(0.f,1.f,0.f), this->normal) < 0.f)

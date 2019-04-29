@@ -15,6 +15,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Shader.hpp"
+#include "RigidBody.hpp"
 
 class GameObject
 {
@@ -23,19 +24,16 @@ class GameObject
         GameObject( Transform                   transform, 
                     std::shared_ptr<Texture>    texture, 
                     std::shared_ptr<Mesh>       mesh,
-                    PhysicsComponent physicsComponent,
+                    RigidBody                   rigidBody,
                     std::string shader,
                     std::string shadowShader);
 
         virtual void    HandleInput(GLFWwindow* window);
         virtual void    Update(float deltaTime);
         virtual void    Render(std::shared_ptr<Shader> shader);
-        void            SetVelocity(glm::vec3 velocity);
-        glm::vec3       GetVelocity();
-        glm::vec3       GetPosition();
 
         Transform                   transform;
-        PhysicsComponent            physicsComponent;
+        RigidBody                   rigidBody;
         std::shared_ptr<Texture>    texture;
         std::shared_ptr<Mesh>       mesh;
         std::string                 shader;

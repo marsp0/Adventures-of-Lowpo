@@ -2,11 +2,12 @@
 #include <iostream>
 
 AABB::AABB( glm::vec3 center, 
+            std::string name,
             glm::vec3 axisRadii, 
             ColliderType colliderType, 
             DynamicType dynamicType, 
             std::shared_ptr<RigidBody> rigidBody) : \
-            Collider(center, rigidBody, colliderType, dynamicType), 
+            Collider(center, name, rigidBody, colliderType, dynamicType), 
             axisRadii(axisRadii)
 {
     this->ComputeDerivedData();
