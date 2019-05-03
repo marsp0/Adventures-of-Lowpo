@@ -41,7 +41,7 @@ Renderer::Renderer(const char* vertexFile, const char* fragmentFile,
     shaderMap["animatedShadowShader"] = std::make_shared<Shader>(vertexAnimationShadowFile, fragmentAnimationShadowFile);
 }
 
-void Renderer::Draw(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terrain)
+void Renderer::Draw(std::unique_ptr<Scene>& scene)
 {
     glViewport(0, 0, this->width, this->height);
     glClearColor(0.529f, 0.807f, 0.980f, 1.0f);
@@ -70,10 +70,6 @@ void Renderer::Draw(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terr
     // this->shader.SetVector3f("light.direction",-5.28f, -4.15f, 4.f);
     this->currentShader->SetVector3f("light.ambient",ambient,ambient,ambient);
     this->currentShader->SetVector3f("light.diffuse",diffuse,diffuse,diffuse);
-
-    // terrain render
-    this->currentShader->SetMat4("model", terrain->transform.GetWorldMatrix());
-    terrain->Render();
 
     // game objects render
     for (int i = 0 ; i < scene->gameObjects.size(); i++)
@@ -117,7 +113,7 @@ void Renderer::Draw(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terr
             this->currentShader->SetVector3f("light.diffuse",diffuse,diffuse,diffuse);
 
 
-            glm::mat4 model = scene->gameObjects[i]->transform.GetWorldMatrix();   
+            glm::mat4 model = scene->gameObjects[i]->GetWorldMatrix();   
             this->currentShader->SetMat4("model", model);
             scene->gameObjects[i]->Render(this->currentShader);
         // }
@@ -126,23 +122,19 @@ void Renderer::Draw(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terr
     }
 }
 
-void Renderer::DrawShadows(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terrain)
+void Renderer::DrawShadows(std::unique_ptr<Scene>& scene)
 {
     this->currentShader = this->shaderMap["shadowShader"];
     this->currentShader->Use();
     glViewport(0,0,this->shadowWidth, this->shadowHeight);
     glBindFramebuffer(GL_FRAMEBUFFER,this->frameBuffer);
     glClear(GL_DEPTH_BUFFER_BIT);
-    this->currentShader->SetMat4("lightSpaceMatrix", this->lightSpaceMatrix);
-    this->currentShader->SetMat4("model", terrain->transform.GetWorldMatrix());
-    terrain->Render();
     for (int i = 0 ; i < scene->gameObjects.size(); i++)
     {   
         this->currentShader = this->shaderMap[scene->gameObjects[i]->shadowShader];
         this->currentShader->Use();
         this->currentShader->SetMat4("lightSpaceMatrix", this->lightSpaceMatrix);
-        this->currentShader->SetMat4("model", terrain->transform.GetWorldMatrix());
-        glm::mat4 model = scene->gameObjects[i]->transform.GetWorldMatrix();   
+        glm::mat4 model = scene->gameObjects[i]->GetWorldMatrix();   
         this->currentShader->SetMat4("model", model);
         scene->gameObjects[i]->Render(this->currentShader);
     }

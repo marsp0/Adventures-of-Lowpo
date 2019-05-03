@@ -4,8 +4,13 @@ LD            	:= g++
 EXECUTABLE    	:= output
 CXXFLAGS      	:= -std=c++14 
 LDFLAGS       	:= -lGL -lGLEW -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi
-SRC           	:= $(wildcard ./*.cpp)
-OBJ           	:= $(SRC:./%.cpp=out/%.o)
+SRC_DIRS		:= . ./physics
+# get all files with cpp extension from the src_dirs
+SRC           	:= $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
+# replace the ./physics/ with nothing
+FILENAMES		:= $(notdir $(SRC))
+# replace all the cpp extensions with .o
+OBJ           	:= $(FILENAMES:%.cpp=out/%.o)
 
 EXECUTABLE_TEST := test
 CXXFLAGS_TEST 	:= $(CXXFLAGS)
@@ -34,7 +39,10 @@ out/$(EXECUTABLE_TEST): $(OBJ_TEST)
 # --------------------------------------------------------------
 
 out/%.o: ./%.cpp
-	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@ .o"
+	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
+
+out/%.o: ./physics/%.cpp
+	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
 
 out/%.o: test/%.cpp
 	@$(CXX) $(CXXFLAGS_TEST) -c -g $< -o $@ && echo "[OK]  $@"

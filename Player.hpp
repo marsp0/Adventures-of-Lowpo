@@ -15,11 +15,10 @@ enum PlayerActions
 class Player : public GameObject
 {
     public:
-        Player( Transform                   transform, 
-                std::shared_ptr<Texture>    texture, 
+        Player( std::shared_ptr<Texture>    texture, 
                 std::shared_ptr<Mesh>       mesh,
                 std::shared_ptr<Animator>   animator,
-                PhysicsComponent            physicsComponent,
+                std::shared_ptr<RigidBody>  rigidBody,
                 std::string                 shader,
                 std::string                 shadowShader,
                 float                       cameraWidth,

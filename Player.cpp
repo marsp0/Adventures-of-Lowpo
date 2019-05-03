@@ -3,16 +3,15 @@
 
 #include "Player.hpp"
 
-Player::Player( Transform                   transform,
-                std::shared_ptr<Texture>    texture,
+Player::Player( std::shared_ptr<Texture>    texture,
                 std::shared_ptr<Mesh>       mesh,
                 std::shared_ptr<Animator>   animator,
-                RigidBody                   rigidBody,
+                std::shared_ptr<RigidBody>  rigidBody,
                 std::string shader,
                 std::string shadowShader,
                 float cameraWidth,
                 float cameraHeight) :
-                GameObject(transform, texture, mesh, rigidBody, shader, shadowShader)
+                GameObject(texture, mesh, rigidBody, shader, shadowShader)
                 
 {
     this->direction = glm::vec3(0.f,0.f,-1.f);

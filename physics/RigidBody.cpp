@@ -1,9 +1,14 @@
 #include <limits>
 
 #include "RigidBody.hpp"
-#include "Collider.hpp"
 
-RigidBody::RigidBody()
+
+RigidBody::RigidBody(glm::vec3 position, 
+                    glm::quat orientation,
+                    std::vector<std::shared_ptr<Collider>> colliders) : \
+                    position(position), 
+                    orientation(orientation),
+                    colliders(colliders)
 {
 
 }
@@ -11,6 +16,26 @@ RigidBody::RigidBody()
 glm::mat4 RigidBody::GetTransform()
 {
     return this->transform;
+}
+
+void RigidBody::ComputeTransform()
+{
+    glm::mat4 scale = glm::mat4(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    );
+    glm::mat4 translation = glm::mat4(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        this->position.x, this->position.y, this->position.z, 1
+    );
+    glm::mat4 result(1.0f);
+    glm::mat4 rotationMat = glm::mat4_cast(this->orientation);
+    result *=  translation * rotationMat * scale;
+    this->transform = result;
 }
 
 void RigidBody::Integrate(float deltaTime)

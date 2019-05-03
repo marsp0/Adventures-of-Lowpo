@@ -19,6 +19,11 @@ Triangle::Triangle( glm::vec3 center,
     this->ComputeDerivedData();
 }
 
+Triangle::~Triangle()
+{
+    
+}
+
 void Triangle::ComputeDerivedData()
 {
     // compute edges

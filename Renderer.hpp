@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include "Scene.hpp"
 #include "Shader.hpp"
-#include "Terrain.hpp"
 
 class Renderer
 {
@@ -16,8 +15,8 @@ class Renderer
                 const char* vertexAnimationShadowFile, const char* fragmentAnimationShadowFile,
                 int width, int height);
 
-        void Draw(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terrain);
-        void DrawShadows(std::unique_ptr<Scene>& scene, std::shared_ptr<Terrain> terrain);
+        void Draw(std::unique_ptr<Scene>& scene);
+        void DrawShadows(std::unique_ptr<Scene>& scene);
 
     private:
 

@@ -31,11 +31,13 @@ XMLElement* Loader::LoadFile(std::string filename)
 
 std::unordered_map<std::string, std::shared_ptr<Geometry>> Loader::ParseGeometry(XMLElement* libraryGeometries)
 {
+    // geometryID should be the same as the id of node in library_visual_scenes.
     std::unordered_map<std::string, std::shared_ptr<Geometry>> result;
     for (XMLElement* current = libraryGeometries->FirstChildElement("geometry"); current != NULL ; current = current->NextSiblingElement("geometry"))
     {
         std::string name = current->Attribute("name");
         std::string geometryID = current->Attribute("id");
+        geometryID = geometryID.substr(0, geometryID.find("-mesh"));
         XMLElement* mesh = current->FirstChildElement("mesh");
         XMLElement* verticesNode = mesh->FirstChildElement("vertices");
         
@@ -87,7 +89,7 @@ std::unordered_map<std::string, std::shared_ptr<Geometry>> Loader::ParseGeometry
         std::string pData = p->GetText();
         std::vector<int> indices = Loader::SplitStringInt(pData);
         std::shared_ptr<Geometry> geometry = std::make_shared<Geometry>(Geometry(geometryID, name, stride, indices, vertexValues, texCoordValues));
-        result[name] = geometry;
+        result[geometryID] = geometry;
     }
     return result;
 }
@@ -291,7 +293,7 @@ std::unordered_map<std::string, std::shared_ptr<AnimationNode>> Loader::ParseAni
                     {
                         temp.push_back(matricesFloat[j]);
                     }
-                    matrices.push_back(glm::make_mat4(temp.data()));
+                    matrices.push_back(glm::transpose(glm::make_mat4(temp.data())));
                 }
             }
         }
@@ -314,7 +316,7 @@ std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>> Loader::Parse
             std::string name = instanceGeometry->Attribute("name");
             XMLElement* matrixNode = node->FirstChildElement("matrix");
             std::string matrixString = matrixNode->GetText();
-            glm::mat4 matrix = glm::make_mat4(Loader::SplitStringFloat(matrixString).data());
+            glm::mat4 matrix = glm::transpose(glm::make_mat4(Loader::SplitStringFloat(matrixString).data()));
             std::shared_ptr<InstanceGeometry> instance = std::make_shared<InstanceGeometry>(InstanceGeometry(id, name, matrix));
             result[id] = instance;
         }
@@ -356,7 +358,7 @@ std::unordered_map<std::string, std::shared_ptr<SkeletonNode>> Loader::ParseVisu
             std::string name = node->Attribute("name");
             std::string sid = "";
             std::string matrixString = node->FirstChildElement("matrix")->GetText();
-            glm::mat4 matrix = glm::make_mat4(Loader::SplitStringFloat(matrixString).data());
+            glm::mat4 matrix = glm::transpose(glm::make_mat4(Loader::SplitStringFloat(matrixString).data()));
             std::vector<std::shared_ptr<SkeletonNode>> children;
             for (XMLElement* child = node->FirstChildElement("node"); child != NULL; child = child->NextSiblingElement("node"))
             {
@@ -376,7 +378,7 @@ std::shared_ptr<SkeletonNode> Loader::ParseSkeletonNodes(tinyxml2::XMLElement* n
     std::string name = node->Attribute("name");
     std::string sid = node->Attribute("sid");
     std::string matrixString = node->FirstChildElement("matrix")->GetText();
-    glm::mat4 matrix = glm::make_mat4(Loader::SplitStringFloat(matrixString).data());
+    glm::mat4 matrix = glm::transpose(glm::make_mat4(Loader::SplitStringFloat(matrixString).data()));
     std::vector<std::shared_ptr<SkeletonNode>> children;
     for (XMLElement* child = node->FirstChildElement("node"); child != NULL; child = child->NextSiblingElement("node"))
     {

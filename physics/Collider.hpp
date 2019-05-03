@@ -4,8 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include "RigidBody.hpp"
-
 enum ColliderType
 {
     TRIANGLE,
@@ -19,7 +17,7 @@ enum DynamicType
     Dynamic,
     WithPhysics
 };
-
+class RigidBody;
 /* 
 Collider is the base class of all colliders in the engine.
 declares the behaviour/data that every collider should have.
@@ -40,12 +38,16 @@ class Collider
 
         virtual ~Collider();
 
-        const std::vector<glm::vec3>& GetPoints();
+        const std::vector<glm::vec3>&                       GetPoints();
+        const std::vector<glm::vec3>&                       GetPointsOnFaces();
+        const std::vector<std::pair<glm::vec3, float>>&     GetFaces();
         const std::vector<std::pair<glm::vec3, glm::vec3>>& GetEdges();
-        const std::vector<std::pair<glm::vec3, float>>& GetFaces();
-        const std::vector<glm::vec3>& GetPointsOnFaces();
-        std::shared_ptr<RigidBody> GetParent();
-        virtual void ComputeDerivedData() = 0;
+
+        std::shared_ptr<RigidBody>                          GetParent();
+        void                                                SetParent(std::shared_ptr<RigidBody> rigidBody);
+        
+        virtual void                                        ComputeDerivedData() = 0;
+
         void Update(glm::vec3 position);
 
         glm::vec3    center;

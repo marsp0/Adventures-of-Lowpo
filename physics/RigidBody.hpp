@@ -1,18 +1,22 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 class Collider;
+class Triangle;
+class AABB;
 
 class RigidBody
 {
     public:
 
-        RigidBody();
+        RigidBody(glm::vec3 position, glm::quat orientation, std::vector<std::shared_ptr<Collider>> colliders);
 
         glm::mat4 GetTransform();
+        void ComputeTransform();
 
         void Integrate(float deltaTime);
 

@@ -27,6 +27,8 @@ class Triangle : public Collider
                     DynamicType             dynamicType,
                     std::shared_ptr<RigidBody> rigidBody);
 
+        ~Triangle();
+
         virtual void ComputeDerivedData();
 
         // DATA

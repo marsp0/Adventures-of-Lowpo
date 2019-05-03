@@ -6,8 +6,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
 
-#include "Mesh.hpp"
-
 class Bone 
 {
     public:

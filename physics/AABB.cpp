@@ -13,6 +13,11 @@ AABB::AABB( glm::vec3 center,
     this->ComputeDerivedData();
 }
 
+AABB::~AABB()
+{
+    
+}
+
 void AABB::ComputeDerivedData()
 {
     // compute points

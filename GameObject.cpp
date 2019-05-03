@@ -1,19 +1,17 @@
 #include "GameObject.hpp"
 
-GameObject::GameObject( Transform                   transform, 
-                        std::shared_ptr<Texture>    texture, 
+GameObject::GameObject( std::shared_ptr<Texture>    texture, 
                         std::shared_ptr<Mesh>       mesh,
-                        RigidBody                   rigidBody,
+                        std::shared_ptr<RigidBody>  rigidBody,
                         std::string shader,
                         std::string shadowShader) :
-    transform(transform), rigidBody(rigidBody), shader(shader), shadowShader(shadowShader)
+                        mesh(mesh),
+                        texture(texture),
+                        rigidBody(rigidBody), 
+                        shader(shader), 
+                        shadowShader(shadowShader)
 {
-    this->mesh = mesh;
-    
-    if (texture != NULL)
-    {
-        this->texture = texture;
-    }
+
 }
 
 void GameObject::HandleInput(GLFWwindow* window)
@@ -33,4 +31,14 @@ void GameObject::Render(std::shared_ptr<Shader> shader)
     this->mesh->Unbind();
     this->texture->Unbind();
 
+}
+
+glm::mat4 GameObject::GetWorldMatrix()
+{
+    return this->rigidBody->GetTransform();
+}
+
+glm::vec3 GameObject::GetPosition()
+{
+    return this->rigidBody->GetPosition();
 }

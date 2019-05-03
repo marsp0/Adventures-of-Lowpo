@@ -3,9 +3,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <memory>
+#include <iostream>
 
 #include "Game.hpp"
-#include "Terrain.hpp"
 #include "Loader.hpp"
 
 
@@ -70,7 +70,6 @@ Game::Game(int width, int height) :
     this->scene             = std::make_unique<Scene>(Scene((float)this->width, (float)this->height));
     this->renderer          = std::make_unique<Renderer>("vertex.glsl","fragment.glsl", "vertexShadow.glsl", "fragmentShadow.glsl","vertexAnimated.glsl", "fragmentAnimated.glsl", "vertexAnimatedShadow.glsl", "fragmentShadow.glsl", width, height);
     this->resourseManager   = ResourceManager();
-    this->physicsEngine     = PhysicsEngine();
 }
 
 void Game::Init()
@@ -129,14 +128,12 @@ void Game::Update(float deltaTime)
     {
         this->scene->gameObjects[i]->Update(deltaTime);
     }
-
-    this->physicsEngine.Step(deltaTime, this->scene->gameObjects, this->terrain);
 }
 
 void Game::Render()
 {
-    this->renderer->DrawShadows(this->scene, terrain);
-    this->renderer->Draw(this->scene, terrain);
+    this->renderer->DrawShadows(this->scene);
+    this->renderer->Draw(this->scene);
 }
 
 void Game::Run()

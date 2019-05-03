@@ -1,4 +1,5 @@
 #include "Collider.hpp"
+#include "RigidBody.hpp"
 
 Collider::Collider( glm::vec3 center, 
                     std::string name,
@@ -46,6 +47,11 @@ const std::vector<glm::vec3>& Collider::GetPointsOnFaces()
 std::shared_ptr<RigidBody> Collider::GetParent()
 {
     return this->rigidBody;
+}
+
+void Collider::SetParent(std::shared_ptr<RigidBody> rigidBody)
+{
+    this->rigidBody = rigidBody;
 }
 
 void Collider::Update(glm::vec3 position)
