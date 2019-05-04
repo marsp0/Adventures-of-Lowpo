@@ -15,7 +15,7 @@ ResourceManager::ResourceManager()
     
 }
 
-void ResourceManager::InitWorld()
+void ResourceManager::InitWorld(std::vector<std::shared_ptr<GameObject>>& gameObjects, std::shared_ptr<Grid>& grid)
 {
     // global texture
     std::string filename = "./resources/texture.jpg";
@@ -23,10 +23,14 @@ void ResourceManager::InitWorld()
 
     std::vector<std::shared_ptr<GameObject>> gameObjects;
     filename = "./resources/test.dae";
-    // load file
-    tinyxml2::XMLElement* collada = Loader::LoadFile(filename);
-    if (collada == nullptr)
+    tinyxml2::XMLDocument document;
+    // TODO : check for the extension and report error if different from .dae
+    tinyxml2::XMLError error = document.LoadFile(filename.c_str());
+    if (error != 0)
         return;
+    // the document represents the "whole" file so we need to qu
+    // is always Collada
+    tinyxml2::XMLElement* collada = document.FirstChildElement("COLLADA");
     
     // parse visual scenes for the world transforms.
     std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>> instanceGeometries;
@@ -121,12 +125,13 @@ void ResourceManager::InitWorld()
             gameObjects.push_back(gameObject);
         }
     }
+    std::cout << gameObjects.size() << std::endl;
 }
 
 std::vector<float> ResourceManager::BuildBufferData(std::shared_ptr<Geometry> geometry)
 {
     std::vector<float> bufferData;
-    for (int i = 0; geometry->indices.size(); i += geometry->stride * 3)
+    for (int i = 0; i < geometry->indices.size(); i += geometry->stride * 3)
     {
         std::vector<int> vertexIndices{ geometry->indices[i],
                                         geometry->indices[i + geometry->stride],

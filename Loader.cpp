@@ -63,8 +63,6 @@ std::unordered_map<std::string, std::shared_ptr<Geometry>> Loader::ParseGeometry
             {
                 texCoordsID = input->Attribute("source");
                 texCoordsID = texCoordsID.substr(1, texCoordsID.length() - 1);
-                std::string offset = input->Attribute("offset");
-                texCoordsOffset = std::stoi(offset);
             }
             stride++;
         }
@@ -313,6 +311,7 @@ std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>> Loader::Parse
         if (instanceGeometry != nullptr)
         {
             std::string id = instanceGeometry->Attribute("url");
+            id = id.substr(1, id.find("-mesh") - 1);
             std::string name = instanceGeometry->Attribute("name");
             XMLElement* matrixNode = node->FirstChildElement("matrix");
             std::string matrixString = matrixNode->GetText();
@@ -462,8 +461,9 @@ Geometry::Geometry( std::string id,
                     std::vector<int> indices,
                     std::vector<float> vertices, 
                     std::vector<float> texCoords) : \
-                    name(name),
                     id(id),
+                    name(name),
+                    stride(stride),
                     indices(indices),
                     vertices(vertices),
                     texCoords(texCoords)

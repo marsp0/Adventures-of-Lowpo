@@ -8,13 +8,6 @@
 
 /* 
 Triangle Collider
-Points - {a,b,c}
-    // b
-    // |\
-    // | \ a
-    // | /
-    // |/
-    // c
  */
 class Triangle : public Collider
 {
@@ -32,6 +25,7 @@ class Triangle : public Collider
         virtual void ComputeDerivedData();
 
         // DATA
-        glm::vec3 normal;
+        glm::vec3               normal;
+        std::vector<glm::vec3>  points;
     private:
 };

@@ -70,6 +70,7 @@ Game::Game(int width, int height) :
     this->scene             = std::make_unique<Scene>(Scene((float)this->width, (float)this->height));
     this->renderer          = std::make_unique<Renderer>("vertex.glsl","fragment.glsl", "vertexShadow.glsl", "fragmentShadow.glsl","vertexAnimated.glsl", "fragmentAnimated.glsl", "vertexAnimatedShadow.glsl", "fragmentShadow.glsl", width, height);
     this->resourseManager   = ResourceManager();
+    this->resourseManager.InitWorld();
 }
 
 void Game::Init()
