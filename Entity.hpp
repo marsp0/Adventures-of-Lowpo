@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <unordered_map>
 
-class Component;
+#include "Component/Component.hpp"
 /* 
 Entity holds a list of components that will get processed by the
 various systems.
@@ -18,7 +18,7 @@ class Entity
         void AddComponent(std::unique_ptr<Component>& component);
         bool HasComponent(std::uint32_t type);
         template <typename T> 
-        T& GetComponent(std::uint32_t type); 
+        std::unique_ptr<T>& GetComponent(std::uint32_t type); 
         
         bool IsAlive();
         bool IsEligibleForSystem(std::uint32_t requiredBitset);

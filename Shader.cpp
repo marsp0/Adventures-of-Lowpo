@@ -5,7 +5,17 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
+Shader::Shader(std::string vertexPath, std::string fragmentPath)
+{
+    this->ID = this->Load(vertexPath, fragmentPath);
+}
+
+Shader::Shader(const Shader& other)
+{
+    this->ID = other.ID;
+}
+
+unsigned int Shader::Load(std::string vertexPath, std::string fragmentPath)
 {
     // Load a shader from file to a c string;
     const GLchar* vertexSource;
@@ -48,18 +58,19 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
         std::cout << "FRAGMENT SHADER :: COMPILE ERROR :: " << fragmentPath << " " << infoLog << std::endl;
     }
     // program
-    this->ID = glCreateProgram();
-    glAttachShader(this->ID,vertexID);
-    glAttachShader(this->ID,fragmentID);
-    glLinkProgram(this->ID);
-    glGetProgramiv(this->ID,GL_LINK_STATUS, &success);
+    unsigned int id = glCreateProgram();
+    glAttachShader(id,vertexID);
+    glAttachShader(id,fragmentID);
+    glLinkProgram(id);
+    glGetProgramiv(id,GL_LINK_STATUS, &success);
     if (!success)
     {
-        glGetProgramInfoLog(this->ID, 512,NULL, infoLog);
+        glGetProgramInfoLog(id, 512,NULL, infoLog);
         std::cout << "PROGRAM SHADER :: LINK ERROR :: " << infoLog << std::endl;
     }
     glDeleteShader(vertexID);
     glDeleteShader(fragmentID);
+    return id;
 }
 
 void Shader::Use()

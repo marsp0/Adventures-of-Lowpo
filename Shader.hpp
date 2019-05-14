@@ -6,8 +6,11 @@
 class Shader
 {
     public:
-        Shader(const char* vertexPath, const char* fragmentPath);
+        Shader(std::string vertexPath, std::string fragmentPath);
+        // Copy Constructor
+        Shader(const Shader& other);
         void Use();
+        unsigned int Load(std::string vertexPath, std::string fragmnetPath);
 
         void SetFloat(const GLchar* name, GLfloat value);
         void SetInt(const GLchar* name, GLint value);
