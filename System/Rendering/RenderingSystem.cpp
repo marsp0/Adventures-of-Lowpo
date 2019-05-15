@@ -2,6 +2,8 @@
 #include <GL/glew.h>
 
 #include "RenderingSystem.hpp"
+#include "RenderingComponent.hpp"
+#include "TransformComponent.hpp"
 #include "../Entity.hpp"
 
 RenderingSystem::RenderingSystem(std::vector<std::string> shaders, std::vector<std::string> shadowShaders)
@@ -16,9 +18,9 @@ RenderingSystem::RenderingSystem(std::vector<std::string> shaders, std::vector<s
     }
     this->width = 800;
     this->height = 600;
-    this->shadowWidth = 2048;
-    this->shadowHeight = 2048;
-
+    this->ambient = 0.3f;
+    this->diffuse = 0.5f;
+    this->lightDirection = glm::vec3(-48.f,-128.f,0.f);
     // TODO : Make shadows appear
 }
 
@@ -27,7 +29,7 @@ RenderingSystem::~RenderingSystem()
 
 }
 
-void RenderingSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities)
+void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities)
 {
     // initial prep
     glViewport(0, 0, this->width, this->height);
@@ -39,7 +41,31 @@ void RenderingSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity
     {
         if (entities[i]->IsEligibleForSystem(this->requiredBitset))
         {
-            // draw entities
+            RenderingComponent renderingComponent = entities[i]->GetComponent<RenderingComponent>(ComponentType::Rendering);
+            TransformComponent transformComponent = entities[i]->GetComponent<TransformComponent>(ComponentType::Transform);
+            ShaderType shaderType = renderingComponent.GetShaderType();
+            this->shaders[shaderType].Use();
+            this->shaders[shaderType].SetVector3f("light.direction", this->lightDirection);
+            this->shaders[shaderType].SetVector3f("light.ambient", ambient, ambient, ambient);
+            this->shaders[shaderType].SetVector3f("light.diffuse", diffuse, diffuse, diffuse);
+            this->shaders[shaderType].SetMat4("model", transformComponent.GetWorldTransform());
+
+            // texture bind
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, renderingComponent.GetTextureID());
+
+            // vao bind
+            glBindVertexArray(renderingComponent.GetVertexArrayID());
+
+            // draw
+            glDrawArrays(GL_TRIANGLES, 0, renderingComponent.GetVertexCount());
+
+            // unbind vao
+            glBindVertexArray(0);
+
+            // unbind texture
+            glBindTexture(GL_TEXTURE_2D, 0);
+
         }
     }
 }

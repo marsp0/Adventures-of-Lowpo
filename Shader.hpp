@@ -10,7 +10,7 @@ class Shader
         // Copy Constructor
         Shader(const Shader& other);
         void Use();
-        unsigned int Load(std::string vertexPath, std::string fragmnetPath);
+        unsigned int Load(std::string vertexPath, std::string fragmentPath);
 
         void SetFloat(const GLchar* name, GLfloat value);
         void SetInt(const GLchar* name, GLint value);

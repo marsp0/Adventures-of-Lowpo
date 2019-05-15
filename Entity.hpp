@@ -15,10 +15,14 @@ class Entity
     public:
         Entity();
 
-        void AddComponent(std::unique_ptr<Component>& component);
-        bool HasComponent(std::uint32_t type);
+        void AddComponent(std::shared_ptr<Component> component);
         template <typename T> 
-        std::unique_ptr<T>& GetComponent(std::uint32_t type); 
+        inline T& GetComponent(std::uint32_t type)
+        {
+            std::shared_ptr<Component> component = this->components[this->typeToIndexMap[type]];
+            return *(static_cast<T*>(component).get());
+        }
+        bool HasComponent(std::uint32_t type);
         
         bool IsAlive();
         bool IsEligibleForSystem(std::uint32_t requiredBitset);
@@ -27,6 +31,6 @@ class Entity
 
         bool isAlive;
         std::uint32_t componentBitset;
-        std::vector<std::unique_ptr<Component>> components;
+        std::vector<std::shared_ptr<Component>> components;
         std::unordered_map<std::uint32_t, int>  typeToIndexMap;
 };

@@ -12,7 +12,7 @@ class RenderingSystem
         RenderingSystem(std::vector<std::string> shaders, std::vector<std::string> shadowShaders);
         ~RenderingSystem();
 
-        void Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities);
+        void Update(std::vector<std::shared_ptr<Entity>>& entities);
 
     private:
 
@@ -31,4 +31,9 @@ class RenderingSystem
 
         int width;
         int height;
+
+        // light
+        float ambient;
+        float diffuse;
+        glm::vec3 lightDirection;
 };
