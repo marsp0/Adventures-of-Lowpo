@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <unordered_map>
 
-#include "Component/Component.hpp"
+#include "Components/Component.hpp"
 /* 
 Entity holds a list of components that will get processed by the
 various systems.
@@ -16,6 +16,8 @@ class Entity
         Entity();
 
         void AddComponent(std::shared_ptr<Component> component);
+        // Why do i have to pass both the component name as the template arg
+        // and the type as the func arg ?
         template <typename T> 
         inline T& GetComponent(std::uint32_t type)
         {
@@ -23,7 +25,6 @@ class Entity
             return *(static_cast<T*>(component).get());
         }
         bool HasComponent(std::uint32_t type);
-        
         bool IsAlive();
         bool IsEligibleForSystem(std::uint32_t requiredBitset);
 
