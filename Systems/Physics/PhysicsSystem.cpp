@@ -7,6 +7,14 @@ PhysicsSystem::PhysicsSystem(float gridLength, float cellHalfWidth) : grid(gridL
     this->requiredBitset = ComponentType::Physics | ComponentType::Transform;
 }
 
+void PhysicsSystem::Init(std::vector<std::shared_ptr<Collider>>& colliders)
+{
+    for (int i = 0; i < colliders.size(); i++)
+    {
+        this->grid.Insert(colliders[i]);
+    }
+}
+
 void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities)
 {
     // Integration step

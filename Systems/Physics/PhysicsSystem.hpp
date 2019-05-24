@@ -14,6 +14,7 @@ class PhysicsSystem
         PhysicsSystem(float gridLength, float cellHalfWidth);
         ~PhysicsSystem();
 
+        void Init(std::vector<std::shared_ptr<Collider>>& colliders);
         void Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities);
 
     private:
