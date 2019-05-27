@@ -26,7 +26,7 @@ class Entity
         }
         bool HasComponent(std::uint32_t type);
         bool IsAlive();
-        bool IsEligibleForSystem(std::uint32_t requiredBitset);
+        bool IsEligibleForSystem(std::uint32_t primaryBitset);
 
     private:
 

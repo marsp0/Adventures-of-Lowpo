@@ -391,6 +391,54 @@ std::shared_ptr<SkeletonNode> Loader::ParseSkeletonNodes(tinyxml2::XMLElement* n
 // =================
 // UTILITY FUNCTIONS
 // =================
+
+std::vector<float> Loader::BuildBufferData(std::shared_ptr<Geometry> geometry)
+{
+    std::vector<float> bufferData;
+    for (int i = 0; i < geometry->indices.size(); i += geometry->stride * 3)
+    {
+        std::vector<int> vertexIndices{ geometry->indices[i],
+                                        geometry->indices[i + geometry->stride],
+                                        geometry->indices[i + 2 * geometry->stride]};
+        std::vector<int> textureIndices{geometry->indices[i + 2],
+                                        geometry->indices[i + 2 + geometry->stride],
+                                        geometry->indices[i + 2 + 2 * geometry->stride]};
+        std::vector<glm::vec3> tempVertices;
+        std::vector<glm::vec2> tempTextureCoords;
+        for (int j = 0; j < vertexIndices.size(); j++)
+        {
+            int vertexIndex = vertexIndices[j] * 3;
+            int textureIndex = textureIndices[j] * 2;
+            float x = geometry->vertices[vertexIndex];
+            float y = geometry->vertices[vertexIndex + 1];
+            float z = geometry->vertices[vertexIndex + 2];
+
+            float s = geometry->texCoords[textureIndex];
+            float t = geometry->texCoords[textureIndex + 1];
+
+            tempVertices.push_back(glm::vec3(x,y,z));
+            tempTextureCoords.push_back(glm::vec2(s,t));
+        }
+        // Note : the cross product may point in the wrong direction.
+        glm::vec3 normal = glm::cross(tempVertices[0] - tempVertices[1], tempVertices[2] - tempVertices[1]);
+
+        for (int j = 0; j < tempVertices.size(); j++)
+        {
+            bufferData.push_back(tempVertices[j].x);
+            bufferData.push_back(tempVertices[j].y);
+            bufferData.push_back(tempVertices[j].z);
+
+            bufferData.push_back(normal.x);
+            bufferData.push_back(normal.y);
+            bufferData.push_back(normal.z);
+
+            bufferData.push_back(tempTextureCoords[j].s);
+            bufferData.push_back(tempTextureCoords[j].t);
+        }
+    }
+    return bufferData;
+}
+
 std::vector<float> Loader::SplitStringFloat(std::string& stringData)
 {
     std::vector<float> result;

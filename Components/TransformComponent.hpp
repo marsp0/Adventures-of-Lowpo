@@ -8,18 +8,11 @@
 class TransformComponent : public Component
 {
     public:
-        TransformComponent();
+        TransformComponent(glm::vec3 position, glm::quat orientation);
         ~TransformComponent();
 
-        void SetPosition(glm::vec3 position);
-        void SetOrientation(glm::quat orientation);
-
-        glm::vec3 GetPosition();
-        glm::quat GetOrientation();
         glm::mat4 GetWorldTransform();
-
-    private:
-
+        
         glm::vec3 position;
         glm::quat orientation;
 };

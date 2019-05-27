@@ -16,7 +16,11 @@ enum DynamicType
 class PhysicsComponent : public Component
 {
     public:
-        PhysicsComponent();
+        PhysicsComponent( float mass, 
+                        glm::vec3 position,
+                        glm::quat orientation,
+                        glm::mat3 inertiaTensor,
+                        DynamicType type);
         ~PhysicsComponent();
         void SetMass(float mass);
         float GetMass();

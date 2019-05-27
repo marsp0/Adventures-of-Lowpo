@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Components/Component.hpp"
-#include <Entity.hpp>
 
+class Entity;
 class AnimationSystem
 {
     public:
@@ -12,5 +12,5 @@ class AnimationSystem
         void Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities);
 
     private:
-        std::uint32_t requiredBitset;
+        std::uint32_t primaryBitset;
 };

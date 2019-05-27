@@ -102,6 +102,7 @@ class Loader
         // =======
         // UTILITY
         // =======
+        static std::vector<float>       BuildBufferData(std::shared_ptr<Geometry> geometry);
         static std::vector<int>         SplitStringInt(std::string& stringData);
         static std::vector<float>       SplitStringFloat(std::string& stringData);
         static std::vector<std::string> SplitString(std::string& stringData);

@@ -20,6 +20,6 @@ class PhysicsSystem
     private:
 
         Grid                grid;
-        std::uint32_t       requiredBitset;
+        std::uint32_t       primaryBitset;
         CollisionResolver   collisionResolver;
 };

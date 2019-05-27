@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include "../../Shader.hpp"
+#include "Shader.hpp"
 
 class Entity;
 class RenderingSystem
@@ -16,7 +16,7 @@ class RenderingSystem
 
     private:
 
-        std::uint32_t requiredBitset;
+        std::uint32_t primaryBitset;
 
         // Shaders
         std::vector<Shader> shaders;

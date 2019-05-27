@@ -1,14 +1,17 @@
 #pragma once
 
+#include <vector>
 #include "Component.hpp"
 
-enum Movement
+enum Action
 {
-    Forward,
-    Backward,
-    Left,
-    Right,
-    Jump
+    MoveForward,
+    MoveBackward,
+    MoveLeft,
+    MoveRight,
+    Jump,
+    Dance,
+    Size
 };
 
 class InputComponent : public Component
@@ -17,5 +20,5 @@ class InputComponent : public Component
         InputComponent();
         ~InputComponent();
 
-        bool actions[5];
+        std::vector<bool> actions;
 };

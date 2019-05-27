@@ -5,8 +5,7 @@
 #include <memory>
 #include <GLFW/glfw3.h>
 
-#include "../../Entity.hpp"
-
+class Entity;
 class InputSystem
 {
     public:
@@ -15,5 +14,5 @@ class InputSystem
 
         void Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>>& entities);
     private:
-        std::uint32_t requiredBitset;
+        std::uint32_t primaryBitset;
 };  

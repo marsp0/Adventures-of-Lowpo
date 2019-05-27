@@ -4,7 +4,7 @@
 
 PhysicsSystem::PhysicsSystem(float gridLength, float cellHalfWidth) : grid(gridLength, cellHalfWidth)
 {
-    this->requiredBitset = ComponentType::Physics | ComponentType::Transform;
+    this->primaryBitset = ComponentType::Physics | ComponentType::Transform;
 }
 
 void PhysicsSystem::Init(std::vector<std::shared_ptr<Collider>>& colliders)
@@ -20,7 +20,7 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
     // Integration step
     for (int i = 0; i < entities.size(); i++)
     {
-        if (entities[i]->IsEligibleForSystem(this->requiredBitset))
+        if (entities[i]->IsEligibleForSystem(this->primaryBitset))
         {
             // acceleration update
             PhysicsComponent component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);

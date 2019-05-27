@@ -14,28 +14,3 @@ RenderingComponent::RenderingComponent( unsigned int vertexArray,
 {
 
 }
-
-unsigned int RenderingComponent::GetVertexArrayID()
-{
-    return this->vertexArrayID;
-}
-
-unsigned int RenderingComponent::GetVertexBufferID()
-{
-    return this->vertexBufferID;
-}
-
-unsigned int RenderingComponent::GetVertexCount()
-{
-    return this->vertexCount;
-}
-
-unsigned int RenderingComponent::GetTextureID()
-{
-    return this->GetTextureID;
-}
-
-ShaderType RenderingComponent::GetShaderType()
-{
-    return this->shader;
-}

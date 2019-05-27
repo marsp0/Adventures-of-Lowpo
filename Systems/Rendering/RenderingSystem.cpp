@@ -8,7 +8,7 @@
 
 RenderingSystem::RenderingSystem(std::vector<std::string> shaders, std::vector<std::string> shadowShaders)
 {
-    this->requiredBitset =  ComponentType::Rendering | \
+    this->primaryBitset =  ComponentType::Rendering | \
                             ComponentType::Transform;
     assert(shaders.size() == shadowShaders.size());
     for (int i = 0; i < shaders.size(); i += 2)
@@ -39,7 +39,7 @@ void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities)
     // set projection and view
     for (int i = 0; i < entities.size(); i++)
     {
-        if (entities[i]->IsEligibleForSystem(this->requiredBitset))
+        if (entities[i]->IsEligibleForSystem(this->primaryBitset))
         {
             RenderingComponent renderingComponent = entities[i]->GetComponent<RenderingComponent>(ComponentType::Rendering);
             TransformComponent transformComponent = entities[i]->GetComponent<TransformComponent>(ComponentType::Transform);

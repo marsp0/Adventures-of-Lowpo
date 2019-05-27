@@ -19,17 +19,11 @@ class RenderingComponent : public Component
                             ShaderType   shader);
         ~RenderingComponent();
 
-        unsigned int GetVertexArrayID();
-        unsigned int GetVertexBufferID();
-        unsigned int GetVertexCount();
-        unsigned int GetTextureID();
-        ShaderType   GetShaderType();
-
-    private:
-
         ShaderType   shader;
         unsigned int vertexArrayID;
         unsigned int vertexBufferID;
         unsigned int vertexCount;
         unsigned int textureID;
+
+    private:
 };

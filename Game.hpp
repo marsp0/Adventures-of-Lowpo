@@ -2,12 +2,12 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
 #include <memory>
-#include "Scene.hpp"
-#include "Renderer.hpp"
-#include "ResourceManager.hpp"
 
+#include "Systems/Physics/PhysicsSystem.hpp"
+#include "Systems/Animation/AnimationSystem.hpp"
+#include "Systems/Input/InputSystem.hpp"
+#include "Systems/Rendering/RenderingSystem.hpp"
 
 enum GameState
 {
@@ -16,16 +16,20 @@ enum GameState
     GAME_WIN
 };
 
+class Entity;
 class Game
 {
     public:
         Game(int width,int height);
 
         void Init();
+        void InitConfiguration();
+        void InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>& entities);
+
         void Run();
-        void HandleInput(float deltaTime);
         void Update(float deltaTime);
-        void Render();
+
+        std::pair<unsigned int, unsigned int> SetupBuffers(float* data, int size, bool animated);
 
         // data
         GameState state;
@@ -33,11 +37,13 @@ class Game
         int                         width;
         int                         height;
         GLFWwindow*                 window;
-        
-        std::unique_ptr<Scene>      scene;
-        std::unique_ptr<Renderer>   renderer;
-        ResourceManager             resourseManager;
 
-        float ambient;
-        float diffuse;
+        // Entities
+        std::vector<std::shared_ptr<Entity>> entities;
+
+        // SYSTEMS
+        InputSystem                 inputSystem;
+        PhysicsSystem               physicsSystem;
+        AnimationSystem             animationSystem;
+        RenderingSystem             renderingSystem;
 };
