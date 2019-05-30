@@ -11,9 +11,9 @@ class Entity;
 class RenderingSystem
 {
     public:
-        RenderingSystem(std::vector<std::string> shaders, std::vector<std::string> shadowShaders);
+        RenderingSystem();
         ~RenderingSystem();
-
+        void AddShaders(std::vector<std::string> shaders, std::vector<std::string> shadowShaders);
         void Update(std::vector<std::shared_ptr<Entity>>& entities);
         unsigned int CreateTexture(std::string filename);
 

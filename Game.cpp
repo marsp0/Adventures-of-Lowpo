@@ -73,20 +73,23 @@ Game::Game(int width, int height) :
     width(width), height(height) , 
     physicsSystem(70.f, 5.f),
     // FIX THIS
-    renderingSystem(std::vector<std::string>{"../Systems/Rendering/vertex.glsl", "../Systems/Rendering/fragment.glsl"}, 
-                    std::vector<std::string>{"../Systems/Rendering/vertexShadow.glsl", "../Systems/Renderin.renderingSystem.glsl"})
+    renderingSystem()
 {
     this->Init();
+    // adding shaders after the init as we need to initialize OPENGL before
+    // we do anythin with it. It happens in the InitConfig method.
+    this->renderingSystem.AddShaders(std::vector<std::string>{"./Systems/Rendering/vertex.glsl", "./Systems/Rendering/fragment.glsl"}, 
+                                    std::vector<std::string>{"./Systems/Rendering/vertexShadow.glsl", "./Systems/Renderin.renderingSystem.glsl"});
 }
 
 void Game::Init()
 {
-    this->InitConfiguration();
+    this->InitConfig();
     std::string filename = "/home/martin/Documents/Projects/Adventures-of-Lowpo/Resources/terrain_patch.dae";
     this->InitScene(filename, this->entities);
 }
 
-void Game::InitConfiguration()
+void Game::InitConfig()
 {
     // Initialize GLFW
     glfwInit();

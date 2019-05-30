@@ -8,15 +8,9 @@
 #include "../../Entity.hpp"
 #include "../../External/stb_image.hpp"
 
-RenderingSystem::RenderingSystem(std::vector<std::string> shaders, std::vector<std::string> shadowShaders)
+RenderingSystem::RenderingSystem()
 {
     this->primaryBitset =  ComponentType::Rendering | ComponentType::Transform;
-    assert(shaders.size() == shadowShaders.size());
-    for (int i = 0; i < shaders.size(); i += 2)
-    {
-        this->shaders.push_back(Shader(shaders[i], shaders[i+1]));
-        this->shadowShaders.push_back(Shader(shadowShaders[i], shadowShaders[i+1]));
-    }
     this->width = 800;
     this->height = 600;
     this->ambient = 0.3f;
@@ -28,6 +22,15 @@ RenderingSystem::RenderingSystem(std::vector<std::string> shaders, std::vector<s
 RenderingSystem::~RenderingSystem()
 {
 
+}
+
+void RenderingSystem::AddShaders(std::vector<std::string> shaders, std::vector<std::string> shadowShaders)
+{
+    for (int i = 0; i < shaders.size(); i += 2)
+    {
+        this->shaders.push_back(Shader(shaders[i], shaders[i+1]));
+        this->shadowShaders.push_back(Shader(shadowShaders[i], shadowShaders[i+1]));
+    }
 }
 
 void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities)

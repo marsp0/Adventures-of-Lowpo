@@ -23,7 +23,7 @@ class Game
         Game(int width,int height);
 
         void Init();
-        void InitConfiguration();
+        void InitConfig();
         void InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>& entities);
 
         void Run();

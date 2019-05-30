@@ -20,7 +20,7 @@ class Collider
 {
     public:
         /* 
-        center - the center point of the collider
+        center - the center point of the collidera
         dynamic - should the collider be treated as static environment or a normal object
         that can be rotated/translated etc when forces are applied to it.
         */

@@ -37,9 +37,10 @@ unsigned int Shader::Load(std::string vertexPath, std::string fragmentPath)
     GLchar infoLog[512];
 
     // compile vertex shader
-    int vertexID;
+    unsigned int vertexID;
     vertexID = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexID,1,&vertexSource,NULL);
+    std::cout << 1 << std::endl;
+    glShaderSource(vertexID,1, &vertexSource, NULL);
     glCompileShader(vertexID);
     glGetShaderiv(vertexID,GL_COMPILE_STATUS,&success);
     if (!success)
@@ -47,7 +48,7 @@ unsigned int Shader::Load(std::string vertexPath, std::string fragmentPath)
         glGetShaderInfoLog(vertexID,512,NULL,infoLog);
         std::cout << "VERTEX SHADER :: COMPILE ERROR :: " << vertexPath << " " << infoLog << std::endl;
     }
-    int fragmentID;
+    unsigned int fragmentID;
     fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentID,1,&fragmentSource,NULL);
     glCompileShader(fragmentID);
