@@ -1,10 +1,15 @@
 #include "PhysicsSystem.hpp"
 
-#include "Components/PhysicsComponent.hpp"
+#include "../../Components/PhysicsComponent.hpp"
 
 PhysicsSystem::PhysicsSystem(float gridLength, float cellHalfWidth) : grid(gridLength, cellHalfWidth)
 {
     this->primaryBitset = ComponentType::Physics | ComponentType::Transform;
+}
+
+PhysicsSystem::~PhysicsSystem()
+{
+    
 }
 
 void PhysicsSystem::Init(std::vector<std::shared_ptr<Collider>>& colliders)

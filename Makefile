@@ -4,7 +4,9 @@ LD            	:= g++
 EXECUTABLE    	:= output
 CXXFLAGS      	:= -std=c++14 
 LDFLAGS       	:= -lGL -lGLEW -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi
-SRC_DIRS		:= . ./physics
+SRC_DIRS		:= . ./Systems/Physics ./Systems/Rendering ./Systems/Input \
+./Systems/Animation ./Components ./Components/Animation ./External
+
 # get all files with cpp extension from the src_dirs
 SRC           	:= $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
 # replace the ./physics/ with nothing
@@ -23,9 +25,9 @@ OBJ_TEST      	:= $(filter-out out/main.o, $(OBJ)) $(SRC_TEST:test/%.cpp=out/%.o
 # --------------------------------------------------------------
 
 .PHONY: all
-all: out/$(EXECUTABLE)
+all: $(EXECUTABLE)
 
-out/$(EXECUTABLE): $(OBJ)
+$(EXECUTABLE): $(OBJ)
 	@$(LD) $^ -o $@ $(LDFLAGS) && echo "[OK]  $@"
 
 # --------------------------------------------------------------
@@ -41,8 +43,28 @@ out/$(EXECUTABLE_TEST): $(OBJ_TEST)
 out/%.o: ./%.cpp
 	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
 
-out/%.o: ./physics/%.cpp
+out/%.o: ./Systems/Physics/%.cpp
 	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
+
+out/%.o: ./Systems/Animation/%.cpp
+	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
+
+out/%.o: ./Systems/Input/%.cpp
+	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
+
+out/%.o: ./Systems/Rendering/%.cpp
+	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
+
+out/%.o: ./Components/Animation/%.cpp
+	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
+
+out/%.o: ./Components/%.cpp
+	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
+
+out/%.o: ./External/%.cpp
+	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
+
+# TEST
 
 out/%.o: test/%.cpp
 	@$(CXX) $(CXXFLAGS_TEST) -c -g $< -o $@ && echo "[OK]  $@"

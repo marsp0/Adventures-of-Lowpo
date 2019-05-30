@@ -5,7 +5,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <unordered_map>
-#include "tinyxml2.hpp"
+#include "External/tinyxml2.hpp"
 
 /* 
 Contains the parsed information from a <geometry> node in a collada file.

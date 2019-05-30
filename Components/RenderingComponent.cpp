@@ -14,3 +14,8 @@ RenderingComponent::RenderingComponent( unsigned int vertexArray,
 {
 
 }
+
+RenderingComponent::~RenderingComponent()
+{
+        
+}

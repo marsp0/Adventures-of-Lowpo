@@ -1,7 +1,7 @@
 #include "AnimationSystem.hpp"
-#include "Entity.hpp"
-#include "Components/Animation/AnimationComponent.hpp"
-#include "Components/InputComponent.hpp"
+#include "../../Entity.hpp"
+#include "../../Components/Animation/AnimationComponent.hpp"
+#include "../../Components/InputComponent.hpp"
 
 AnimationSystem::AnimationSystem()
 {

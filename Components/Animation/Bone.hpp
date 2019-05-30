@@ -10,7 +10,7 @@ class Bone
 {
     public:
         // METHODS
-        Bone(   int boneIndex,
+        Bone(   int parentIndex,
                 glm::mat4 offsetMatrix, 
                 glm::mat4 toParentSpace, 
                 std::string name);

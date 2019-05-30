@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
+#include "../../Components/PhysicsComponent.hpp"
 
 enum ColliderType
 {
@@ -11,8 +12,6 @@ enum ColliderType
     PLANE
 };
 
-enum DynamicType;
-class PhysicsComponent;
 /* 
 Collider is the base class of all colliders in the engine.
 declares the behaviour/data that every collider should have.
@@ -40,7 +39,7 @@ class Collider
         std::shared_ptr<PhysicsComponent>                   GetParent();
         void                                                SetParent(std::shared_ptr<PhysicsComponent> component);
 
-        void                                                ComputeDerivedData();
+        virtual void                                        ComputeDerivedData() = 0;
         void                                                Update(glm::vec3 position);
         DynamicType                                         GetType();
         glm::vec3    center;

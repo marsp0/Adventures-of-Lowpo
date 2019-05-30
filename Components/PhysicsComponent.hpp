@@ -1,10 +1,11 @@
 #pragma once
 
+#include <vector>
+#include <memory>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 #include "Component.hpp"
-#include "Systems/Physics/Collider.hpp"
 
 enum DynamicType
 {
@@ -13,6 +14,7 @@ enum DynamicType
     WithPhysics
 };
 
+class Collider;
 class PhysicsComponent : public Component
 {
     public:

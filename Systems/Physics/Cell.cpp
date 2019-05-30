@@ -2,7 +2,7 @@
 
 #include "Cell.hpp"
 #include "CollisionDetector.hpp"
-#include "PhysicsComponent.hpp"
+#include "../../Components/PhysicsComponent.hpp"
 
 Cell::Cell(glm::vec3 center, float halfWidth) : center(center), halfWidth(halfWidth)
 {

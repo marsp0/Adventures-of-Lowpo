@@ -29,8 +29,6 @@ class Game
         void Run();
         void Update(float deltaTime);
 
-        std::pair<unsigned int, unsigned int> SetupBuffers(float* data, int size, bool animated);
-
         // data
         GameState state;
 

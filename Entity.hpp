@@ -21,8 +21,9 @@ class Entity
         template <typename T> 
         inline T& GetComponent(std::uint32_t type)
         {
-            std::shared_ptr<Component> component = this->components[this->typeToIndexMap[type]];
-            return *(static_cast<T*>(component).get());
+            std::shared_ptr<Component> baseComponent = this->components[this->typeToIndexMap[type]];
+            std::shared_ptr<T> component = std::static_pointer_cast<T>(baseComponent);
+            return *(component.get());
         }
         bool HasComponent(std::uint32_t type);
         bool IsAlive();

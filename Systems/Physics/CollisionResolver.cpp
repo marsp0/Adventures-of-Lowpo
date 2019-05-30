@@ -1,5 +1,5 @@
 #include "CollisionResolver.hpp"
-#include "Components/PhysicsComponent.hpp"
+#include "../../Components/PhysicsComponent.hpp"
 
 CollisionResolver::CollisionResolver()
 {

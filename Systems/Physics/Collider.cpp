@@ -1,5 +1,5 @@
 #include "Collider.hpp"
-#include "Components/PhysicsComponent.hpp"
+#include "../../Components/PhysicsComponent.hpp"
 
 Collider::Collider( glm::vec3 center, 
                     std::string name,

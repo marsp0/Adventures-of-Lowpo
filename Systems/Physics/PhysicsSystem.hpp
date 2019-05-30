@@ -5,7 +5,7 @@
 #include <cstdint>
 
 #include "Grid.hpp"
-#include "Entity.hpp"
+#include "../../Entity.hpp"
 #include "CollisionResolver.hpp"
 
 class PhysicsSystem

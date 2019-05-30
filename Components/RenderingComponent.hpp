@@ -4,8 +4,8 @@
 
 enum ShaderType
 {
-    Normal,
-    Animated
+    NormalShader,
+    AnimatedShader
 };
 
 class RenderingComponent : public Component

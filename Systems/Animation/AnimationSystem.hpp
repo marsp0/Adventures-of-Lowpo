@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Components/Component.hpp"
+#include <vector>
+#include <memory>
+#include "../../Components/Component.hpp"
 
 class Entity;
 class AnimationSystem

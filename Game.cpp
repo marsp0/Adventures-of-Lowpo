@@ -5,12 +5,14 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/quaternion.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
 
 #include "Game.hpp"
 #include "Loader.hpp"
 #include "Entity.hpp"
 #include "Systems/Physics/AABB.hpp"
+#include "External/tinyxml2.hpp"
 #include "Components/PhysicsComponent.hpp"
 #include "Components/RenderingComponent.hpp"
 #include "Components/TransformComponent.hpp"
@@ -69,7 +71,10 @@ void APIENTRY openglCallbackFunction(GLenum source,
 
 Game::Game(int width, int height) :
     width(width), height(height) , 
-    physicsSystem(70.f, 5.f)
+    physicsSystem(70.f, 5.f),
+    // FIX THIS
+    renderingSystem(std::vector<std::string>{"../Systems/Rendering/vertex.glsl", "../Systems/Rendering/fragment.glsl"}, 
+                    std::vector<std::string>{"../Systems/Rendering/vertexShadow.glsl", "../Systems/Renderin.renderingSystem.glsl"})
 {
     this->Init();
 }
@@ -111,6 +116,7 @@ void Game::InitConfiguration()
 
 void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>& entities)
 {
+    unsigned int textureID = this->renderingSystem.CreateTexture("Resources/DiffuseColor_Texture.png");
     tinyxml2::XMLDocument document;
     // TODO : check for the extension and report error if different from .dae
     tinyxml2::XMLError error = document.LoadFile(filename.c_str());
@@ -163,81 +169,51 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
             std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(center, it->first, axisRadii, ColliderType::BOX, nullptr));
             objectToColliders[objectName].push_back(collider);
         }
-
-        std::vector<float> bufferData;
-        glm::mat4 worldTransform;
-        // second iteration to create game entities
-        for (std::unordered_map<std::string, std::shared_ptr<Geometry>>::iterator it = geometry.begin(); it != geometry.end(); it++)
-        {
-            bool isHitbox = it->first.find("_hitbox") != it->first.npos;
-            if (isHitbox)
-                continue;
-
-            std::shared_ptr<Geometry> current = it->second;
-            bufferData = Loader::BuildBufferData(current);
-            worldTransform = instanceGeometries[it->first]->matrix;
-            std::pair<unsigned int, unsigned int> buffers = this->SetupBuffers(bufferData.data(), bufferData.size() * sizeof(float), false);
-            glm::vec3 scale;
-            glm::quat rotation;
-            glm::vec3 translation;
-            glm::vec3 skew;
-            glm::vec4 perspective;
-            glm::decompose(worldTransform, scale, rotation, translation, skew, perspective);
-            rotation = glm::conjugate(rotation);
-            // RenderingComponent
-            // we need to have
-            // VAO, VBO and Texture loaded.
-            std::shared_ptr<RenderingComponent> renderingComponent = std::make_shared<RenderingComponent>(RenderingComponent())
-            // ===================
-            // TODO
-            // we need to figure out the mass and the type of physics component
-            // ===================
-            
-            // PhysicsComponent
-            std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), DynamicType::Static));
-            std::shared_ptr<TransformComponent> transformComponent= std::make_shared<TransformComponent>(TransformComponent(translation, rotation));
-            // Entity
-
-            // push_back
-        }
-        // Push back an entity
     }
+    std::vector<float> bufferData;
+    glm::mat4 worldTransform;
+    // second iteration to create game entities
+    for (std::unordered_map<std::string, std::shared_ptr<Geometry>>::iterator it = geometry.begin(); it != geometry.end(); it++)
+    {
+        bool isHitbox = it->first.find("_hitbox") != it->first.npos;
+        if (isHitbox)
+            continue;
+
+        std::shared_ptr<Geometry> current = it->second;
+        bufferData = Loader::BuildBufferData(current);
+        worldTransform = instanceGeometries[it->first]->matrix;
+        std::pair<unsigned int, unsigned int> buffers = RenderingSystem::BufferData(bufferData.data(), bufferData.size() * sizeof(float), false);
+        glm::vec3 scale;
+        glm::quat rotation;
+        glm::vec3 translation;
+        glm::vec3 skew;
+        glm::vec4 perspective;
+        glm::decompose(worldTransform, scale, rotation, translation, skew, perspective);
+        rotation = glm::conjugate(rotation);
+        // RenderingComponent
+        // we need to have
+        // VAO, VBO and Texture loaded.
+        std::shared_ptr<RenderingComponent> renderingComponent = std::make_shared<RenderingComponent>(RenderingComponent(buffers.first, buffers.second, bufferData.size() / 3, textureID, ShaderType::NormalShader));
+        // ===================
+        // TODO
+        // we need to figure out the mass and the type of physics component
+        // ===================
+        
+        // PhysicsComponent
+        std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), DynamicType::Static));
+        std::shared_ptr<TransformComponent> transformComponent= std::make_shared<TransformComponent>(TransformComponent(translation, rotation));
+        // Entity
+        std::shared_ptr<Entity> entity = std::make_shared<Entity>(Entity());
+        entity->AddComponent(renderingComponent);
+        entity->AddComponent(physicsComponent);
+        entity->AddComponent(transformComponent);
+        // push_back
+        entities.push_back(entity);
+    }
+    // Push back an entity
 }
 
-std::pair<unsigned int,unsigned int> Game::SetupBuffers(float* data, int size, bool animated)
-{
-    int floatCount = 8;
-    if (animated)
-    {
-        floatCount = 16;
-    }
-    unsigned int VAO,VBO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER,VBO);
-    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, floatCount * sizeof(float), (void*)0);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, floatCount * sizeof(float),(void*)(sizeof(float)*3));
-
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, floatCount * sizeof(float), (void*)(sizeof(float)*6));
-
-    if (animated)
-    {
-        glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, floatCount * sizeof(float), (void*)(sizeof(float)*8));
-
-        glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, floatCount * sizeof(float), (void*)(sizeof(float)*12));
-    }
-    return std::make_pair(VAO,VBO);
-}
-
+    
 void Game::Update(float deltaTime)
 {
     // FIXME : this should not be here

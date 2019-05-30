@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
-#include "Component.hpp"
+#include "../../Components/Component.hpp"
 #include "Animation.hpp"
 #include "Bone.hpp"
 

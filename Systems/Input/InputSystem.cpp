@@ -1,6 +1,6 @@
 #include "InputSystem.hpp"
-#include "InputComponent.hpp"
-#include "Entity.hpp"
+#include "../../Components/InputComponent.hpp"
+#include "../../Entity.hpp"
 
 InputSystem::InputSystem()
 {
