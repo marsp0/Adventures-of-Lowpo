@@ -73,7 +73,8 @@ Game::Game(int width, int height) :
     width(width), height(height) , 
     physicsSystem(70.f, 5.f),
     // FIX THIS
-    renderingSystem()
+    renderingSystem(),
+    currentID(1)
 {
     this->Init();
     // adding shaders after the init as we need to initialize OPENGL before
@@ -85,7 +86,7 @@ Game::Game(int width, int height) :
 void Game::Init()
 {
     this->InitConfig();
-    std::string filename = "/home/martin/Documents/Projects/Adventures-of-Lowpo/Resources/terrain_patch.dae";
+    std::string filename = "Resources/terrain_patch.dae";
     this->InitScene(filename, this->entities);
 }
 
@@ -169,7 +170,9 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
             float z = fabs(center.z - it->second->vertices[2]);
             glm::vec3 axisRadii = glm::vec3( x, y, z);
             center = instanceGeometries[it->first]->matrix * glm::vec4(center, 1.0f);
-            std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(center, it->first, axisRadii, ColliderType::BOX, nullptr));
+            if (objectName == "Player")
+                std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(0, center, it->first, axisRadii, ColliderType::BOX, DynamicType::Dynamic));
+            std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(0, center, it->first, axisRadii, ColliderType::BOX, DynamicType::Static));
             objectToColliders[objectName].push_back(collider);
         }
     }
@@ -182,7 +185,9 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
         if (isHitbox)
             continue;
 
-        std::shared_ptr<Geometry> current = it->second;
+        std::shared_ptr<Geometry>   current = it->second;
+        std::shared_ptr<Entity>     entity = std::make_shared<Entity>(Entity(this->CreateEntityID()));
+
         bufferData = Loader::BuildBufferData(current);
         worldTransform = instanceGeometries[it->first]->matrix;
         std::pair<unsigned int, unsigned int> buffers = RenderingSystem::BufferData(bufferData.data(), bufferData.size() * sizeof(float), false);
@@ -197,16 +202,18 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
         // we need to have
         // VAO, VBO and Texture loaded.
         std::shared_ptr<RenderingComponent> renderingComponent = std::make_shared<RenderingComponent>(RenderingComponent(buffers.first, buffers.second, bufferData.size() / 3, textureID, ShaderType::NormalShader));
-        // ===================
-        // TODO
-        // we need to figure out the mass and the type of physics component
-        // ===================
-        
         // PhysicsComponent
         std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), DynamicType::Static));
+        // assign colliders to component and insert into grid
+        physicsComponent->colliders = objectToColliders[it->first];
+        for (int k = 0;k < physicsComponent->colliders.size(); k++)
+        {
+            physicsComponent->colliders[k]->entityID = entity->entityID;
+        }
+        this->physicsSystem.Insert(physicsComponent->colliders);
         std::shared_ptr<TransformComponent> transformComponent= std::make_shared<TransformComponent>(TransformComponent(translation, rotation));
         // Entity
-        std::shared_ptr<Entity> entity = std::make_shared<Entity>(Entity());
+        
         entity->AddComponent(renderingComponent);
         entity->AddComponent(physicsComponent);
         entity->AddComponent(transformComponent);
@@ -246,4 +253,9 @@ void Game::Run()
     }
 
     glfwTerminate();
+}
+
+int Game::CreateEntityID()
+{
+    return this->currentID++;
 }

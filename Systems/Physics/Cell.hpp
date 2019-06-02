@@ -19,7 +19,7 @@ class Cell
             Currently this is a float so we are dealing with cubes, but it can be modified
             to vector to handle random sized rectangles.
         */
-        Cell(glm::vec3 center, float halfWidth);
+        Cell(glm::vec3 center, float halfWidth, int row, int col);
 
         /* 
         Inserts a collider shared pointer into the cell. Could be in dynamicObjects or staticObjects 
@@ -48,6 +48,8 @@ class Cell
         std::vector<std::shared_ptr<Collider>> staticColliders;
         glm::vec3 center;
         float halfWidth;
+        int row;
+        int col;
     private:
 
 };

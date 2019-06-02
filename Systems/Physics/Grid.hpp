@@ -7,7 +7,6 @@
 #include "Collider.hpp"
 #include "Triangle.hpp"
 #include "CollisionDetector.hpp"
-#include "CollisionResolver.hpp"
 
 class Grid
 {
@@ -25,12 +24,7 @@ class Grid
         /* 
         Deletes an object from the grid.
          */
-        void Delete(std::shared_ptr<Collider>   object);
-
-        /* 
-        Update takes care of the collision check and the collision resolution.
-         */
-        void Update(float deltaTime);
+        void Remove(std::shared_ptr<Collider>   object);
         
         /*
         Performs a collision check on all the cells and generates contact data.

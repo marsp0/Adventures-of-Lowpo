@@ -24,10 +24,11 @@ class Collider
         dynamic - should the collider be treated as static environment or a normal object
         that can be rotated/translated etc when forces are applied to it.
         */
-        Collider( glm::vec3 center,
+        Collider( int entityID,
+                  glm::vec3 center,
                   std::string name,
-                  std::shared_ptr<PhysicsComponent> component,   
-                  ColliderType colliderType);
+                  ColliderType colliderType,
+                  DynamicType  dynamicType);
 
         virtual ~Collider();
 
@@ -36,21 +37,22 @@ class Collider
         const std::vector<std::pair<glm::vec3, float>>&     GetFaces();
         const std::vector<std::pair<glm::vec3, glm::vec3>>& GetEdges();
 
-        std::shared_ptr<PhysicsComponent>                   GetParent();
-        void                                                SetParent(std::shared_ptr<PhysicsComponent> component);
-
         virtual void                                        ComputeDerivedData() = 0;
-        void                                                Update(glm::vec3 position);
+        void                                                Update(glm::vec3 translation);
         DynamicType                                         GetType();
-        glm::vec3    center;
+
+        int          row;
+        int          col;
         std::string  name;
+        glm::vec3    center;
+        int          entityID;
         ColliderType colliderType;
+        DynamicType  dynamicType;
 
     protected:
 
         std::vector<glm::vec3>      points;
         std::vector<glm::vec3>      pointsOnFaces;
-        std::shared_ptr<PhysicsComponent>  component;
 
         std::vector<std::pair<glm::vec3, float>>     faces;
         std::vector<std::pair<glm::vec3, glm::vec3>> edges;

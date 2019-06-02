@@ -4,12 +4,14 @@
 #include "CollisionDetector.hpp"
 #include "../../Components/PhysicsComponent.hpp"
 
-Cell::Cell(glm::vec3 center, float halfWidth) : center(center), halfWidth(halfWidth)
+Cell::Cell(glm::vec3 center, float halfWidth, int row, int col) : center(center), halfWidth(halfWidth)
 {
 }
 
 void Cell::Insert(std::shared_ptr<Collider> object)
 {
+    object->row = this->row;
+    object->col = this->col;
     if (object->GetType() == DynamicType::Dynamic || object->GetType() == DynamicType::WithPhysics)
         this->dynamicColliders.push_back(object);
     else

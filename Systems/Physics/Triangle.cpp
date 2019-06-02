@@ -2,13 +2,14 @@
 
 #include <iostream>
 
-Triangle::Triangle( glm::vec3 center, 
+Triangle::Triangle( int entityID,
+                    glm::vec3 center, 
                     std::string name,
                     glm::vec3 normal, 
                     std::vector<glm::vec3> points, 
                     ColliderType colliderType,
-                    std::shared_ptr<PhysicsComponent> component) : 
-            Collider(center, name, component, colliderType), 
+                    DynamicType  dynamicType) : 
+            Collider(entityID, center, name, colliderType, dynamicType), 
             normal(normal),
             points(points)
 {

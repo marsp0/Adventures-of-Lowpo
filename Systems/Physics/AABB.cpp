@@ -1,12 +1,13 @@
 #include "AABB.hpp"
 #include <iostream>
 
-AABB::AABB( glm::vec3 center, 
+AABB::AABB( int entityID,
+            glm::vec3 center, 
             std::string name,
             glm::vec3 axisRadii, 
-            ColliderType colliderType, 
-            std::shared_ptr<PhysicsComponent> component) : \
-            Collider(center, name, component, colliderType), 
+            ColliderType colliderType,
+            DynamicType  dynamicType) : \
+            Collider(entityID, center, name, colliderType, dynamicType), 
             axisRadii(axisRadii)
 {
     this->ComputeDerivedData();

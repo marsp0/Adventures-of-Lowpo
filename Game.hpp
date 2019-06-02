@@ -29,8 +29,11 @@ class Game
         void Run();
         void Update(float deltaTime);
 
+        int CreateEntityID();
+
         // data
         GameState state;
+        int       currentID;
 
         int                         width;
         int                         height;

@@ -1,14 +1,16 @@
 #include "Collider.hpp"
 #include "../../Components/PhysicsComponent.hpp"
 
-Collider::Collider( glm::vec3 center, 
+Collider::Collider( int entityID,
+                    glm::vec3 center, 
                     std::string name,
-                    std::shared_ptr<PhysicsComponent> component, 
-                    ColliderType colliderType) : \
+                    ColliderType colliderType,
+                    DynamicType dynamicType) : \
+                    entityID(entityID),
                     center(center), 
                     name(name),
-                    colliderType(colliderType), 
-                    component(component)
+                    colliderType(colliderType),
+                    dynamicType(dynamicType)
 {
 
 }
@@ -42,23 +44,13 @@ const std::vector<glm::vec3>& Collider::GetPointsOnFaces()
     return this->pointsOnFaces;
 }
 
-std::shared_ptr<PhysicsComponent> Collider::GetParent()
+void Collider::Update(glm::vec3 translation)
 {
-    return this->component;
-}
-
-void Collider::SetParent(std::shared_ptr<PhysicsComponent> component)
-{
-    this->component = component;
-}
-
-void Collider::Update(glm::vec3 position)
-{
-    this->center += position;
+    this->center += translation;
     this->ComputeDerivedData();
 }
 
 DynamicType Collider::GetType()
 {
-    return this->component->dynamicType;
+    return this->dynamicType;
 }

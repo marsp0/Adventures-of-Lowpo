@@ -12,12 +12,13 @@ Triangle Collider
 class Triangle : public Collider
 {
     public:
-        Triangle(   glm::vec3               center, 
+        Triangle(   int                     entityID,
+                    glm::vec3               center, 
                     std::string             name,
                     glm::vec3               normal, 
                     std::vector<glm::vec3>  points, 
                     ColliderType            colliderType,
-                    std::shared_ptr<PhysicsComponent> component);
+                    DynamicType             dynamicType);
 
         ~Triangle();
 

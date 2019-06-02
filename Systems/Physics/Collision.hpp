@@ -13,14 +13,14 @@ Collision represents a collision between 2 colliders. It contains one or more co
 class Collision
 {
     public:
-        Collision(std::shared_ptr<PhysicsComponent> first,
+        Collision(  int firstID,
                     std::shared_ptr<Collider> firstCollider,
-                    std::shared_ptr<PhysicsComponent> second,
+                    int secondID,
                     std::shared_ptr<Collider> secondCollider,
                     std::vector<Contact> contacts);
-        std::shared_ptr<PhysicsComponent> first;
+        int first;
+        int second;
         std::shared_ptr<Collider> firstCollider;
-        std::shared_ptr<PhysicsComponent> second;
         std::shared_ptr<Collider> secondCollider;
         std::vector<Contact> contacts;
     private:

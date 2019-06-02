@@ -1,14 +1,14 @@
 #include "Collision.hpp"
 
 
-Collision::Collision(std::shared_ptr<PhysicsComponent> first,
+Collision::Collision(  int firstID,
                     std::shared_ptr<Collider> firstCollider,
-                    std::shared_ptr<PhysicsComponent> second,
+                    int secondID,
                     std::shared_ptr<Collider> secondCollider,
-                    std::vector<Contact> contacts):
-                    first(first), 
+                    std::vector<Contact> contacts): \
+                    first(firstID), 
                     firstCollider(firstCollider),
-                    second(second),
+                    second(secondID),
                     secondCollider(secondCollider),
                     contacts(contacts)
 {

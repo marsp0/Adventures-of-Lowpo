@@ -17,7 +17,7 @@ Grid::Grid(float gridLength, float halfWidth) : \
         {
             float x = col * 2 * halfWidth + halfWidth;
             float z = row * 2 * halfWidth + halfWidth;
-            this->cells[row][col] = std::make_shared<Cell>(glm::vec3(x, 0.f, z), halfWidth);
+            this->cells[row][col] = std::make_shared<Cell>(glm::vec3(x, 0.f, z), halfWidth, row, col);
         }
     }
 }
@@ -89,6 +89,13 @@ void Grid::Insert(std::shared_ptr<Collider> object)
     int col = this->GetInsertCol(object->center);
     int row = this->GetInsertRow(object->center);
     this->cells[row][col]->Insert(object);
+}
+
+void Grid::Remove(std::shared_ptr<Collider> object)
+{
+    int row = object->row;
+    int col = object->col;
+    this->cells[row][col]->Remove(object);
 }
 
 int Grid::GetInsertCol(glm::vec3 point)

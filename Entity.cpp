@@ -1,6 +1,6 @@
 #include "Entity.hpp"
 
-Entity::Entity()
+Entity::Entity(int entityID) : entityID(entityID)
 {
 
 }
