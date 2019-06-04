@@ -13,6 +13,7 @@
 #include "Entity.hpp"
 #include "Systems/Physics/AABB.hpp"
 #include "External/tinyxml2.hpp"
+#include "Components/InputComponent.hpp"
 #include "Components/PhysicsComponent.hpp"
 #include "Components/RenderingComponent.hpp"
 #include "Components/TransformComponent.hpp"
@@ -170,10 +171,10 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
             float z = fabs(center.z - it->second->vertices[2]);
             glm::vec3 axisRadii = glm::vec3( x, y, z);
             center = instanceGeometries[it->first]->matrix * glm::vec4(center, 1.0f);
+            DynamicType type = DynamicType::Static;
             if (objectName == "Player")
-                std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(0, center, it->first, axisRadii, ColliderType::BOX, DynamicType::Dynamic));
-            else
-                std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(0, center, it->first, axisRadii, ColliderType::BOX, DynamicType::Static));
+                type = DynamicType::Dynamic;
+            std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(0, center, it->first, axisRadii, ColliderType::BOX, type));
             objectToColliders[objectName].push_back(collider);
         }
     }
@@ -204,10 +205,10 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
         // VAO, VBO and Texture loaded.
         std::shared_ptr<RenderingComponent> renderingComponent = std::make_shared<RenderingComponent>(RenderingComponent(buffers.first, buffers.second, bufferData.size() / 3, textureID, ShaderType::NormalShader));
         // PhysicsComponent
+        DynamicType type = DynamicType::Static;
         if (it->first == "Player")
-            std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), DynamicType::Dynamic));
-        else
-            std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), DynamicType::Static));
+            type = DynamicType::Dynamic;
+        std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), type));
         // assign colliders to component and insert into grid
         physicsComponent->colliders = objectToColliders[it->first];
         for (int k = 0;k < physicsComponent->colliders.size(); k++)
@@ -224,7 +225,7 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
         if (it->first == "Player")
         {
             std::shared_ptr<InputComponent> inputComponent = std::make_shared<InputComponent>(InputComponent());
-            entity->AddComponent(InputComponent);
+            entity->AddComponent(inputComponent);
         }
         // push_back
         entities.push_back(entity);
@@ -238,7 +239,6 @@ void Game::Update(float deltaTime)
     // FIXME : this should not be here
     if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(this->window, true);
-    
     // System Update
     this->physicsSystem.Update(deltaTime, this->entities);
     this->inputSystem.Update(this->window, this->entities);

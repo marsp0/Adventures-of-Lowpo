@@ -1,5 +1,6 @@
 #include "PhysicsSystem.hpp"
 
+#include "../../Components/InputComponent.hpp"
 #include "../../Components/PhysicsComponent.hpp"
 
 PhysicsSystem::PhysicsSystem(float gridLength, float cellHalfWidth) : grid(gridLength, cellHalfWidth)
@@ -31,9 +32,19 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
             idToIndexMap[entities[i]->entityID] = i;
             PhysicsComponent component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
 
-            if (entites[i]->HasComponent(ComponentType::Input))
+            if (entities[i]->HasComponent(ComponentType::Input))
             {
                 InputComponent inputComponent = entities[i]->GetComponent<InputComponent>(ComponentType::Input);
+                if (inputComponent.actions[Action::MoveForward])
+                    component.velocity = glm::vec3(0,0,-1) * 10.f;
+                else if (inputComponent.actions[Action::MoveBackward])
+                    component.velocity = glm::vec3(0,0,1) * 10.f;
+                else if (inputComponent.actions[Action::MoveLeft])
+                    component.velocity = glm::vec3(-1,0,0) * 10.f;
+                else if (inputComponent.actions[Action::MoveRight])
+                    component.velocity = glm::vec3(1,0,0) * 10.f;
+                else
+                    component.velocity = glm::vec3(0,0,0);
             }
             // acceleration update
             component.acceleration += component.forceAccumulator * component.inverseMass;

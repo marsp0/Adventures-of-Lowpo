@@ -11,9 +11,9 @@ PhysicsComponent::PhysicsComponent( float mass,
                                     Component(ComponentType::Physics),
                                     acceleration(0.f),
                                     velocity(0.f),
-                                    forceAccumulator(0.f);
+                                    forceAccumulator(0.f),
                                     angularAcc(0.f),
-                                    angularVel(0.f),
+                                    angularVel(0.f)
 {
     // invert the mass and inertia tensor here
 }

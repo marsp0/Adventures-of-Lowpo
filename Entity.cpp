@@ -1,6 +1,6 @@
 #include "Entity.hpp"
 
-Entity::Entity(int entityID) : entityID(entityID)
+Entity::Entity(int entityID) : entityID(entityID), componentBitset(0)
 {
 
 }
