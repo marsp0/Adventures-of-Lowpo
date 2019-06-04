@@ -9,7 +9,7 @@ PhysicsSystem::PhysicsSystem(float gridLength, float cellHalfWidth) : grid(gridL
 
 PhysicsSystem::~PhysicsSystem()
 {
-    
+
 }
 
 void PhysicsSystem::Insert(std::vector<std::shared_ptr<Collider>>& colliders)
@@ -29,8 +29,13 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
         if (entities[i]->IsEligibleForSystem(this->primaryBitset))
         {
             idToIndexMap[entities[i]->entityID] = i;
-            // acceleration update
             PhysicsComponent component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
+
+            if (entites[i]->HasComponent(ComponentType::Input))
+            {
+                InputComponent inputComponent = entities[i]->GetComponent<InputComponent>(ComponentType::Input);
+            }
+            // acceleration update
             component.acceleration += component.forceAccumulator * component.inverseMass;
             component.angularAcc += component.invInertiaTensor * component.torqueAccumulator;
             // velocity update

@@ -172,7 +172,8 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
             center = instanceGeometries[it->first]->matrix * glm::vec4(center, 1.0f);
             if (objectName == "Player")
                 std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(0, center, it->first, axisRadii, ColliderType::BOX, DynamicType::Dynamic));
-            std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(0, center, it->first, axisRadii, ColliderType::BOX, DynamicType::Static));
+            else
+                std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(0, center, it->first, axisRadii, ColliderType::BOX, DynamicType::Static));
             objectToColliders[objectName].push_back(collider);
         }
     }
@@ -203,7 +204,10 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
         // VAO, VBO and Texture loaded.
         std::shared_ptr<RenderingComponent> renderingComponent = std::make_shared<RenderingComponent>(RenderingComponent(buffers.first, buffers.second, bufferData.size() / 3, textureID, ShaderType::NormalShader));
         // PhysicsComponent
-        std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), DynamicType::Static));
+        if (it->first == "Player")
+            std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), DynamicType::Dynamic));
+        else
+            std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), DynamicType::Static));
         // assign colliders to component and insert into grid
         physicsComponent->colliders = objectToColliders[it->first];
         for (int k = 0;k < physicsComponent->colliders.size(); k++)
@@ -217,6 +221,11 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
         entity->AddComponent(renderingComponent);
         entity->AddComponent(physicsComponent);
         entity->AddComponent(transformComponent);
+        if (it->first == "Player")
+        {
+            std::shared_ptr<InputComponent> inputComponent = std::make_shared<InputComponent>(InputComponent());
+            entity->AddComponent(InputComponent);
+        }
         // push_back
         entities.push_back(entity);
     }
