@@ -13,7 +13,7 @@ various systems.
 class Entity
 {
     public:
-        Entity(int entityID);
+        Entity(int id);
 
         void AddComponent(std::shared_ptr<Component> component);
         // Why do i have to pass both the component name as the template arg
@@ -29,7 +29,7 @@ class Entity
         bool IsAlive();
         bool IsEligibleForSystem(std::uint32_t primaryBitset);
 
-        int entityID;
+        int id;
         
     private:
 

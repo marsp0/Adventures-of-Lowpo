@@ -33,45 +33,59 @@ void RenderingSystem::AddShaders(std::vector<std::string> shaders, std::vector<s
     }
 }
 
-void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities)
+void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int playerID)
 {
+    // Update Camera
+    int         playerIndex;
+    glm::vec3   newCameraPosition;
+
     // initial prep
     glViewport(0, 0, this->width, this->height);
     glClearColor(0.529f, 0.807f, 0.980f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // TODO : Camera
-    // set projection and view
+    // camera
+    glm::mat4 projectionMatrix = this->camera.GetProjectionMatrix();
+    glm::mat4 viewMatrix = this->camera.GetViewMatrix();
+
     for (int i = 0; i < entities.size(); i++)
     {
         if (entities[i]->IsEligibleForSystem(this->primaryBitset))
         {
             RenderingComponent renderingComponent = entities[i]->GetComponent<RenderingComponent>(ComponentType::Rendering);
             TransformComponent transformComponent = entities[i]->GetComponent<TransformComponent>(ComponentType::Transform);
+            
+            // prepare new position for camera
+            if (entities[i]->id == playerID)
+            {
+                newCameraPosition = transformComponent->position;
+                playerIndex = i;
+            }
+            
             ShaderType shaderType = renderingComponent.shader;
             this->shaders[shaderType].Use();
             this->shaders[shaderType].SetVector3f("light.direction", this->lightDirection);
             this->shaders[shaderType].SetVector3f("light.ambient", ambient, ambient, ambient);
             this->shaders[shaderType].SetVector3f("light.diffuse", diffuse, diffuse, diffuse);
             this->shaders[shaderType].SetMat4("model", transformComponent.GetWorldTransform());
+            this->shaders[shaderType].SetMat4("projection", projectionMatrix);
+            this->shaders[shaderType].SetMat4("view", viewmatrix);
 
             // texture bind
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, renderingComponent.textureID);
-
             // vao bind
             glBindVertexArray(renderingComponent.vertexArrayID);
-
             // draw
             glDrawArrays(GL_TRIANGLES, 0, renderingComponent.vertexCount);
-
             // unbind vao
             glBindVertexArray(0);
-
             // unbind texture
             glBindTexture(GL_TEXTURE_2D, 0);
 
+            // update camera position
         }
     }
+    this->camera.Update(newCameraPosition);
 }
 
 std::pair<unsigned int, unsigned int> RenderingSystem::BufferData(float* data, int size, bool animated)

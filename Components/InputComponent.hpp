@@ -21,4 +21,6 @@ class InputComponent : public Component
         ~InputComponent();
 
         std::vector<bool> actions;
+        double lastX;
+        double lastY;
 };

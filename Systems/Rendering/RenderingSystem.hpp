@@ -43,4 +43,6 @@ class RenderingSystem
         glm::vec3 lightDirection;
 
         std::unordered_map<std::string, unsigned int> loadedTextures;
+
+        Camera camera;
 };

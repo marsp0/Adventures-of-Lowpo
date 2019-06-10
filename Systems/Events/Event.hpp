@@ -4,13 +4,14 @@
 
 enum EventType
 {
-	PLAYER_MOVED,
+	Move,
+	MouseMove,
 };
 
 class Event
 {
 	public:
-		Event();
+		Event(int senderID, int receiverID, EventType type);
 
 		int 						senderID;
 		int 						receiverID; // broadcast if receiver is 0

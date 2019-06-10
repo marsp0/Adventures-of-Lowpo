@@ -16,6 +16,14 @@ enum GameState
     GAME_WIN
 };
 
+enum System
+{
+    Input,
+    Physics,
+    Rendering,
+    Animation,
+};
+
 class Entity;
 class Game
 {
@@ -30,6 +38,8 @@ class Game
         void Update(float deltaTime);
 
         int CreateEntityID();
+        void Subscribe(int event, int system);
+        void Unsubscribe(int event, int system);
 
         // data
         GameState state;
@@ -41,6 +51,12 @@ class Game
 
         // Entities
         std::vector<std::shared_ptr<Entity>> entities;
+
+        // Player
+        int                         playerID;
+
+        // messaging
+        std::unordered_map<int, std::vector<int>> eventToSystemMap;
 
         // SYSTEMS
         InputSystem                 inputSystem;

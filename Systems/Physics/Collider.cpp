@@ -1,12 +1,12 @@
 #include "Collider.hpp"
 #include "../../Components/PhysicsComponent.hpp"
 
-Collider::Collider( int entityID,
+Collider::Collider( int id,
                     glm::vec3 center, 
                     std::string name,
                     ColliderType colliderType,
                     DynamicType dynamicType) : \
-                    entityID(entityID),
+                    entityID(id),
                     center(center), 
                     name(name),
                     colliderType(colliderType),

@@ -213,7 +213,7 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
         physicsComponent->colliders = objectToColliders[it->first];
         for (int k = 0;k < physicsComponent->colliders.size(); k++)
         {
-            physicsComponent->colliders[k]->entityID = entity->entityID;
+            physicsComponent->colliders[k]->entityID = entity->id;
         }
         this->physicsSystem.Insert(physicsComponent->colliders);
         std::shared_ptr<TransformComponent> transformComponent= std::make_shared<TransformComponent>(TransformComponent(translation, rotation));
@@ -224,6 +224,7 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
         entity->AddComponent(transformComponent);
         if (it->first == "Player")
         {
+            this->playerID = entity->id;
             std::shared_ptr<InputComponent> inputComponent = std::make_shared<InputComponent>(InputComponent());
             entity->AddComponent(inputComponent);
         }
@@ -243,7 +244,7 @@ void Game::Update(float deltaTime)
     this->physicsSystem.Update(deltaTime, this->entities);
     this->inputSystem.Update(this->window, this->entities);
     this->animationSystem.Update(deltaTime, this->entities);
-    this->renderingSystem.Update(this->entities);
+    this->renderingSystem.Update(this->entities, this->playerID);
 }
 
 void Game::Run()
@@ -267,4 +268,18 @@ void Game::Run()
 int Game::CreateEntityID()
 {
     return this->currentID++;
+}
+
+void Game::Subscribe(int event, int system)
+{
+    this->eventToSystemMap[event].push_back(system);
+}
+
+void Game::Unsubscribe(int event, int system)
+{
+    for (int i = 0; i < this->eventToSystemMap[event].size(); i++)
+    {
+        if (this->eventToSystemMap[event][i] == system)
+            this->eventToSystemMap[event][i].erase(this->eventToSystemMap.begin() + i);
+    }
 }

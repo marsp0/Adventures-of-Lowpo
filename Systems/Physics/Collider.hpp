@@ -24,7 +24,7 @@ class Collider
         dynamic - should the collider be treated as static environment or a normal object
         that can be rotated/translated etc when forces are applied to it.
         */
-        Collider( int entityID,
+        Collider( int id,
                   glm::vec3 center,
                   std::string name,
                   ColliderType colliderType,
