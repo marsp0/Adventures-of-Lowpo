@@ -1,10 +1,15 @@
-# Adventures of Lowpo
+# [Adventures of Lowpo](https://trello.com/b/SIsTXK57/adventures-of-lowpo)
 
-3D game made from scratch (low poly RPG) using C++ and OpenGL. The progress board for the game can be found [here](https://trello.com/b/SIsTXK57/adventures-of-lowpo).
+3D game made from scratch (low poly RPG) using C++ and OpenGL.
 
-### Credits
+#### Credits
 
 1. [Catch](https://github.com/catchorg/Catch2)
 2. [tinyxml2](https://github.com/leethomason/tinyxml2)
-3. [Base House Model](https://sketchfab.com/models/ceb601dbd4d1495885280ebaa9435e03)
-4. [PigArt 3D models](https://www.blendswap.com/blends/view/71743)
+3. [Book Scene](https://sketchfab.com/stefan.lengyel1)
+
+#### Dependencies
+
+1. GLFW
+2. GLEW
+3. GLM

@@ -1,12 +1,22 @@
 #define GLEW_STATIC
 
+#include <memory>
+#include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <memory>
+#include <glm/gtc/quaternion.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include "Game.hpp"
-#include "Terrain.hpp"
-
+#include "Loader.hpp"
+#include "Entity.hpp"
+#include "Systems/Physics/AABB.hpp"
+#include "External/tinyxml2.hpp"
+#include "Components/InputComponent.hpp"
+#include "Components/PhysicsComponent.hpp"
+#include "Components/RenderingComponent.hpp"
+#include "Components/TransformComponent.hpp"
 
 
 void APIENTRY openglCallbackFunction(GLenum source,
@@ -61,18 +71,27 @@ void APIENTRY openglCallbackFunction(GLenum source,
 }
 
 Game::Game(int width, int height) :
-    width(width), height(height)
+    width(width), height(height) , 
+    physicsSystem(70.f, 5.f),
+    // FIX THIS
+    renderingSystem(),
+    currentID(1)
 {
-    this->ambient = 0.4f;
-    this->diffuse = 0.6f;
     this->Init();
-    this->scene             = std::make_unique<Scene>(Scene((float)this->width, (float)this->height));
-    this->renderer          = std::make_unique<Renderer>("vertex.glsl","fragment.glsl", "vertexShadow.glsl", "fragmentShadow.glsl","vertexAnimated.glsl", "fragmentAnimated.glsl", "vertexAnimatedShadow.glsl", "fragmentShadow.glsl", width, height);
-    this->resourseManager   = ResourceManager();
-    this->physicsEngine     = PhysicsEngine();
+    // adding shaders after the init as we need to initialize OPENGL before
+    // we do anythin with it. It happens in the InitConfig method.
+    this->renderingSystem.AddShaders(std::vector<std::string>{"./Systems/Rendering/vertex.glsl", "./Systems/Rendering/fragment.glsl"}, 
+                                    std::vector<std::string>{"./Systems/Rendering/vertexShadow.glsl", "./Systems/Renderin.renderingSystem.glsl"});
 }
 
 void Game::Init()
+{
+    this->InitConfig();
+    std::string filename = "Resources/terrain_patch.dae";
+    this->InitScene(filename, this->entities);
+}
+
+void Game::InitConfig()
 {
     // Initialize GLFW
     glfwInit();
@@ -97,45 +116,135 @@ void Game::Init()
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(openglCallbackFunction, nullptr);
     GLuint unusedIds = 0;
-    glDebugMessageControl(GL_DONT_CARE,
-            GL_DONT_CARE,
-            GL_DONT_CARE,
-            0,
-            &unusedIds,
-            true);
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, &unusedIds, true);
 }
 
-void Game::HandleInput(float deltaTime)
+void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>& entities)
 {
-    for (int i = 0; i < this->scene->gameObjects.size() ; i++)
-    {
-        this->scene->gameObjects[i]->HandleInput(this->window);
-    }
+    unsigned int textureID = this->renderingSystem.CreateTexture("Resources/DiffuseColor_Texture.png");
+    tinyxml2::XMLDocument document;
+    // TODO : check for the extension and report error if different from .dae
+    tinyxml2::XMLError error = document.LoadFile(filename.c_str());
+    if (error != 0)
+        return;
+    // the document represents the "whole" file so we need to qu
+    // is always Collada
+    tinyxml2::XMLElement* collada = document.FirstChildElement("COLLADA");
+    
+    // parse visual scenes for the world transforms.
+    std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>> instanceGeometries;
+    tinyxml2::XMLElement* libraryVisualScenes = collada->FirstChildElement("library_visual_scenes");
+    instanceGeometries = Loader::ParseVisualScenesStatic(libraryVisualScenes);
 
-    // KEYBOARD
-    if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(this->window, true);
-    if (glfwGetKey(this->window, GLFW_KEY_E) == GLFW_PRESS)
-        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    if (glfwGetKey(this->window, GLFW_KEY_E) == GLFW_RELEASE)
-        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+    // parse geometries
+    // one object - > many colliders
+    std::unordered_map<std::string, std::vector<std::shared_ptr<Collider>> > objectToColliders;
+    std::unordered_map<std::string, std::shared_ptr<Geometry>> geometry;
+    tinyxml2::XMLElement* libraryGeometries = collada->FirstChildElement("library_geometries");
+    geometry = Loader::ParseGeometry(libraryGeometries);
+    // first iteration to get hitboxes
+    for (std::unordered_map<std::string, std::shared_ptr<Geometry>>::iterator it = geometry.begin(); it != geometry.end(); it++)
+    {
+        // Three scenarios
+        // is hitbox
+        // is not hitbox
+        // is terrain
+        bool isHitbox = it->first.find("_hitbox") != it->first.npos;
+        if (isHitbox)
+        {
+            int hitboxIndex = it->first.find("_hitbox");
+            std::string objectName = it->first.substr(0, hitboxIndex);
+            // take thhe vertices and make a collider.
+            glm::vec3 center = glm::vec3(0.f,0.f,0.f);
+            for (int i = 0; i < it->second->vertices.size(); i += 3)
+            {
+                float x = it->second->vertices[i];
+                float y = it->second->vertices[i + 1];
+                float z = it->second->vertices[i + 2];
+                glm::vec3 point = glm::vec3(x,y,z);
+                center += point;
+            }
+            int numOfPoints = it->second->vertices.size() / 3;
+            center /= numOfPoints;
+            float x = fabs(center.x - it->second->vertices[0]);
+            float y = fabs(center.y - it->second->vertices[1]);
+            float z = fabs(center.z - it->second->vertices[2]);
+            glm::vec3 axisRadii = glm::vec3( x, y, z);
+            center = instanceGeometries[it->first]->matrix * glm::vec4(center, 1.0f);
+            DynamicType type = DynamicType::Static;
+            if (objectName == "Player")
+                type = DynamicType::Dynamic;
+            std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(0, center, it->first, axisRadii, ColliderType::BOX, type));
+            objectToColliders[objectName].push_back(collider);
+        }
+    }
+    std::vector<float> bufferData;
+    glm::mat4 worldTransform;
+    // second iteration to create game entities
+    for (std::unordered_map<std::string, std::shared_ptr<Geometry>>::iterator it = geometry.begin(); it != geometry.end(); it++)
+    {
+        bool isHitbox = it->first.find("_hitbox") != it->first.npos;
+        if (isHitbox)
+            continue;
+
+        std::shared_ptr<Geometry>   current = it->second;
+        std::shared_ptr<Entity>     entity = std::make_shared<Entity>(Entity(this->CreateEntityID()));
+
+        bufferData = Loader::BuildBufferData(current);
+        worldTransform = instanceGeometries[it->first]->matrix;
+        std::pair<unsigned int, unsigned int> buffers = RenderingSystem::BufferData(bufferData.data(), bufferData.size() * sizeof(float), false);
+        glm::vec3 scale;
+        glm::quat rotation;
+        glm::vec3 translation;
+        glm::vec3 skew;
+        glm::vec4 perspective;
+        glm::decompose(worldTransform, scale, rotation, translation, skew, perspective);
+        rotation = glm::conjugate(rotation);
+        // RenderingComponent
+        // we need to have
+        // VAO, VBO and Texture loaded.
+        std::shared_ptr<RenderingComponent> renderingComponent = std::make_shared<RenderingComponent>(RenderingComponent(buffers.first, buffers.second, bufferData.size() / 3, textureID, ShaderType::NormalShader));
+        // PhysicsComponent
+        DynamicType type = DynamicType::Static;
+        if (it->first == "Player")
+            type = DynamicType::Dynamic;
+        std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), type));
+        // assign colliders to component and insert into grid
+        physicsComponent->colliders = objectToColliders[it->first];
+        for (int k = 0;k < physicsComponent->colliders.size(); k++)
+        {
+            physicsComponent->colliders[k]->entityID = entity->id;
+        }
+        this->physicsSystem.Insert(physicsComponent->colliders);
+        std::shared_ptr<TransformComponent> transformComponent= std::make_shared<TransformComponent>(TransformComponent(translation, rotation));
+        // Entity
+        
+        entity->AddComponent(renderingComponent);
+        entity->AddComponent(physicsComponent);
+        entity->AddComponent(transformComponent);
+        if (it->first == "Player")
+        {
+            this->playerID = entity->id;
+            std::shared_ptr<InputComponent> inputComponent = std::make_shared<InputComponent>(InputComponent());
+            entity->AddComponent(inputComponent);
+        }
+        // push_back
+        entities.push_back(entity);
+    }
+    // Push back an entity
 }
 
+    
 void Game::Update(float deltaTime)
 {
-    // TODO : Move this into the Scene class update method.
-    for (int i = 0; i < this->scene->gameObjects.size() ; i++)
-    {
-        this->scene->gameObjects[i]->Update(deltaTime);
-    }
-
-    this->physicsEngine.Step(deltaTime, this->scene->gameObjects, this->terrain);
-}
-
-void Game::Render()
-{
-    this->renderer->DrawShadows(this->scene, terrain);
-    this->renderer->Draw(this->scene, terrain);
+    // FIXME : this should not be here
+    if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(this->window, true);
+    // System Update
+    this->physicsSystem.Update(deltaTime, this->entities);
+    this->inputSystem.Update(this->window, this->entities);
+    this->animationSystem.Update(deltaTime, this->entities);
+    this->renderingSystem.Update(this->entities, this->playerID);
 }
 
 void Game::Run()
@@ -144,34 +253,33 @@ void Game::Run()
     double lag = 0.f;
     float deltaTime = 1.f/60.f;
     while (!glfwWindowShouldClose(window))
-    {
-        // Game Clock
-        double currentTime = glfwGetTime();
-        double elapsed = currentTime - previous;
-        previous = currentTime;
-        lag += elapsed;
-        
+    {   
         glfwPollEvents();
-        
-        // Handle Player Input
-        this->HandleInput(deltaTime);
-        while (lag >= deltaTime)
-        {
-            // Update Game state
-            this->Update(deltaTime);
-            lag -= deltaTime;
-        }
-
-        // Render
-        this->Render();
-
+        this->Update(deltaTime);
         glfwSwapBuffers(window);
         unsigned int error = glGetError();
         if (error != 0)
-        {
             std::cout << error << std::endl;
-        }
     }
 
     glfwTerminate();
+}
+
+int Game::CreateEntityID()
+{
+    return this->currentID++;
+}
+
+void Game::Subscribe(int event, int system)
+{
+    this->eventToSystemMap[event].push_back(system);
+}
+
+void Game::Unsubscribe(int event, int system)
+{
+    for (int i = 0; i < this->eventToSystemMap[event].size(); i++)
+    {
+        if (this->eventToSystemMap[event][i] == system)
+            this->eventToSystemMap[event][i].erase(this->eventToSystemMap.begin() + i);
+    }
 }

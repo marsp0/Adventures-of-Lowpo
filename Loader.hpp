@@ -5,19 +5,27 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <unordered_map>
-#include "tinyxml2.hpp"
+#include "External/tinyxml2.hpp"
 
+/* 
+Contains the parsed information from a <geometry> node in a collada file.
+ */
 class Geometry
 {
     public:
-        Geometry(std::string name, std::vector<int> indices, std::vector<float> vertices, std::vector<float> texCoords);
+        Geometry(std::string id, std::string name, int stride, std::vector<int> indices, std::vector<float> vertices, std::vector<float> texCoords);
 
+        int stride;
+        std::string id;
         std::string name;
         std::vector<int> indices;
         std::vector<float> vertices;
         std::vector<float> texCoords;
 };
 
+/* 
+Contains the parsed information of a <controller> in a collada file.
+ */
 class Controller
 {
     public:
@@ -28,6 +36,9 @@ class Controller
         std::vector<float> weights;
 };
 
+/* 
+Contains parsed information from an <animation> node in a collada file
+ */
 class AnimationNode
 {
     public:
@@ -38,6 +49,9 @@ class AnimationNode
         std::vector<glm::mat4>  matrices;
 };
 
+/* 
+Contains the skeleton information of a parsed <node> node from library_visual_scenes in a collada file.
+ */
 class SkeletonNode
 {
     public:
@@ -50,6 +64,9 @@ class SkeletonNode
         std::vector<std::shared_ptr<SkeletonNode>> children;
 };
 
+/* 
+Contains the transformation matrix of a <geometry> node in a collada file.
+ */
 class InstanceGeometry
 {
     public:
@@ -73,7 +90,7 @@ class InstanceController
 class Loader
 {
     public:
-        static void LoadFile(std::string filename);
+        static tinyxml2::XMLElement* LoadFile(std::string filename);
 
         static std::shared_ptr<SkeletonNode>                                        ParseSkeletonNodes(tinyxml2::XMLElement* node);
         static std::unordered_map<std::string, std::shared_ptr<Geometry>>           ParseGeometry(tinyxml2::XMLElement* libraryGeometry);
@@ -85,6 +102,7 @@ class Loader
         // =======
         // UTILITY
         // =======
+        static std::vector<float>       BuildBufferData(std::shared_ptr<Geometry> geometry);
         static std::vector<int>         SplitStringInt(std::string& stringData);
         static std::vector<float>       SplitStringFloat(std::string& stringData);
         static std::vector<std::string> SplitString(std::string& stringData);

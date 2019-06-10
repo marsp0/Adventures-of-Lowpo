@@ -16,26 +16,28 @@ const std::string WEIGHT        = "WEIGHT";
 const std::string ANIMATION_INPUT = "INPUT";
 const std::string ANIMATION_OUTPUT = "OUTPUT";
 
-void Loader::LoadFile(std::string filename)
+XMLElement* Loader::LoadFile(std::string filename)
 {
     XMLDocument document;
     // TODO : check for the extension and report error if different from .dae
     XMLError error = document.LoadFile(filename.c_str());
     if (error != 0)
-        return;
+        return nullptr;
     // the document represents the "whole" file so we need to qu
     // is always Collada
     XMLElement* collada = document.FirstChildElement("COLLADA");
-    XMLElement* libraryGeometries = collada->FirstChildElement("library_geometries");
-    std::unordered_map<std::string, std::shared_ptr<Geometry>> geometries = Loader::ParseGeometry(libraryGeometries);
+    return collada;
 }
 
 std::unordered_map<std::string, std::shared_ptr<Geometry>> Loader::ParseGeometry(XMLElement* libraryGeometries)
 {
+    // geometryID should be the same as the id of node in library_visual_scenes.
     std::unordered_map<std::string, std::shared_ptr<Geometry>> result;
     for (XMLElement* current = libraryGeometries->FirstChildElement("geometry"); current != NULL ; current = current->NextSiblingElement("geometry"))
     {
         std::string name = current->Attribute("name");
+        std::string geometryID = current->Attribute("id");
+        geometryID = geometryID.substr(0, geometryID.find("-mesh"));
         XMLElement* mesh = current->FirstChildElement("mesh");
         XMLElement* verticesNode = mesh->FirstChildElement("vertices");
         
@@ -61,8 +63,6 @@ std::unordered_map<std::string, std::shared_ptr<Geometry>> Loader::ParseGeometry
             {
                 texCoordsID = input->Attribute("source");
                 texCoordsID = texCoordsID.substr(1, texCoordsID.length() - 1);
-                std::string offset = input->Attribute("offset");
-                texCoordsOffset = std::stoi(offset);
             }
             stride++;
         }
@@ -86,8 +86,8 @@ std::unordered_map<std::string, std::shared_ptr<Geometry>> Loader::ParseGeometry
         XMLElement* p = trianglesNode->FirstChildElement("p");
         std::string pData = p->GetText();
         std::vector<int> indices = Loader::SplitStringInt(pData);
-        std::shared_ptr<Geometry> geometry = std::make_shared<Geometry>(Geometry(name, indices, vertexValues, texCoordValues));
-        result[name] = geometry;
+        std::shared_ptr<Geometry> geometry = std::make_shared<Geometry>(Geometry(geometryID, name, stride, indices, vertexValues, texCoordValues));
+        result[geometryID] = geometry;
     }
     return result;
 }
@@ -291,7 +291,7 @@ std::unordered_map<std::string, std::shared_ptr<AnimationNode>> Loader::ParseAni
                     {
                         temp.push_back(matricesFloat[j]);
                     }
-                    matrices.push_back(glm::make_mat4(temp.data()));
+                    matrices.push_back(glm::transpose(glm::make_mat4(temp.data())));
                 }
             }
         }
@@ -311,10 +311,11 @@ std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>> Loader::Parse
         if (instanceGeometry != nullptr)
         {
             std::string id = instanceGeometry->Attribute("url");
+            id = id.substr(1, id.find("-mesh") - 1);
             std::string name = instanceGeometry->Attribute("name");
             XMLElement* matrixNode = node->FirstChildElement("matrix");
             std::string matrixString = matrixNode->GetText();
-            glm::mat4 matrix = glm::make_mat4(Loader::SplitStringFloat(matrixString).data());
+            glm::mat4 matrix = glm::transpose(glm::make_mat4(Loader::SplitStringFloat(matrixString).data()));
             std::shared_ptr<InstanceGeometry> instance = std::make_shared<InstanceGeometry>(InstanceGeometry(id, name, matrix));
             result[id] = instance;
         }
@@ -356,7 +357,7 @@ std::unordered_map<std::string, std::shared_ptr<SkeletonNode>> Loader::ParseVisu
             std::string name = node->Attribute("name");
             std::string sid = "";
             std::string matrixString = node->FirstChildElement("matrix")->GetText();
-            glm::mat4 matrix = glm::make_mat4(Loader::SplitStringFloat(matrixString).data());
+            glm::mat4 matrix = glm::transpose(glm::make_mat4(Loader::SplitStringFloat(matrixString).data()));
             std::vector<std::shared_ptr<SkeletonNode>> children;
             for (XMLElement* child = node->FirstChildElement("node"); child != NULL; child = child->NextSiblingElement("node"))
             {
@@ -376,7 +377,7 @@ std::shared_ptr<SkeletonNode> Loader::ParseSkeletonNodes(tinyxml2::XMLElement* n
     std::string name = node->Attribute("name");
     std::string sid = node->Attribute("sid");
     std::string matrixString = node->FirstChildElement("matrix")->GetText();
-    glm::mat4 matrix = glm::make_mat4(Loader::SplitStringFloat(matrixString).data());
+    glm::mat4 matrix = glm::transpose(glm::make_mat4(Loader::SplitStringFloat(matrixString).data()));
     std::vector<std::shared_ptr<SkeletonNode>> children;
     for (XMLElement* child = node->FirstChildElement("node"); child != NULL; child = child->NextSiblingElement("node"))
     {
@@ -390,6 +391,54 @@ std::shared_ptr<SkeletonNode> Loader::ParseSkeletonNodes(tinyxml2::XMLElement* n
 // =================
 // UTILITY FUNCTIONS
 // =================
+
+std::vector<float> Loader::BuildBufferData(std::shared_ptr<Geometry> geometry)
+{
+    std::vector<float> bufferData;
+    for (int i = 0; i < geometry->indices.size(); i += geometry->stride * 3)
+    {
+        std::vector<int> vertexIndices{ geometry->indices[i],
+                                        geometry->indices[i + geometry->stride],
+                                        geometry->indices[i + 2 * geometry->stride]};
+        std::vector<int> textureIndices{geometry->indices[i + 2],
+                                        geometry->indices[i + 2 + geometry->stride],
+                                        geometry->indices[i + 2 + 2 * geometry->stride]};
+        std::vector<glm::vec3> tempVertices;
+        std::vector<glm::vec2> tempTextureCoords;
+        for (int j = 0; j < vertexIndices.size(); j++)
+        {
+            int vertexIndex = vertexIndices[j] * 3;
+            int textureIndex = textureIndices[j] * 2;
+            float x = geometry->vertices[vertexIndex];
+            float y = geometry->vertices[vertexIndex + 1];
+            float z = geometry->vertices[vertexIndex + 2];
+
+            float s = geometry->texCoords[textureIndex];
+            float t = geometry->texCoords[textureIndex + 1];
+
+            tempVertices.push_back(glm::vec3(x,y,z));
+            tempTextureCoords.push_back(glm::vec2(s,t));
+        }
+        // Note : the cross product may point in the wrong direction.
+        glm::vec3 normal = glm::cross(tempVertices[0] - tempVertices[1], tempVertices[2] - tempVertices[1]);
+
+        for (int j = 0; j < tempVertices.size(); j++)
+        {
+            bufferData.push_back(tempVertices[j].x);
+            bufferData.push_back(tempVertices[j].y);
+            bufferData.push_back(tempVertices[j].z);
+
+            bufferData.push_back(normal.x);
+            bufferData.push_back(normal.y);
+            bufferData.push_back(normal.z);
+
+            bufferData.push_back(tempTextureCoords[j].s);
+            bufferData.push_back(tempTextureCoords[j].t);
+        }
+    }
+    return bufferData;
+}
+
 std::vector<float> Loader::SplitStringFloat(std::string& stringData)
 {
     std::vector<float> result;
@@ -454,11 +503,15 @@ std::vector<std::string> Loader::SplitString(std::string& stringData)
 // Library Classes
 // ====================================================
 
-Geometry::Geometry( std::string name, 
+Geometry::Geometry( std::string id,
+                    std::string name, 
+                    int stride,
                     std::vector<int> indices,
                     std::vector<float> vertices, 
                     std::vector<float> texCoords) : \
+                    id(id),
                     name(name),
+                    stride(stride),
                     indices(indices),
                     vertices(vertices),
                     texCoords(texCoords)
