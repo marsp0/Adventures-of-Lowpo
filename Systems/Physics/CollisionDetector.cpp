@@ -16,18 +16,18 @@ std::shared_ptr<Collision> CollisionDetector::CheckCollision(std::shared_ptr<Col
     {
         if (first->colliderType == ColliderType::BOX)
         {
-            std::shared_ptr<AABB> box = std::dynamic_pointer_cast<AABB>(first);
-            std::shared_ptr<Triangle> triangle = std::dynamic_pointer_cast<Triangle>(second);
+            std::shared_ptr<AABB> box = std::static_pointer_cast<AABB>(first);
+            std::shared_ptr<Triangle> triangle = std::static_pointer_cast<Triangle>(second);
             return this->AABBToTriangle(box,triangle);
         }
-        std::shared_ptr<AABB> box = std::dynamic_pointer_cast<AABB>(second);
-        std::shared_ptr<Triangle> triangle = std::dynamic_pointer_cast<Triangle>(first);
+        std::shared_ptr<AABB> box = std::static_pointer_cast<AABB>(second);
+        std::shared_ptr<Triangle> triangle = std::static_pointer_cast<Triangle>(first);
         return this->AABBToTriangle(box,triangle);
     }
     else if (first->colliderType == ColliderType::BOX && second->colliderType == ColliderType::BOX)
     {
-        std::shared_ptr<AABB> firstBox = std::dynamic_pointer_cast<AABB>(first);
-        std::shared_ptr<AABB> secondBox = std::dynamic_pointer_cast<AABB>(second);
+        std::shared_ptr<AABB> firstBox = std::static_pointer_cast<AABB>(first);
+        std::shared_ptr<AABB> secondBox = std::static_pointer_cast<AABB>(second);
         return this->AABBToAABB(firstBox, secondBox);
     }
 }

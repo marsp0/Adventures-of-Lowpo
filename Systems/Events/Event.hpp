@@ -2,10 +2,13 @@
 
 #include <memory>
 
+#include "Data.hpp"
+
 enum EventType
 {
-	Move,
+	Move = 0,
 	MouseMove,
+	EventTypeEnd
 };
 
 class Event

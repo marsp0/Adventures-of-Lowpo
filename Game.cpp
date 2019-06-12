@@ -75,13 +75,17 @@ Game::Game(int width, int height) :
     physicsSystem(70.f, 5.f),
     // FIX THIS
     renderingSystem(),
-    currentID(1)
+    currentID(1),
+    eventToSystem(EventType::EventTypeEnd),
+    systemToEvent(System::SystemEnd)
 {
     this->Init();
     // adding shaders after the init as we need to initialize OPENGL before
     // we do anythin with it. It happens in the InitConfig method.
-    this->renderingSystem.AddShaders(std::vector<std::string>{"./Systems/Rendering/vertex.glsl", "./Systems/Rendering/fragment.glsl"}, 
-                                    std::vector<std::string>{"./Systems/Rendering/vertexShadow.glsl", "./Systems/Renderin.renderingSystem.glsl"});
+    this->renderingSystem.AddShaders(std::vector<std::string>{  "./Systems/Rendering/vertex.glsl", 
+                                                                "./Systems/Rendering/fragment.glsl"}, 
+                                    std::vector<std::string>{   "./Systems/Rendering/vertexShadow.glsl", 
+                                                                "./Systems/Renderin.renderingSystem.glsl"});
 }
 
 void Game::Init()
@@ -240,11 +244,13 @@ void Game::Update(float deltaTime)
     // FIXME : this should not be here
     if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(this->window, true);
+    // dispatch here
+    this->Dispatch();
     // System Update
-    this->physicsSystem.Update(deltaTime, this->entities);
-    this->inputSystem.Update(this->window, this->entities);
-    this->animationSystem.Update(deltaTime, this->entities);
-    this->renderingSystem.Update(this->entities, this->playerID);
+    this->inputSystem.Update(this->window, this->entities, this->systemToEvent[System::InputSys], this->globalQueue);
+    this->physicsSystem.Update(deltaTime, this->entities, this->systemToEvent[System::PhysicsSys], this->globalQueue);
+    this->animationSystem.Update(deltaTime, this->entities, this->systemToEvent[System::AnimationSys], this->globalQueue);
+    this->renderingSystem.Update(this->entities, this->playerID, this->systemToEvent[System::RenderingSys], this->globalQueue);
 }
 
 void Game::Run()
@@ -270,16 +276,37 @@ int Game::CreateEntityID()
     return this->currentID++;
 }
 
-void Game::Subscribe(int event, int system)
+void Game::Subscribe(EventType event, System system)
 {
-    this->eventToSystemMap[event].push_back(system);
+    this->eventToSystem[event].push_back(system);
 }
 
-void Game::Unsubscribe(int event, int system)
+void Game::Unsubscribe(EventType event, System system)
 {
-    for (int i = 0; i < this->eventToSystemMap[event].size(); i++)
+    for (int i = 0; i < this->eventToSystem[event].size(); i++)
     {
-        if (this->eventToSystemMap[event][i] == system)
-            this->eventToSystemMap[event][i].erase(this->eventToSystemMap.begin() + i);
+        if (this->eventToSystem[event][i] == system)
+            this->eventToSystem[event].erase(this->eventToSystem[event].begin() + i);
     }
+}
+
+void Game::Dispatch()
+{
+    // clear previous frame messages
+    for (int i = 0; i < System::SystemEnd; i++)
+    {
+        this->systemToEvent[i].clear();
+    }
+    // dispatch messages
+    for (int i = 0;i < this->globalQueue.size(); i++)
+    {
+        Event event = this->globalQueue[i];
+        std::vector<System> interestedSystems = this->eventToSystem[event.type];
+        for (int j = 0; j < interestedSystems.size(); j++)
+        {
+            System system = interestedSystems[j];
+            this->systemToEvent[system].push_back(event);
+        }
+    }
+    this->globalQueue.clear();
 }

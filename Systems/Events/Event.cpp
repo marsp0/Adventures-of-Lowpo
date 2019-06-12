@@ -1,6 +1,6 @@
 #include "Event.hpp"
 
-Event::Event()
+Event::Event(int senderID, int receiverID, EventType type) : senderID(senderID), receiverID(receiverID), type(type)
 {
 	
 }
