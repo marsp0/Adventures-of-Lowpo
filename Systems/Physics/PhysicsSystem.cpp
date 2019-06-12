@@ -21,7 +21,7 @@ void PhysicsSystem::Insert(std::vector<std::shared_ptr<Collider>>& colliders)
     }
 }
 
-void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities)
+void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities, std::vector<Event>& events, std::vector<Event>& globalQueue)
 {
     std::unordered_map<int, int> idToIndexMap;
     // Integration step
@@ -29,7 +29,7 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
     {
         if (entities[i]->IsEligibleForSystem(this->primaryBitset))
         {
-            idToIndexMap[entities[i]->entityID] = i;
+            idToIndexMap[entities[i]->id] = i;
             PhysicsComponent component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
 
             if (entities[i]->HasComponent(ComponentType::Input))

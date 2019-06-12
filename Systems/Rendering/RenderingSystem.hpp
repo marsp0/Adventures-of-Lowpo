@@ -6,6 +6,8 @@
 #include <unordered_map>
 
 #include "Shader.hpp"
+#include "Camera.hpp"
+#include "../Events/Event.hpp"
 
 class Entity;
 class RenderingSystem
@@ -14,7 +16,10 @@ class RenderingSystem
         RenderingSystem();
         ~RenderingSystem();
         void AddShaders(std::vector<std::string> shaders, std::vector<std::string> shadowShaders);
-        void Update(std::vector<std::shared_ptr<Entity>>& entities);
+        void Update(std::vector<std::shared_ptr<Entity>>& entities,
+                    int playerID,
+                    std::vector<Event>& events,
+                    std::vector<Event>& globalQueue);
         unsigned int CreateTexture(std::string filename);
 
         static std::pair<unsigned int, unsigned int> BufferData(float* data, int size, bool animated);

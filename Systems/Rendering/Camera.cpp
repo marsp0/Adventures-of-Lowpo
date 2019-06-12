@@ -7,11 +7,14 @@ Camera::Camera( glm::vec3   position,
                 float aspectRatio) : 
                 position(position), 
                 direction(direction),
-                aspectRatio(aspectRatio)
-                rotate(false),
+                aspectRatio(aspectRatio),
                 lastX(0.f),
                 lastY(0.f),
                 radius(10),
+                worldUp(0.f,1.f,0.f),
+                yaw(90.f),
+                pitch(15.f),
+                sensitivity(0.1f)
 {
 
     this->right     = glm::normalize(glm::cross(this->direction, this->worldUp));

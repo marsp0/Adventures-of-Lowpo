@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 
+#include "Systems/Events/Event.hpp"
 #include "Systems/Physics/PhysicsSystem.hpp"
 #include "Systems/Animation/AnimationSystem.hpp"
 #include "Systems/Input/InputSystem.hpp"
@@ -18,10 +19,11 @@ enum GameState
 
 enum System
 {
-    Input,
-    Physics,
-    Rendering,
-    Animation,
+    InputSys,
+    PhysicsSys,
+    RenderingSys,
+    AnimationSys,
+    SystemEnd
 };
 
 class Entity;
@@ -38,8 +40,9 @@ class Game
         void Update(float deltaTime);
 
         int CreateEntityID();
-        void Subscribe(int event, int system);
-        void Unsubscribe(int event, int system);
+        void Subscribe(EventType event, System system);
+        void Unsubscribe(EventType event, System system);
+        void Dispatch();
 
         // data
         GameState state;
@@ -56,7 +59,9 @@ class Game
         int                         playerID;
 
         // messaging
-        std::unordered_map<int, std::vector<int>> eventToSystemMap;
+        std::vector<Event>               globalQueue;
+        std::vector<std::vector<System>> eventToSystem;
+        std::vector<std::vector<Event>>  systemToEvent;
 
         // SYSTEMS
         InputSystem                 inputSystem;

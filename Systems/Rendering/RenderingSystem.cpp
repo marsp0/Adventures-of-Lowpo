@@ -8,7 +8,7 @@
 #include "../../Entity.hpp"
 #include "../../External/stb_image.hpp"
 
-RenderingSystem::RenderingSystem()
+RenderingSystem::RenderingSystem() : camera(glm::vec3(0.f,0.f,0.f), glm::vec3(1.0f,0.f,0.f), (float)800/(float)600)
 {
     this->primaryBitset =  ComponentType::Rendering | ComponentType::Transform;
     this->width = 800;
@@ -33,7 +33,7 @@ void RenderingSystem::AddShaders(std::vector<std::string> shaders, std::vector<s
     }
 }
 
-void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int playerID)
+void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int playerID, std::vector<Event>& events, std::vector<Event>& globalQueue)
 {
     // Update Camera
     int         playerIndex;
@@ -57,7 +57,7 @@ void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int
             // prepare new position for camera
             if (entities[i]->id == playerID)
             {
-                newCameraPosition = transformComponent->position;
+                newCameraPosition = transformComponent.position;
                 playerIndex = i;
             }
             
@@ -68,7 +68,7 @@ void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int
             this->shaders[shaderType].SetVector3f("light.diffuse", diffuse, diffuse, diffuse);
             this->shaders[shaderType].SetMat4("model", transformComponent.GetWorldTransform());
             this->shaders[shaderType].SetMat4("projection", projectionMatrix);
-            this->shaders[shaderType].SetMat4("view", viewmatrix);
+            this->shaders[shaderType].SetMat4("view", viewMatrix);
 
             // texture bind
             glActiveTexture(GL_TEXTURE0);
