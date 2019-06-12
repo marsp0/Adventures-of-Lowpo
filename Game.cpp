@@ -75,7 +75,9 @@ Game::Game(int width, int height) :
     physicsSystem(70.f, 5.f),
     // FIX THIS
     renderingSystem(),
-    currentID(1)
+    currentID(1),
+    eventToSystem(EventType::EventTypeEnd),
+    systemToEvent(System::SystemEnd)
 {
     this->Init();
     // adding shaders after the init as we need to initialize OPENGL before
@@ -91,6 +93,10 @@ void Game::Init()
     this->InitConfig();
     std::string filename = "Resources/terrain_patch.dae";
     this->InitScene(filename, this->entities);
+
+    // System Subscriptions
+    this->Subscribe(EventType::Move, System::PhysicsSys);
+    this->Subscribe(EventType::Move, System::AnimationSys);
 }
 
 void Game::InitConfig()

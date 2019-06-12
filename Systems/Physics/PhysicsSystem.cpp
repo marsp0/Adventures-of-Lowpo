@@ -1,7 +1,6 @@
 #include "PhysicsSystem.hpp"
 
 #include "../../Components/InputComponent.hpp"
-#include "../../Components/PhysicsComponent.hpp"
 
 PhysicsSystem::PhysicsSystem(float gridLength, float cellHalfWidth) : grid(gridLength, cellHalfWidth)
 {
@@ -23,29 +22,23 @@ void PhysicsSystem::Insert(std::vector<std::shared_ptr<Collider>>& colliders)
 
 void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities, std::vector<Event>& events, std::vector<Event>& globalQueue)
 {
+    // build entity -> messages map
+    std::unordered_map<int, std::vector<Event>> idToEvent;
+    for (int i = 0; i < events.size(); i++)
+    {
+        idToEvent[events[i].senderID].push_back(events[i]);
+    }
+
     std::unordered_map<int, int> idToIndexMap;
     // Integration step
     for (int i = 0; i < entities.size(); i++)
     {
         if (entities[i]->IsEligibleForSystem(this->primaryBitset))
         {
+            // handle messages for the current entity
+
             idToIndexMap[entities[i]->id] = i;
             PhysicsComponent component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
-
-            if (entities[i]->HasComponent(ComponentType::Input))
-            {
-                InputComponent inputComponent = entities[i]->GetComponent<InputComponent>(ComponentType::Input);
-                if (inputComponent.actions[Action::MoveForward])
-                    component.velocity = glm::vec3(0,0,-1) * 10.f;
-                else if (inputComponent.actions[Action::MoveBackward])
-                    component.velocity = glm::vec3(0,0,1) * 10.f;
-                else if (inputComponent.actions[Action::MoveLeft])
-                    component.velocity = glm::vec3(-1,0,0) * 10.f;
-                else if (inputComponent.actions[Action::MoveRight])
-                    component.velocity = glm::vec3(1,0,0) * 10.f;
-                else
-                    component.velocity = glm::vec3(0,0,0);
-            }
             // acceleration update
             component.acceleration += component.forceAccumulator * component.inverseMass;
             component.angularAcc += component.invInertiaTensor * component.torqueAccumulator;
@@ -139,4 +132,12 @@ void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::v
             second.angularVel = wB2;
         }
     }
+}
+
+void PhysicsSystem::HandleEvent(Event& event, PhysicsComponent& component)
+{
+    // if (event.type == EventType::Move)
+    // {
+    // }
+
 }

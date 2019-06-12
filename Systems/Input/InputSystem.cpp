@@ -50,15 +50,16 @@ void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>
                     generateMoveMessage = true;
             }
 
-            if (generateMoveMessage)
-            {
-                Event event(entities[i]->id, 0, EventType::Move);
-                std::shared_ptr<MoveData> moveData = std::make_shared<MoveData>(actionList[Action::MoveForward],
-                                                                                 actionList[Action::MoveBackward],
-                                                                                 actionList[Action::MoveLeft],
-                                                                                 actionList[Action::MoveRight]);
-                event.data = moveData;
-            }
+            // if (generateMoveMessage)
+            // {
+            Event event(entities[i]->id, 0, EventType::Move);
+            std::shared_ptr<MoveData> moveData = std::make_shared<MoveData>(actionList[Action::MoveForward],
+                                                                            actionList[Action::MoveBackward],
+                                                                            actionList[Action::MoveLeft],
+                                                                            actionList[Action::MoveRight]);
+            event.data = moveData;
+            globalQueue.push_back(event);
+            // }
         }
     }
 }

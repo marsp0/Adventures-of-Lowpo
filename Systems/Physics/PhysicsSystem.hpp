@@ -8,6 +8,7 @@
 #include "Grid.hpp"
 #include "../../Entity.hpp"
 #include "../Events/Event.hpp"
+#include "../../Components/PhysicsComponent.hpp"
 
 class PhysicsSystem
 {
@@ -24,6 +25,8 @@ class PhysicsSystem
         void Solve(	std::vector<std::shared_ptr<Entity>>& entities, 
         			std::vector<std::shared_ptr<Collision>>& collisions, 
         			std::unordered_map<int, int>& idToIndexMap);
+
+        void HandleEvent(Event& event, PhysicsComponent& component);
 
     private:
 
