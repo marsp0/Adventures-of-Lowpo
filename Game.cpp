@@ -93,10 +93,6 @@ void Game::Init()
     this->InitConfig();
     std::string filename = "Resources/terrain_patch.dae";
     this->InitScene(filename, this->entities);
-
-    // System Subscriptions
-    this->Subscribe(EventType::Move, System::PhysicsSys);
-    this->Subscribe(EventType::Move, System::AnimationSys);
 }
 
 void Game::InitConfig()
