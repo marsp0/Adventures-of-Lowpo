@@ -22,25 +22,25 @@ void AnimationSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity
         {
             // INPUT TRIGGERING HERE
             AnimationComponent component = entities[i]->GetComponent<AnimationComponent>(ComponentType::Animated);
-            if (entities[i]->HasComponent(ComponentType::Input))
-            {
-                // currently handling single animation
-                // no blending or anythin else
-                // the first action that we see as active gets the animation
-                InputComponent inputComponent = entities[i]->GetComponent<InputComponent>(ComponentType::Input);
-                int activeAnimation = -1;
-                for (int k = 0; k < inputComponent.actions.size(); k++)
-                {
-                    if (inputComponent.actions[k] && component.actionToAnimation.find(k) != component.actionToAnimation.end())
-                        activeAnimation = component.actionToAnimation[k];
-                        break;
-                }
-                if (activeAnimation != component.current)
-                {
-                    component.animationTime = 0.f;
-                    component.current = activeAnimation;
-                }
-            }
+            // if (entities[i]->HasComponent(ComponentType::Input))
+            // {
+            //     // currently handling single animation
+            //     // no blending or anythin else
+            //     // the first action that we see as active gets the animation
+            //     InputComponent inputComponent = entities[i]->GetComponent<InputComponent>(ComponentType::Input);
+            //     int activeAnimation = -1;
+            //     for (int k = 0; k < inputComponent.actions.size(); k++)
+            //     {
+            //         if (inputComponent.actions[k] && component.actionToAnimation.find(k) != component.actionToAnimation.end())
+            //             activeAnimation = component.actionToAnimation[k];
+            //             break;
+            //     }
+            //     if (activeAnimation != component.current)
+            //     {
+            //         component.animationTime = 0.f;
+            //         component.current = activeAnimation;
+            //     }
+            // }
             // No current animation
             if (component.current == -1)
                 continue;

@@ -5,7 +5,6 @@
 #include <memory>
 #include <GLFW/glfw3.h>
 #include "../Events/Event.hpp"
-#include "../Events/MoveData.hpp"
 
 class Entity;
 class InputSystem

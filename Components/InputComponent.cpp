@@ -2,7 +2,7 @@
 
 InputComponent::InputComponent() : Component(ComponentType::Input)
 {
-    this->actions.resize(Action::Size);
+
 }
 
 InputComponent::~InputComponent()

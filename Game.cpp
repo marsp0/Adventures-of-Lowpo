@@ -93,6 +93,9 @@ void Game::Init()
     this->InitConfig();
     std::string filename = "Resources/terrain_patch.dae";
     this->InitScene(filename, this->entities);
+
+    // subscribe
+    this->Subscribe(EventType::MouseMove, System::RenderingSys);
 }
 
 void Game::InitConfig()

@@ -1,6 +1,9 @@
+#include <iostream>
 #include "InputSystem.hpp"
 #include "../../Entity.hpp"
 #include "../../Components/InputComponent.hpp"
+#include "../Events/MoveData.hpp"
+#include "../Events/MouseMoveData.hpp"
 
 InputSystem::InputSystem()
 {
@@ -40,26 +43,44 @@ void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>
             {
                 actionList[Action::MoveRight] = true;
             }
-
-            // Mouse
-            
-            // generate message
+            // generate message if any of the buttons are pressed.
             for (int j = 0; j < actionList.size(); j++)
             {
                 if (actionList[j])
-                    generateMoveMessage = true;
+                {
+                    Event event(entities[i]->id, 0, EventType::Move);
+                    std::shared_ptr<MoveData> moveData = std::make_shared<MoveData>(actionList[Action::MoveForward],
+                                                                                    actionList[Action::MoveBackward],
+                                                                                    actionList[Action::MoveLeft],
+                                                                                    actionList[Action::MoveRight]);
+                    event.data = moveData;
+                    globalQueue.push_back(event);
+                    break;
+                }
             }
 
-            // if (generateMoveMessage)
-            // {
-            Event event(entities[i]->id, 0, EventType::Move);
-            std::shared_ptr<MoveData> moveData = std::make_shared<MoveData>(actionList[Action::MoveForward],
-                                                                            actionList[Action::MoveBackward],
-                                                                            actionList[Action::MoveLeft],
-                                                                            actionList[Action::MoveRight]);
-            event.data = moveData;
-            globalQueue.push_back(event);
-            // }
+            // Mouse
+            // FIX : This needs to be made to work only for player.
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
+            {
+                double x, y;
+                glfwGetCursorPos(window, &x, &y);
+                // disable mouse
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                float deltaX = x - component.lastX;
+                float deltaY = y - component.lastY;
+                component.lastX = x;
+                component.lastY = y;
+                Event event(entities[i]->id, 0, EventType::MouseMove);
+                std::shared_ptr<MouseMoveData> mouseMoveData = std::make_shared<MouseMoveData>(deltaX, deltaY);
+                event.data = mouseMoveData;
+                globalQueue.push_back(event);
+            }
+            else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_RELEASE)
+            {
+                // enable mouse on release
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
         }
     }
 }

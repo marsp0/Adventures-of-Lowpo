@@ -1,6 +1,6 @@
 #include "Entity.hpp"
 
-Entity::Entity(int entityID) : id(entityID), componentBitset(0)
+Entity::Entity(int entityID) : id(entityID), componentBitset(0), typeToIndexMap()
 {
 
 }
