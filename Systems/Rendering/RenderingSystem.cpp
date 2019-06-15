@@ -33,8 +33,15 @@ void RenderingSystem::AddShaders(std::vector<std::string> shaders, std::vector<s
     }
 }
 
-void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int playerID, std::vector<Event>& events, std::vector<Event>& globalQueue)
+void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int playerID, std::vector<Message>& messages, std::vector<Message>& globalQueue)
 {
+    // build entity -> messages map
+    std::unordered_map<int, std::vector<Message>> idToMessage;
+    for (int i = 0; i < messages.size(); i++)
+    {
+        idToMessage[messages[i].senderID].push_back(messages[i]);
+    }
+    
     // Update Camera
     int         playerIndex;
     glm::vec3   newCameraPosition;
@@ -81,8 +88,6 @@ void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int
             glBindVertexArray(0);
             // unbind texture
             glBindTexture(GL_TEXTURE_2D, 0);
-
-            // update camera position
         }
     }
     this->camera.Update(newCameraPosition);

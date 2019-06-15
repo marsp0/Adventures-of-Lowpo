@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 
-#include "Systems/Events/Event.hpp"
+#include "Systems/Messaging/Message.hpp"
 #include "Systems/Physics/PhysicsSystem.hpp"
 #include "Systems/Animation/AnimationSystem.hpp"
 #include "Systems/Input/InputSystem.hpp"
@@ -40,8 +40,8 @@ class Game
         void Update(float deltaTime);
 
         int CreateEntityID();
-        void Subscribe(EventType event, System system);
-        void Unsubscribe(EventType event, System system);
+        void Subscribe(MessageType message, System system);
+        void Unsubscribe(MessageType message, System system);
         void Dispatch();
 
         // data
@@ -59,9 +59,9 @@ class Game
         int                         playerID;
 
         // messaging
-        std::vector<Event>               globalQueue;
-        std::vector<std::vector<System>> eventToSystem;
-        std::vector<std::vector<Event>>  systemToEvent;
+        std::vector<Message>                globalQueue;
+        std::vector<std::vector<System>>    messageToSystem;
+        std::vector<std::vector<Message>>   systemToMessage;
 
         // SYSTEMS
         InputSystem                 inputSystem;

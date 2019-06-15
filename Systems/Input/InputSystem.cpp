@@ -2,8 +2,8 @@
 #include "InputSystem.hpp"
 #include "../../Entity.hpp"
 #include "../../Components/InputComponent.hpp"
-#include "../Events/MoveData.hpp"
-#include "../Events/MouseMoveData.hpp"
+#include "../Messaging/MoveData.hpp"
+#include "../Messaging/MouseMoveData.hpp"
 
 InputSystem::InputSystem()
 {
@@ -15,7 +15,7 @@ InputSystem::~InputSystem()
 
 }
 
-void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>>& entities, std::vector<Event>& events, std::vector<Event>& globalQueue)
+void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>>& entities, std::vector<Message>& messages, std::vector<Message>& globalQueue)
 {
     // Note : we probably want to add animation triggers here.
     for (int i = 0; i < entities.size(); i++)
@@ -48,13 +48,13 @@ void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>
             {
                 if (actionList[j])
                 {
-                    Event event(entities[i]->id, 0, EventType::Move);
+                    Message message(entities[i]->id, 0, MessageType::Move);
                     std::shared_ptr<MoveData> moveData = std::make_shared<MoveData>(actionList[Action::MoveForward],
                                                                                     actionList[Action::MoveBackward],
                                                                                     actionList[Action::MoveLeft],
                                                                                     actionList[Action::MoveRight]);
-                    event.data = moveData;
-                    globalQueue.push_back(event);
+                    message.data = moveData;
+                    globalQueue.push_back(message);
                     break;
                 }
             }
@@ -71,10 +71,10 @@ void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>
                 float deltaY = y - component.lastY;
                 component.lastX = x;
                 component.lastY = y;
-                Event event(entities[i]->id, 0, EventType::MouseMove);
+                Message message(entities[i]->id, 0, MessageType::MouseMove);
                 std::shared_ptr<MouseMoveData> mouseMoveData = std::make_shared<MouseMoveData>(deltaX, deltaY);
-                event.data = mouseMoveData;
-                globalQueue.push_back(event);
+                message.data = mouseMoveData;
+                globalQueue.push_back(message);
             }
             else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_RELEASE)
             {

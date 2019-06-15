@@ -7,7 +7,7 @@
 
 #include "Grid.hpp"
 #include "../../Entity.hpp"
-#include "../Events/Event.hpp"
+#include "../Messaging/Message.hpp"
 #include "../../Components/PhysicsComponent.hpp"
 
 class PhysicsSystem
@@ -19,14 +19,14 @@ class PhysicsSystem
         void Insert(std::vector<std::shared_ptr<Collider>>& colliders);
         void Update(float deltaTime, 
                     std::vector<std::shared_ptr<Entity>>& entities,
-                    std::vector<Event>& events,
-                    std::vector<Event>& globalQueue);
+                    std::vector<Message>& messages,
+                    std::vector<Message>& globalQueue);
 
         void Solve(	std::vector<std::shared_ptr<Entity>>& entities, 
         			std::vector<std::shared_ptr<Collision>>& collisions, 
         			std::unordered_map<int, int>& idToIndexMap);
 
-        void HandleEvent(Event& event, PhysicsComponent& component);
+        void HandleEvent(Message& message, PhysicsComponent& component);
 
     private:
 

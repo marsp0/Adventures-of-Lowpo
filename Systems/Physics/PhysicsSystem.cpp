@@ -20,13 +20,13 @@ void PhysicsSystem::Insert(std::vector<std::shared_ptr<Collider>>& colliders)
     }
 }
 
-void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities, std::vector<Event>& events, std::vector<Event>& globalQueue)
+void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities, std::vector<Message>& messages, std::vector<Message>& globalQueue)
 {
     // build entity -> messages map
-    std::unordered_map<int, std::vector<Event>> idToEvent;
-    for (int i = 0; i < events.size(); i++)
+    std::unordered_map<int, std::vector<Message>> idToMessage;
+    for (int i = 0; i < messages.size(); i++)
     {
-        idToEvent[events[i].senderID].push_back(events[i]);
+        idToMessage[messages[i].senderID].push_back(messages[i]);
     }
 
     std::unordered_map<int, int> idToIndexMap;
@@ -134,7 +134,7 @@ void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::v
     }
 }
 
-void PhysicsSystem::HandleEvent(Event& event, PhysicsComponent& component)
+void PhysicsSystem::HandleEvent(Message& event, PhysicsComponent& component)
 {
     // if (event.type == EventType::Move)
     // {

@@ -76,8 +76,8 @@ Game::Game(int width, int height) :
     // FIX THIS
     renderingSystem(),
     currentID(1),
-    eventToSystem(EventType::EventTypeEnd),
-    systemToEvent(System::SystemEnd)
+    messageToSystem(MessageType::MessageTypeEnd),
+    systemToMessage(System::SystemEnd)
 {
     this->Init();
     // adding shaders after the init as we need to initialize OPENGL before
@@ -95,7 +95,7 @@ void Game::Init()
     this->InitScene(filename, this->entities);
 
     // subscribe
-    this->Subscribe(EventType::MouseMove, System::RenderingSys);
+    this->Subscribe(MessageType::MouseMove, System::RenderingSys);
 }
 
 void Game::InitConfig()
@@ -223,7 +223,7 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
             physicsComponent->colliders[k]->entityID = entity->id;
         }
         this->physicsSystem.Insert(physicsComponent->colliders);
-        std::shared_ptr<TransformComponent> transformComponent= std::make_shared<TransformComponent>(TransformComponent(translation, rotation));
+        std::shared_ptr<TransformComponent> transformComponent = std::make_shared<TransformComponent>(TransformComponent(translation, rotation));
         // Entity
         
         entity->AddComponent(renderingComponent);
@@ -250,10 +250,10 @@ void Game::Update(float deltaTime)
     // dispatch here
     this->Dispatch();
     // System Update
-    this->inputSystem.Update(this->window, this->entities, this->systemToEvent[System::InputSys], this->globalQueue);
-    this->physicsSystem.Update(deltaTime, this->entities, this->systemToEvent[System::PhysicsSys], this->globalQueue);
-    this->animationSystem.Update(deltaTime, this->entities, this->systemToEvent[System::AnimationSys], this->globalQueue);
-    this->renderingSystem.Update(this->entities, this->playerID, this->systemToEvent[System::RenderingSys], this->globalQueue);
+    this->inputSystem.Update(this->window, this->entities, this->systemToMessage[System::InputSys], this->globalQueue);
+    this->physicsSystem.Update(deltaTime, this->entities, this->systemToMessage[System::PhysicsSys], this->globalQueue);
+    this->animationSystem.Update(deltaTime, this->entities, this->systemToMessage[System::AnimationSys], this->globalQueue);
+    this->renderingSystem.Update(this->entities, this->playerID, this->systemToMessage[System::RenderingSys], this->globalQueue);
 }
 
 void Game::Run()
@@ -279,17 +279,17 @@ int Game::CreateEntityID()
     return this->currentID++;
 }
 
-void Game::Subscribe(EventType event, System system)
+void Game::Subscribe(MessageType message, System system)
 {
-    this->eventToSystem[event].push_back(system);
+    this->messageToSystem[message].push_back(system);
 }
 
-void Game::Unsubscribe(EventType event, System system)
+void Game::Unsubscribe(MessageType message, System system)
 {
-    for (int i = 0; i < this->eventToSystem[event].size(); i++)
+    for (int i = 0; i < this->messageToSystem[message].size(); i++)
     {
-        if (this->eventToSystem[event][i] == system)
-            this->eventToSystem[event].erase(this->eventToSystem[event].begin() + i);
+        if (this->messageToSystem[message][i] == system)
+            this->messageToSystem[message].erase(this->messageToSystem[message].begin() + i);
     }
 }
 
@@ -298,17 +298,17 @@ void Game::Dispatch()
     // clear previous frame messages
     for (int i = 0; i < System::SystemEnd; i++)
     {
-        this->systemToEvent[i].clear();
+        this->systemToMessage[i].clear();
     }
     // dispatch messages
     for (int i = 0;i < this->globalQueue.size(); i++)
     {
-        Event event = this->globalQueue[i];
-        std::vector<System> interestedSystems = this->eventToSystem[event.type];
+        Message message = this->globalQueue[i];
+        std::vector<System> interestedSystems = this->messageToSystem[message.type];
         for (int j = 0; j < interestedSystems.size(); j++)
         {
             System system = interestedSystems[j];
-            this->systemToEvent[system].push_back(event);
+            this->systemToMessage[system].push_back(message);
         }
     }
     this->globalQueue.clear();

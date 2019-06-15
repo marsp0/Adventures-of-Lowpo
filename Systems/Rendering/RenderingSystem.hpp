@@ -7,7 +7,7 @@
 
 #include "Shader.hpp"
 #include "Camera.hpp"
-#include "../Events/Event.hpp"
+#include "../Messaging/Message.hpp"
 
 class Entity;
 class RenderingSystem
@@ -18,10 +18,9 @@ class RenderingSystem
         void AddShaders(std::vector<std::string> shaders, std::vector<std::string> shadowShaders);
         void Update(std::vector<std::shared_ptr<Entity>>& entities,
                     int playerID,
-                    std::vector<Event>& events,
-                    std::vector<Event>& globalQueue);
+                    std::vector<Message>& messages,
+                    std::vector<Message>& globalQueue);
         unsigned int CreateTexture(std::string filename);
-
         static std::pair<unsigned int, unsigned int> BufferData(float* data, int size, bool animated);
 
     private:
