@@ -4,8 +4,7 @@
 #include <vector>
 #include <memory>
 #include <GLFW/glfw3.h>
-#include "../Events/Event.hpp"
-#include "../Events/MoveData.hpp"
+#include "../Messaging/Message.hpp"
 
 class Entity;
 class InputSystem
@@ -16,8 +15,8 @@ class InputSystem
 
         void Update(GLFWwindow* window, 
         			std::vector<std::shared_ptr<Entity>>& entities, 
-        			std::vector<Event>& events,
-        			std::vector<Event>& globalQueue);
+        			std::vector<Message>& messages,
+        			std::vector<Message>& globalQueue);
     private:
         std::uint32_t primaryBitset;
 };  

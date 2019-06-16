@@ -7,6 +7,7 @@
 #include "../../Components/TransformComponent.hpp"
 #include "../../Entity.hpp"
 #include "../../External/stb_image.hpp"
+#include "../Messaging/MouseMoveData.hpp"
 
 RenderingSystem::RenderingSystem() : camera(glm::vec3(0.f,0.f,0.f), glm::vec3(1.0f,0.f,0.f), (float)800/(float)600)
 {
@@ -33,10 +34,16 @@ void RenderingSystem::AddShaders(std::vector<std::string> shaders, std::vector<s
     }
 }
 
-void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int playerID, std::vector<Event>& events, std::vector<Event>& globalQueue)
+void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int playerID, std::vector<Message>& messages, std::vector<Message>& globalQueue)
 {
+    // build entity -> messages map
+    std::unordered_map<int, std::vector<Message>> idToMessage;
+    for (int i = 0; i < messages.size(); i++)
+    {
+        idToMessage[messages[i].senderID].push_back(messages[i]);
+    }
+    
     // Update Camera
-    int         playerIndex;
     glm::vec3   newCameraPosition;
 
     // initial prep
@@ -51,41 +58,60 @@ void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int
     {
         if (entities[i]->IsEligibleForSystem(this->primaryBitset))
         {
-            RenderingComponent renderingComponent = entities[i]->GetComponent<RenderingComponent>(ComponentType::Rendering);
-            TransformComponent transformComponent = entities[i]->GetComponent<TransformComponent>(ComponentType::Transform);
-            
-            // prepare new position for camera
-            if (entities[i]->id == playerID)
-            {
-                newCameraPosition = transformComponent.position;
-                playerIndex = i;
-            }
-            
-            ShaderType shaderType = renderingComponent.shader;
+            // Handle messages
+            int entityID = entities[i]->id;
+            if (idToMessage.find(entityID) != idToMessage.end())
+                this->HandleMessages(idToMessage[entityID]);
+
+            RenderingComponent* renderingComponent = entities[i]->GetComponent<RenderingComponent>(ComponentType::Rendering);
+            TransformComponent* transformComponent = entities[i]->GetComponent<TransformComponent>(ComponentType::Transform);            
+            ShaderType shaderType = renderingComponent->shader;
             this->shaders[shaderType].Use();
             this->shaders[shaderType].SetVector3f("light.direction", this->lightDirection);
             this->shaders[shaderType].SetVector3f("light.ambient", ambient, ambient, ambient);
             this->shaders[shaderType].SetVector3f("light.diffuse", diffuse, diffuse, diffuse);
-            this->shaders[shaderType].SetMat4("model", transformComponent.GetWorldTransform());
+            this->shaders[shaderType].SetMat4("model", transformComponent->GetWorldTransform());
             this->shaders[shaderType].SetMat4("projection", projectionMatrix);
             this->shaders[shaderType].SetMat4("view", viewMatrix);
 
             // texture bind
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, renderingComponent.textureID);
+            glBindTexture(GL_TEXTURE_2D, renderingComponent->textureID);
             // vao bind
-            glBindVertexArray(renderingComponent.vertexArrayID);
+            glBindVertexArray(renderingComponent->vertexArrayID);
             // draw
-            glDrawArrays(GL_TRIANGLES, 0, renderingComponent.vertexCount);
+            glDrawArrays(GL_TRIANGLES, 0, renderingComponent->vertexCount);
             // unbind vao
             glBindVertexArray(0);
             // unbind texture
             glBindTexture(GL_TEXTURE_2D, 0);
 
-            // update camera position
+            // prepare new position for camera
+            if (entities[i]->id == playerID)
+            {
+                newCameraPosition = transformComponent->position;
+            }
         }
     }
     this->camera.Update(newCameraPosition);
+}
+
+void RenderingSystem::HandleMessages(std::vector<Message> messages)
+{
+    for (int i = 0; i < messages.size(); i++)
+    {
+        Message message = messages[i];
+        if (message.type == MessageType::MouseMove)
+        {
+            std::shared_ptr<MouseMoveData> data = std::static_pointer_cast<MouseMoveData>(message.data);
+            this->camera.yaw += this->camera.sensitivity * data->deltaX;
+            this->camera.pitch += this->camera.sensitivity * data->deltaY;
+            if (this->camera.pitch > 89.f)
+                this->camera.pitch = 89.f;
+            if (this->camera.pitch < -89.f)
+                this->camera.pitch = -89.f;
+        }
+    }
 }
 
 std::pair<unsigned int, unsigned int> RenderingSystem::BufferData(float* data, int size, bool animated)

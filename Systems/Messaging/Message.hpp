@@ -4,21 +4,21 @@
 
 #include "Data.hpp"
 
-enum EventType
+enum MessageType
 {
 	Move = 0,
 	MouseMove,
-	EventTypeEnd
+	MessageTypeEnd
 };
 
-class Event
+class Message
 {
 	public:
-		Event(int senderID, int receiverID, EventType type);
+		Message(int senderID, int receiverID, MessageType type);
 
 		int 						senderID;
 		int 						receiverID; // broadcast if receiver is 0
-		EventType 					type;
+		MessageType					type;
 		std::shared_ptr<Data>		data;
 
 	private:

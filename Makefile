@@ -10,7 +10,7 @@ SRC_DIRS		:= \
 ./Systems/Rendering \
 ./Systems/Input \
 ./Systems/Animation \
-./Systems/Events \
+./Systems/Messaging \
 ./Components \
 ./Components/Animation \
 ./External
@@ -69,7 +69,7 @@ out/%.o: ./Systems/Input/%.cpp
 out/%.o: ./Systems/Rendering/%.cpp
 	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
 
-out/%.o: ./Systems/Events/%.cpp
+out/%.o: ./Systems/Messaging/%.cpp
 	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
 
 

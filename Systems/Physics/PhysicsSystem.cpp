@@ -20,13 +20,13 @@ void PhysicsSystem::Insert(std::vector<std::shared_ptr<Collider>>& colliders)
     }
 }
 
-void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities, std::vector<Event>& events, std::vector<Event>& globalQueue)
+void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities, std::vector<Message>& messages, std::vector<Message>& globalQueue)
 {
     // build entity -> messages map
-    std::unordered_map<int, std::vector<Event>> idToEvent;
-    for (int i = 0; i < events.size(); i++)
+    std::unordered_map<int, std::vector<Message>> idToMessage;
+    for (int i = 0; i < messages.size(); i++)
     {
-        idToEvent[events[i].senderID].push_back(events[i]);
+        idToMessage[messages[i].senderID].push_back(messages[i]);
     }
 
     std::unordered_map<int, int> idToIndexMap;
@@ -38,31 +38,31 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
             // handle messages for the current entity
 
             idToIndexMap[entities[i]->id] = i;
-            PhysicsComponent component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
+            PhysicsComponent* component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
             // acceleration update
-            component.acceleration += component.forceAccumulator * component.inverseMass;
-            component.angularAcc += component.invInertiaTensor * component.torqueAccumulator;
+            component->acceleration += component->forceAccumulator * component->inverseMass;
+            component->angularAcc += component->invInertiaTensor * component->torqueAccumulator;
             // velocity update
-            component.velocity += component.acceleration * deltaTime;
-            component.angularVel += component.angularAcc * deltaTime;
+            component->velocity += component->acceleration * deltaTime;
+            component->angularVel += component->angularAcc * deltaTime;
             // position update
-            component.position += component.velocity * deltaTime;
-            component.orientation.x += 0.5f * component.orientation.x * component.angularVel.x * deltaTime;
-            component.orientation.y += 0.5f * component.orientation.y * component.angularVel.y * deltaTime;
-            component.orientation.z += 0.5f * component.orientation.z * component.angularVel.z * deltaTime;
+            component->position += component->velocity * deltaTime;
+            component->orientation.x += 0.5f * component->orientation.x * component->angularVel.x * deltaTime;
+            component->orientation.y += 0.5f * component->orientation.y * component->angularVel.y * deltaTime;
+            component->orientation.z += 0.5f * component->orientation.z * component->angularVel.z * deltaTime;
 
-            glm::vec3 velocityChange = component.velocity * deltaTime;
-            for (int j = 0; j < component.colliders.size(); j++)
+            glm::vec3 velocityChange = component->velocity * deltaTime;
+            for (int j = 0; j < component->colliders.size(); j++)
             {
-                component.colliders[j]->Update(velocityChange);
-                int newRow = this->grid.GetInsertRow(component.colliders[j]->center);
-                int newCol = this->grid.GetInsertCol(component.colliders[j]->center);
-                int oldRow = component.colliders[j]->row;
-                int oldCol = component.colliders[j]->col;
+                component->colliders[j]->Update(velocityChange);
+                int newRow = this->grid.GetInsertRow(component->colliders[j]->center);
+                int newCol = this->grid.GetInsertCol(component->colliders[j]->center);
+                int oldRow = component->colliders[j]->row;
+                int oldCol = component->colliders[j]->col;
                 if (oldRow != newRow || oldCol || newCol)
                 {
-                    this->grid.Remove(component.colliders[j]);
-                    this->grid.Insert(component.colliders[j]);
+                    this->grid.Remove(component->colliders[j]);
+                    this->grid.Insert(component->colliders[j]);
                 }
             }
         }
@@ -84,8 +84,8 @@ void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::v
         int firstEntityIndex = idToIndexMap[collision->first];
         int secondEntityIndex = idToIndexMap[collision->second];
 
-        PhysicsComponent first = entities[firstEntityIndex]->GetComponent<PhysicsComponent>(ComponentType::Physics);
-        PhysicsComponent second = entities[secondEntityIndex]->GetComponent<PhysicsComponent>(ComponentType::Physics);
+        PhysicsComponent* first = entities[firstEntityIndex]->GetComponent<PhysicsComponent>(ComponentType::Physics);
+        PhysicsComponent* second = entities[secondEntityIndex]->GetComponent<PhysicsComponent>(ComponentType::Physics);
 
         std::shared_ptr<Collider> firstCollider = collision->firstCollider;
         std::shared_ptr<Collider> secondCollider = collision->secondCollider;
@@ -99,14 +99,14 @@ void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::v
             glm::vec3 normal = contact.contactNormal;
             glm::vec3 rA = normal - firstCollider->center;
             glm::vec3 rB = normal - secondCollider->center;
-            glm::vec3 vA = first.velocity;
-            glm::vec3 wA = first.angularVel;
-            glm::vec3 vB = second.velocity;
-            glm::vec3 wB = second.angularVel;
-            float invMassA = first.inverseMass;
-            float invMassB = second.inverseMass;
-            glm::mat3 invInertiaTensorA = first.invInertiaTensor;
-            glm::mat3 invInertiaTensorB = second.invInertiaTensor;
+            glm::vec3 vA = first->velocity;
+            glm::vec3 wA = first->angularVel;
+            glm::vec3 vB = second->velocity;
+            glm::vec3 wB = second->angularVel;
+            float invMassA = first->inverseMass;
+            float invMassB = second->inverseMass;
+            glm::mat3 invInertiaTensorA = first->invInertiaTensor;
+            glm::mat3 invInertiaTensorB = second->invInertiaTensor;
 
             glm::vec3 preRelativeVelocity = vA + glm::cross(wA, rA) - vB - glm::cross(wB, rB);
             
@@ -125,16 +125,16 @@ void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::v
             glm::vec3 wA2 = wA + invInertiaTensorA * glm::cross(rA, impulse * normal);
             glm::vec3 wB2 = wB - invInertiaTensorB * glm::cross(rB, impulse * normal);
 
-            first.velocity = vA2;
-            first.angularVel = wA2;
+            first->velocity = vA2;
+            first->angularVel = wA2;
             
-            second.velocity = vB2;
-            second.angularVel = wB2;
+            second->velocity = vB2;
+            second->angularVel = wB2;
         }
     }
 }
 
-void PhysicsSystem::HandleEvent(Event& event, PhysicsComponent& component)
+void PhysicsSystem::HandleEvent(Message& event, PhysicsComponent& component)
 {
     // if (event.type == EventType::Move)
     // {
