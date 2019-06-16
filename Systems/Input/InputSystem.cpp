@@ -25,9 +25,7 @@ void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>
             // KEYBOARD
             std::vector<bool> actionList(4);
             bool generateMoveMessage = false;
-            InputComponent component = entities[i]->GetComponent<InputComponent>(ComponentType::Input);
-            std::cout << "UPDATE " << std::endl;
-            std::cout << component.lastX << std::endl;
+            InputComponent* component = entities[i]->GetComponent<InputComponent>(ComponentType::Input);
             if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
             {
                 actionList[Action::MoveForward] = true;
@@ -70,19 +68,8 @@ void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>
             {
                 // disable mouse
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                double deltaX = x - component.lastX;
-                double deltaY = y - component.lastY;
-                std::cout << "Mouse MOve" << std::endl;
-                std::cout << "OLD " << std::endl;
-                std::cout << component.lastX << std::endl;
-                std::cout << component.lastY << std::endl;
-                std::cout << "NEW " << std::endl;
-                std::cout << x << std::endl;
-                std::cout << y << std::endl;
-                std::cout << "delta" << std::endl;
-                std::cout << deltaX << std::endl;
-                std::cout << deltaY << std::endl;
-                std::cout << " --- " << component.lastX << std::endl;
+                double deltaX = x - component->lastX;
+                double deltaY = y - component->lastY;
                 Message message(entities[i]->id, 0, MessageType::MouseMove);
                 std::shared_ptr<MouseMoveData> mouseMoveData = std::make_shared<MouseMoveData>(deltaX, deltaY);
                 message.data = mouseMoveData;
@@ -94,8 +81,8 @@ void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
             // update components mouse coords.
-            component.lastX = x;
-            component.lastY = y;
+            component->lastX = x;
+            component->lastY = y;
         }
     }
 }

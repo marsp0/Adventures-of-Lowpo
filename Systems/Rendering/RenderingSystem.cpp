@@ -63,24 +63,24 @@ void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int
             if (idToMessage.find(entityID) != idToMessage.end())
                 this->HandleMessages(idToMessage[entityID]);
 
-            RenderingComponent renderingComponent = entities[i]->GetComponent<RenderingComponent>(ComponentType::Rendering);
-            TransformComponent transformComponent = entities[i]->GetComponent<TransformComponent>(ComponentType::Transform);            
-            ShaderType shaderType = renderingComponent.shader;
+            RenderingComponent* renderingComponent = entities[i]->GetComponent<RenderingComponent>(ComponentType::Rendering);
+            TransformComponent* transformComponent = entities[i]->GetComponent<TransformComponent>(ComponentType::Transform);            
+            ShaderType shaderType = renderingComponent->shader;
             this->shaders[shaderType].Use();
             this->shaders[shaderType].SetVector3f("light.direction", this->lightDirection);
             this->shaders[shaderType].SetVector3f("light.ambient", ambient, ambient, ambient);
             this->shaders[shaderType].SetVector3f("light.diffuse", diffuse, diffuse, diffuse);
-            this->shaders[shaderType].SetMat4("model", transformComponent.GetWorldTransform());
+            this->shaders[shaderType].SetMat4("model", transformComponent->GetWorldTransform());
             this->shaders[shaderType].SetMat4("projection", projectionMatrix);
             this->shaders[shaderType].SetMat4("view", viewMatrix);
 
             // texture bind
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, renderingComponent.textureID);
+            glBindTexture(GL_TEXTURE_2D, renderingComponent->textureID);
             // vao bind
-            glBindVertexArray(renderingComponent.vertexArrayID);
+            glBindVertexArray(renderingComponent->vertexArrayID);
             // draw
-            glDrawArrays(GL_TRIANGLES, 0, renderingComponent.vertexCount);
+            glDrawArrays(GL_TRIANGLES, 0, renderingComponent->vertexCount);
             // unbind vao
             glBindVertexArray(0);
             // unbind texture
@@ -89,7 +89,7 @@ void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int
             // prepare new position for camera
             if (entities[i]->id == playerID)
             {
-                newCameraPosition = transformComponent.position;
+                newCameraPosition = transformComponent->position;
             }
         }
     }

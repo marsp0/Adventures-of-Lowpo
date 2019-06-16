@@ -14,7 +14,7 @@ Camera::Camera( glm::vec3   position,
                 worldUp(0.f,1.f,0.f),
                 yaw(90.f),
                 pitch(15.f),
-                sensitivity(0.01f)
+                sensitivity(0.1f)
 {
 
     this->right     = glm::normalize(glm::cross(this->direction, this->worldUp));
