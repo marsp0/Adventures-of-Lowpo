@@ -25,14 +25,13 @@ class Camera
         double      lastX;
         double      lastY;
         
+        float       yaw;
+        float       pitch;
+        float       sensitivity;
         float       aspectRatio;
         
     private:
         
-
-        float       yaw;
-        float       pitch;
-        float       sensitivity;
         glm::mat4   projectionMatrix;
         unsigned int radius;
 };

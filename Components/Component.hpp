@@ -17,7 +17,7 @@ class Component
 
         // Constructor / Destructor
         Component(std::uint32_t type);
-        ~Component();
+        virtual ~Component();
         std::uint32_t GetComponentType();
 
     private:
