@@ -96,7 +96,7 @@ void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int
     this->camera.Update(newCameraPosition);
 }
 
-void RenderingSystem::HandleMessages(std::vector<Message> messages)
+void RenderingSystem::HandleMessages(std::vector<Message>& messages)
 {
     for (int i = 0; i < messages.size(); i++)
     {

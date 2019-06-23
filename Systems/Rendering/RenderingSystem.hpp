@@ -21,7 +21,7 @@ class RenderingSystem
                     std::vector<Message>& messages,
                     std::vector<Message>& globalQueue);
         unsigned int CreateTexture(std::string filename);
-        void HandleMessages(std::vector<Message> messages);
+        void HandleMessages(std::vector<Message>& messages);
         static std::pair<unsigned int, unsigned int> BufferData(float* data, int size, bool animated);
 
     private:
