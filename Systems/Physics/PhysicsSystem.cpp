@@ -1,4 +1,5 @@
 #include "PhysicsSystem.hpp"
+#include <iostream>
 
 #include "../../Components/InputComponent.hpp"
 
@@ -35,10 +36,13 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
     {
         if (entities[i]->IsEligibleForSystem(this->primaryBitset))
         {
-            // handle messages for the current entity
-
-            idToIndexMap[entities[i]->id] = i;
             PhysicsComponent* component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
+
+            // handle messages for the current entity
+            if (idToMessage.find(entities[i]->id) != idToMessage.end())
+                this->HandleMessages(idToMessage[entities[i]->id], component);
+            idToIndexMap[entities[i]->id] = i;
+
             // acceleration update
             component->acceleration += component->forceAccumulator * component->inverseMass;
             component->angularAcc += component->invInertiaTensor * component->torqueAccumulator;
@@ -134,10 +138,14 @@ void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::v
     }
 }
 
-void PhysicsSystem::HandleEvent(Message& event, PhysicsComponent& component)
+void PhysicsSystem::HandleMessages(std::vector<Message>& messages, PhysicsComponent* component)
 {
-    // if (event.type == EventType::Move)
-    // {
-    // }
-
+    for (int i = 0; i < messages.size(); i++)
+    {
+        Message message = messages[i];
+        if (message.type == MessageType::Move)
+        {
+            std::cout << "Found move message - " << message.senderID << std::endl;
+        }
+    }
 }

@@ -96,6 +96,7 @@ void Game::Init()
 
     // subscribe
     this->Subscribe(MessageType::MouseMove, System::RenderingSys);
+    this->Subscribe(MessageType::Move, System::PhysicsSys);
 }
 
 void Game::InitConfig()

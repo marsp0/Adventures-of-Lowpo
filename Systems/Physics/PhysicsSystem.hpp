@@ -26,7 +26,7 @@ class PhysicsSystem
         			std::vector<std::shared_ptr<Collision>>& collisions, 
         			std::unordered_map<int, int>& idToIndexMap);
 
-        void HandleEvent(Message& message, PhysicsComponent& component);
+        void HandleMessages(std::vector<Message>& messages, PhysicsComponent* component);
 
     private:
 
