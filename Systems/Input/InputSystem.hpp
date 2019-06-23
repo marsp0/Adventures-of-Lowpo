@@ -18,5 +18,7 @@ class InputSystem
         			std::vector<Message>& messages,
         			std::vector<Message>& globalQueue);
     private:
+
+    	std::vector<bool> actionList;
         std::uint32_t primaryBitset;
 };  

@@ -5,7 +5,7 @@
 #include "../Messaging/MoveData.hpp"
 #include "../Messaging/MouseMoveData.hpp"
 
-InputSystem::InputSystem()
+InputSystem::InputSystem() : actionList(4)
 {
     this->primaryBitset = ComponentType::Input;
 }
@@ -22,44 +22,42 @@ void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>
     {
         if (entities[i]->IsEligibleForSystem(this->primaryBitset))
         {
-            // KEYBOARD
-            std::vector<bool> actionList(4);
-            bool generateMoveMessage = false;
             InputComponent* component = entities[i]->GetComponent<InputComponent>(ComponentType::Input);
-            if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            // KEYBOARD
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || \
+                glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || \
+                glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || \
+                glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
             {
-                actionList[Action::MoveForward] = true;
+                this->actionList[Action::MoveForward] = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ? true : false;
+                this->actionList[Action::MoveBackward] = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ? true : false;
+                this->actionList[Action::MoveLeft] = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ? true : false;
+                this->actionList[Action::MoveRight] = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS ? true : false;
+                Message message(entities[i]->id, 0, MessageType::Move);
+                std::shared_ptr<MoveData> moveData = std::make_shared<MoveData>(this->actionList[Action::MoveForward],
+                                                                            this->actionList[Action::MoveBackward],
+                                                                            this->actionList[Action::MoveLeft],
+                                                                            this->actionList[Action::MoveRight]);
+                message.data = moveData;
+                globalQueue.push_back(message);
             }
-            if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE && \
+                glfwGetKey(window, GLFW_KEY_S) == GLFW_RELEASE && \
+                glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && \
+                glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE)
             {
-                actionList[Action::MoveBackward] = true;
+                Message message(entities[i]->id, 0, MessageType::Move);
+                std::shared_ptr<MoveData> moveData = std::make_shared<MoveData>(false, false, false, false);
+                message.data = moveData;
+                globalQueue.push_back(message);
             }
-            if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            
+            for (int i = 0; i < this->actionList.size(); i++)
             {
-                actionList[Action::MoveLeft] = true;
-            }
-            if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            {
-                actionList[Action::MoveRight] = true;
-            }
-            // generate message if any of the buttons are pressed.
-            for (int j = 0; j < actionList.size(); j++)
-            {
-                if (actionList[j])
-                {
-                    Message message(entities[i]->id, 0, MessageType::Move);
-                    std::shared_ptr<MoveData> moveData = std::make_shared<MoveData>(actionList[Action::MoveForward],
-                                                                                    actionList[Action::MoveBackward],
-                                                                                    actionList[Action::MoveLeft],
-                                                                                    actionList[Action::MoveRight]);
-                    message.data = moveData;
-                    globalQueue.push_back(message);
-                    break;
-                }
+                this->actionList[i] = false;
             }
 
             // Mouse
-
             // get mouse position
             double x, y;
             glfwGetCursorPos(window, &x, &y);

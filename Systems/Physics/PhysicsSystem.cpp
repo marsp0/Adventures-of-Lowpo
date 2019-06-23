@@ -1,7 +1,8 @@
 #include "PhysicsSystem.hpp"
 #include <iostream>
 
-#include "../../Components/InputComponent.hpp"
+#include "../../Components/TransformComponent.hpp"
+#include "../Messaging/MoveData.hpp"
 
 PhysicsSystem::PhysicsSystem(float gridLength, float cellHalfWidth) : grid(gridLength, cellHalfWidth)
 {
@@ -37,15 +38,18 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
         if (entities[i]->IsEligibleForSystem(this->primaryBitset))
         {
             PhysicsComponent* component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
+            TransformComponent* transformComponent = entities[i]->GetComponent<TransformComponent>(ComponentType::Transform);
 
             // handle messages for the current entity
             if (idToMessage.find(entities[i]->id) != idToMessage.end())
                 this->HandleMessages(idToMessage[entities[i]->id], component);
             idToIndexMap[entities[i]->id] = i;
 
+            // Physics Component Update
+
             // acceleration update
             component->acceleration += component->forceAccumulator * component->inverseMass;
-            component->angularAcc += component->invInertiaTensor * component->torqueAccumulator;
+            component->angularAcc += component->torqueAccumulator * component->invInertiaTensor;
             // velocity update
             component->velocity += component->acceleration * deltaTime;
             component->angularVel += component->angularAcc * deltaTime;
@@ -55,6 +59,12 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
             component->orientation.y += 0.5f * component->orientation.y * component->angularVel.y * deltaTime;
             component->orientation.z += 0.5f * component->orientation.z * component->angularVel.z * deltaTime;
 
+            // Transform Component Update
+
+            transformComponent->position = component->position;
+            transformComponent->orientation = component->orientation;
+
+            // check if we need to move the object accross grid spaces
             glm::vec3 velocityChange = component->velocity * deltaTime;
             for (int j = 0; j < component->colliders.size(); j++)
             {
@@ -145,7 +155,15 @@ void PhysicsSystem::HandleMessages(std::vector<Message>& messages, PhysicsCompon
         Message message = messages[i];
         if (message.type == MessageType::Move)
         {
-            std::cout << "Found move message - " << message.senderID << std::endl;
+            std::shared_ptr<MoveData> moveData = std::static_pointer_cast<MoveData>(message.data);
+            if (moveData->forward)
+                component->velocity = glm::vec3(0.f,0.f,-1.f);
+            else
+                component->velocity = glm::vec3(0.f,0.f,1.f);
+        }
+        else if (message.type == MessageType::MouseMove)
+        {
+            continue;
         }
     }
 }
