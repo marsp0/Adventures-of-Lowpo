@@ -179,7 +179,10 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
             float y = fabs(center.y - it->second->vertices[1]);
             float z = fabs(center.z - it->second->vertices[2]);
             glm::vec3 axisRadii = glm::vec3( x, y, z);
-            center = instanceGeometries[it->first]->matrix * glm::vec4(center, 1.0f);
+            glm::vec4 vec4Center = instanceGeometries[it->first]->matrix * glm::vec4(center, 1.0f);
+            center.x = vec4Center.x;
+            center.y = vec4Center.y;
+            center.z = vec4Center.z;
             DynamicType type = DynamicType::Static;
             if (objectName == "Player")
                 type = DynamicType::Dynamic;
