@@ -3,6 +3,7 @@
 
 #include "../../Components/TransformComponent.hpp"
 #include "../Messaging/MoveData.hpp"
+#include "../Messaging/MouseMoveData.hpp"
 
 PhysicsSystem::PhysicsSystem(float gridLength, float cellHalfWidth) : grid(gridLength, cellHalfWidth)
 {
@@ -159,11 +160,13 @@ void PhysicsSystem::HandleMessages(std::vector<Message>& messages, PhysicsCompon
             if (moveData->forward)
                 component->velocity = glm::vec3(0.f,0.f,-1.f);
             else
-                component->velocity = glm::vec3(0.f,0.f,1.f);
+            {
+                component->velocity = glm::vec3(0.f,0.f,0.f);
+            }
         }
         else if (message.type == MessageType::MouseMove)
         {
-            continue;
+            std::shared_ptr<MouseMoveData> mouseMoveData = std::static_pointer_cast<MouseMoveData>(message.data);
         }
     }
 }
