@@ -2,12 +2,6 @@ sudo: true
 language: cpp
 compiler: gcc
 os: linux
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-5
 script: make
 before_install:
   - sudo apt-get install -y libglm-dev libglfw3-dev libglew-dev
