@@ -1,4 +1,6 @@
-# [Adventures of Lowpo](https://trello.com/b/SIsTXK57/adventures-of-lowpo)
+[![Build Status](https://travis-ci.org/marsp0/Adventures-of-Lowpo.svg?branch=master)](hhttps://travis-ci.org/marsp0/Adventures-of-Lowpo)
+
+# [Adventures of Lowpo](https://trello.com/b/SIsTXK57/adventures-of-lowpo) 
 
 3D game made from scratch using C++ and OpenGL.
 
