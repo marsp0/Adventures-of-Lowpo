@@ -77,6 +77,10 @@ void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>
             {
                 // enable mouse on release
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                Message message(entities[i]->id, 0, MessageType::MouseMove);
+                std::shared_ptr<MouseMoveData> mouseMoveData = std::make_shared<MouseMoveData>(0.f, 0.f);
+                message.data = mouseMoveData;
+                globalQueue.push_back(message);
             }
             // update components mouse coords.
             component->lastX = x;

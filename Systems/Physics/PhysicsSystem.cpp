@@ -59,6 +59,7 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
             component->orientation.x += 0.5f * component->orientation.x * component->angularVel.x * deltaTime;
             component->orientation.y += 0.5f * component->orientation.y * component->angularVel.y * deltaTime;
             component->orientation.z += 0.5f * component->orientation.z * component->angularVel.z * deltaTime;
+            component->orientation = glm::normalize(component->orientation);
 
             // Transform Component Update
 
