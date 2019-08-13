@@ -75,7 +75,7 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
                 int newCol = this->grid.GetInsertCol(component->colliders[j]->center);
                 int oldRow = component->colliders[j]->row;
                 int oldCol = component->colliders[j]->col;
-                if (oldRow != newRow || oldCol || newCol)
+                if (oldRow != newRow || oldCol != newCol)
                 {
                     this->grid.Remove(component->colliders[j]);
                     this->grid.Insert(component->colliders[j]);
