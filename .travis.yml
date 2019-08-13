@@ -1,13 +1,14 @@
 os: linux
 sudo: true
 jobs:
-  - stage: Build Game
-    script: make
-  - stage: Build Tests
-    script: make test
-  - stage: Run Tests
-    script: 
-      - ./out/test
+  include:
+    - stage: Build Game
+      script: make
+    - stage: Build Tests
+      script: make test
+  # - stage: Run Tests
+  #   script: 
+  #     - ./out/test
 compiler: gcc
 language: cpp
 notifications: never
