@@ -17,7 +17,6 @@ TEST_CASE("Geometry parsing")
     std::unordered_map<std::string, std::shared_ptr<Geometry>> result = Loader::ParseGeometry(libraryGeometries);
     // parsed 3 objects
     REQUIRE(result.size() == 3);
-
     // Plane tests
     std::shared_ptr<Geometry> plane = result["Plane"];
     REQUIRE(plane->name == "Plane");
@@ -25,15 +24,13 @@ TEST_CASE("Geometry parsing")
     REQUIRE(plane->vertices.size() == 12);
     REQUIRE(plane->texCoords.size() == 12);
 
-    // Plane tests
-    std::shared_ptr<Geometry> cube = result["Cube.000"];
+    std::shared_ptr<Geometry> cube = result["Cube_000"];
     REQUIRE(cube->name == "Cube.000");
     REQUIRE(cube->indices.size() == 108);
     REQUIRE(cube->vertices.size() == 24);
     REQUIRE(cube->texCoords.size() == 72);
 
-    // Plane tests
-    std::shared_ptr<Geometry> cube1 = result["Cube.001"];
+    std::shared_ptr<Geometry> cube1 = result["Cube_001"];
     REQUIRE(cube1->name == "Cube.001");
     REQUIRE(cube1->indices.size() == 108);
     REQUIRE(cube1->vertices.size() == 24);

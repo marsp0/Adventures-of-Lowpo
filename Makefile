@@ -33,9 +33,9 @@ OBJ_TEST      	:= $(filter-out out/main.o, $(OBJ)) $(SRC_TEST:test/%.cpp=out/%.o
 # --------------------------------------------------------------
 
 .PHONY: all
-all: $(EXECUTABLE)
+all: out/$(EXECUTABLE)
 
-$(EXECUTABLE): $(OBJ)
+out/$(EXECUTABLE): $(OBJ)
 	@$(LD) $^ -o $@ $(LDFLAGS) && echo "[OK]  $@"
 
 # --------------------------------------------------------------
