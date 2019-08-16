@@ -7,14 +7,7 @@
 #include "../Systems/Messaging/MouseMoveData.hpp"
 #include "../Systems/Messaging/MoveData.hpp"
 
-// Display includes
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
-
 extern GLFWwindow* window;
-extern Display* display;
-extern Window winfocus;
-extern int revert;
 extern float EPSILON;
 
 TEST_CASE("Input System Test")

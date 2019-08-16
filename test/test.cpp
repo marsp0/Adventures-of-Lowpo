@@ -9,9 +9,6 @@
 #include <X11/keysym.h>
 
 GLFWwindow* window;
-Display* display;
-Window winfocus;
-int revert;
 
 float EPSILON;
 
@@ -31,11 +28,6 @@ class GLFWListener: public Catch::TestEventListenerBase
 	    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	    window = glfwCreateWindow(800, 600, "Adventures of Lowpo", nullptr, nullptr);
 	    glfwMakeContextCurrent(window);
-
-		// display init
-		display = XOpenDisplay(NULL);
-        XGetInputFocus(display, &winfocus, &revert);
-        
 	}
 
 	virtual void testRunEnded( Catch::TestRunStats const& testRunStats )
