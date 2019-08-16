@@ -17,8 +17,15 @@ class InputSystem
         			std::vector<std::shared_ptr<Entity>>& entities, 
         			std::vector<Message>& messages,
         			std::vector<Message>& globalQueue);
-    private:
 
+        void ClearActions();
+
+        bool generateKeyRelease;
+        bool generateKeyMessage;
+        bool generateMouseMessage;
+        bool generateMouseRelease;
     	std::vector<bool> actionList;
+
+    private:
         std::uint32_t primaryBitset;
 };  

@@ -5,7 +5,7 @@
 
 #include "../Loader.hpp"
 
-const float EPSILON = 0.0005;
+extern float EPSILON;
 
 TEST_CASE("Geometry parsing")
 {
