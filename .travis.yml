@@ -9,4 +9,4 @@ language: cpp
 notifications: never
 before_install:
   - mkdir out
-  - sudo apt-get install -y libglm-dev libglfw3-dev libglew-dev
+  - sudo apt-get install -y libglm-dev libglfw3-dev libglew-dev libx11-dev 
