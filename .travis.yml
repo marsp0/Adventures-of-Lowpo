@@ -15,10 +15,12 @@ jobs:
     - stage: Documentation Generation
       script:
         - chmod +x ./scripts/run_doxygen.sh
-        - mkdir docs
         - ./scripts/run_doxygen.sh
-        - cd docs
-        - ls -l
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        github_token: $GH_TOKEN
+        local_dir: ./docs
 compiler: g++
 language: cpp
 notifications: never
