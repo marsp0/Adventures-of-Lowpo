@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/marsp0/Adventures-of-Lowpo.svg?branch=master)](hhttps://travis-ci.org/marsp0/Adventures-of-Lowpo)
+[![Build Status](https://travis-ci.org/marsp0/Adventures-of-Lowpo.svg?branch=master)](hhttps://travis-ci.org/marsp0/Adventures-of-Lowpo) [![codecov](https://codecov.io/gh/marsp0/Adventures-of-Lowpo/branch/master/graph/badge.svg)](https://codecov.io/gh/marsp0/Adventures-of-Lowpo)
 
 # [Adventures of Lowpo](https://trello.com/b/SIsTXK57/adventures-of-lowpo) 
 

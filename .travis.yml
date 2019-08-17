@@ -7,8 +7,10 @@ jobs:
     - stage: Code Coverage
       script: 
         - make gcov && ./out/gcov_exe
+        - chmod +x ./get_code_coverage_reports.sh
         - cd ./out
-        - ../get_code_coverage_reports
+        - ../get_code_coverage_reports.sh
+        - cd ../
         - codecov
 compiler: g++
 language: cpp
