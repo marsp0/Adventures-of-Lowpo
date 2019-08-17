@@ -2,45 +2,58 @@
 
 CXX           	:= g++
 SRCDIR 			:= ./src
-OBJDIR 			:= ./out
+OBJDIR			:= ./out
 EXECUTABLE    	:= game
-EXECUTABLE_TEST := test
 EXECUTABLE_GCOV := gcov
 CXXFLAGS      	:= -std=c++14
-STRUCTURE 		:= $(shell find $(SRC) -name "*.cpp")
-FILENAMES		:= $(notdir $(SRC))
-OBJ 	     	:= $(FILENAMES:%.cpp=out/%.o)
+SRCFILES	 	:= $(shell find $(SRCDIR) -name "*.cpp")
+SRCNAMES		:= $(notdir $(SRCFILES))
+OBJFILES 	    := $(SRCNAMES:%.cpp=$(OBJDIR)/%.o)
 LDFLAGS       	:= -lGL -lGLEW -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi
+space :=
+space +=
+VPATH := $(subst $(space),:,$(shell find . -type d))
 
-# all:$(OBJ)
-# 	$(info $(OBJ))
-# 	g++ $^ -o $@ $(LDFLAGS) && echo "[OK]  $@"
+# MAIN
 
-# out/%.o: $(SRC)
-# 	$(info $(SRC))
-# 	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
+.PHONY: all
+all: out/$(EXECUTABLE)
 
-# clean:
-# 	@rm -f out/* && echo "[CL]  out/"
+out/$(EXECUTABLE): $(OBJFILES)
+	@$(CXX) $(CXXFLAGS) $(OBJFILES) -o $@ $(LDFLAGS) && echo "[OK] $@"
+
+$(OBJDIR)/%.o: %.cpp
+	@$(CXX) $(CXXFLAGS) -c $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
+
+# TEST
+
+TESTDIR			:= ./test
+TESTEXECUTABLE  := test
+TESTFILES		:= $(shell find $(SRCDIR) -name "*.cpp") $(shell find $(TESTDIR) -name "*.cpp")
+TESTNAMES      	:= $(notdir $(TESTFILES))
+TESTOBJFILES	:= $(filter-out ./out/main.o, $(TESTNAMES:%.cpp=$(OBJDIR)/%.o))
+
+.PHONY: test
+test: out/$(TESTEXECUTABLE)
+
+out/$(TESTEXECUTABLE): $(TESTOBJFILES)
+	@$(CXX) $(CXXFLAGS) $(TESTOBJFILES) -o $@ $(LDFLAGS) && echo "[OK] $@"
 
 
-CC      := g++
-CCFLAGS := 
-LDFLAGS := -lGL -lGLEW -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi
-TARGETS	:= edit
-MAINS  	:= $(addsuffix .o, $(TARGETS) )
-OBJ    	:= kbd.o command.o display.o $(MAINS)
-DEPS   	:= defs.h command.h
+# GCOV
 
-.PHONY: all clean
+GCOVEXECUTABLE := gcov_exe
 
-all: $(TARGETS)
+.PHONY: gcov
+gcov: out/$(GCOVEXECUTABLE)
+gcov: CXXFLAGS += --coverage
 
+out/$(GCOVEXECUTABLE): $(TESTOBJFILES)
+	@$(CXX) $(CXXFLAGS) $(TESTOBJFILES) -o $@ $(LDFLAGS) && echo "[OK] $@"
+
+# CLEAN
+
+
+.PHONY: clean
 clean:
-	rm -f $(TARGETS) $(OBJ)
-
-$(OBJ): %.o : %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CCFLAGS)
-
-$(TARGETS): % : $(filter-out $(MAINS), $(OBJ)) %.o
-	$(CC) -o $@ $(LIBS) $^ $(CCFLAGS) $(LDFLAGS)
+	@rm -f out/* && echo "[CL]  out/"

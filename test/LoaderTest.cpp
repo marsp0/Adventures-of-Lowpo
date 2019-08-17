@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../Loader.hpp"
+#include "../src/Loader.hpp"
 
 extern float EPSILON;
 

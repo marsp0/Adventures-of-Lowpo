@@ -4,9 +4,16 @@ jobs:
   include:
     - stage: Build and Test
       script: make && make test && ./out/test
-compiler: gcc
+    - stage: Code Coverage
+      script: 
+        - make gcov && ./out/gcov_exe
+        - cd ./out
+        - ../get_code_coverage_reports
+        - codecov
+compiler: g++
 language: cpp
 notifications: never
 before_install:
+  - sudo pip install codecov
   - mkdir out
   - sudo apt-get install -y libglm-dev libglfw3-dev libglew-dev

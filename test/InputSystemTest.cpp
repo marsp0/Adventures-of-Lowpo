@@ -1,11 +1,11 @@
 #include <iostream>
 #include <memory>
 #include "catch.hpp"
-#include "../Systems/Input/InputSystem.hpp"
-#include "../Components/InputComponent.hpp"
-#include "../Entity.hpp"
-#include "../Systems/Messaging/MouseMoveData.hpp"
-#include "../Systems/Messaging/MoveData.hpp"
+#include "../src/Systems/Input/InputSystem.hpp"
+#include "../src/Components/InputComponent.hpp"
+#include "../src/Entity.hpp"
+#include "../src/Systems/Messaging/MouseMoveData.hpp"
+#include "../src/Systems/Messaging/MoveData.hpp"
 
 extern GLFWwindow* window;
 extern float EPSILON;
