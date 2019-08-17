@@ -1,4 +1,4 @@
-<p style="text-align: center;">[![Build Status](https://travis-ci.org/marsp0/Adventures-of-Lowpo.svg?branch=master)](https://travis-ci.org/marsp0/Adventures-of-Lowpo) [![codecov](https://codecov.io/gh/marsp0/Adventures-of-Lowpo/branch/master/graph/badge.svg)](https://codecov.io/gh/marsp0/Adventures-of-Lowpo) [![documentation](https://img.shields.io/badge/-Docs-grey)](https://marsp0.github.io/Adventures-of-Lowpo/) [![Trello](https://img.shields.io/badge/-Trello-blue)](https://trello.com/b/SIsTXK57/adventures-of-lowpo) </p>
+[![Build Status](https://travis-ci.org/marsp0/Adventures-of-Lowpo.svg?branch=master)](https://travis-ci.org/marsp0/Adventures-of-Lowpo) [![codecov](https://codecov.io/gh/marsp0/Adventures-of-Lowpo/branch/master/graph/badge.svg)](https://codecov.io/gh/marsp0/Adventures-of-Lowpo) [![documentation](https://img.shields.io/badge/-Docs-grey)](https://marsp0.github.io/Adventures-of-Lowpo/) [![Trello](https://img.shields.io/badge/-Trello-blue)](https://trello.com/b/SIsTXK57/adventures-of-lowpo)
 
 # Adventures of Lowpo
 
