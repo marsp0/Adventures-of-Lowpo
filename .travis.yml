@@ -7,15 +7,20 @@ jobs:
     - stage: Code Coverage
       script: 
         - make gcov && ./out/gcov_exe
-        - chmod +x ./get_code_coverage_reports.sh
+        - chmod +x ./scripts/get_code_coverage_reports.sh
         - cd ./out
-        - ../get_code_coverage_reports.sh
+        - ../scripts/get_code_coverage_reports.sh
         - cd ../
         - codecov
+    - stage: Documentation Generation
+      script:
+        - chmod +x ./scripts/run_doxygen.sh
+        - mkdir docs
+        - ../scripts/run_doxygen.sh
 compiler: g++
 language: cpp
 notifications: never
 before_install:
   - sudo pip install codecov
   - mkdir out
-  - sudo apt-get install -y libglm-dev libglfw3-dev libglew-dev
+  - sudo apt-get install -y libglm-dev libglfw3-dev libglew-dev doxygen
