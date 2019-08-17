@@ -16,7 +16,9 @@ jobs:
       script:
         - chmod +x ./scripts/run_doxygen.sh
         - mkdir docs
-        - ../scripts/run_doxygen.sh
+        - ./scripts/run_doxygen.sh
+        - cd docs
+        - ls -l
 compiler: g++
 language: cpp
 notifications: never
