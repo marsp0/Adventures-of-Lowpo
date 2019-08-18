@@ -52,6 +52,8 @@ class Grid
          */
         int  GetInsertCol(glm::vec3 point);
 
+        const std::vector< std::vector< std::shared_ptr<Cell>> > GetCells();
+
     private:
 
         int     cellsInRow;

@@ -10,9 +10,9 @@ Triangle::Triangle( int entityID,
                     ColliderType colliderType,
                     DynamicType  dynamicType) : 
             Collider(entityID, center, name, colliderType, dynamicType), 
-            normal(normal),
-            points(points)
+            normal(normal)
 {
+    this->points = points;
     // TODO : Decide if the normal will be passed or generated on the fly by the points passed
     if (glm::dot(glm::vec3(0.f,1.f,0.f), this->normal) < 0.f)
     {

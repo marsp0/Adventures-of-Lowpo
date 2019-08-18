@@ -23,7 +23,7 @@ out/$(EXECUTABLE): $(OBJFILES)
 	@$(CXX) $(CXXFLAGS) $(OBJFILES) -o $@ $(LDFLAGS) && echo "[OK] $@"
 
 $(OBJDIR)/%.o: %.cpp
-	@$(CXX) $(CXXFLAGS) -c $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
+	@$(CXX) $(CXXFLAGS) -c -g $< -o $@ $(LDFLAGS) && echo "[OK]  $@"
 
 # TEST
 

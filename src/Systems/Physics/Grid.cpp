@@ -53,11 +53,14 @@ std::vector<std::shared_ptr<Collision>> Grid::CheckCells(int rowA, int colA, int
     std::vector<std::shared_ptr<Collision>> collisions;
     std::vector<std::shared_ptr<Collider>> dynamicCollidersA = this->cells[rowA][colA]->GetDynamicColliders();
     std::vector<std::shared_ptr<Collider>> dynamicCollidersB = this->cells[rowB][colB]->GetDynamicColliders();
+    std::vector<std::shared_ptr<Collider>> staticCollidersA = this->cells[rowA][colA]->GetStaticColliders();
     std::vector<std::shared_ptr<Collider>> staticCollidersB = this->cells[rowB][colB]->GetStaticColliders();
     for (int i = 0; i < dynamicCollidersA.size(); i++)
     {
         for (int j = 0; j < dynamicCollidersB.size(); j++)
         {
+            if (rowA == rowB && colA == colB && i == j)
+                continue;
             std::shared_ptr<Collider> first = dynamicCollidersA[i];
             std::shared_ptr<Collider> second = dynamicCollidersB[j];
             std::shared_ptr<Collision> collision = this->collisionDetector.CheckCollision(first, second);
@@ -74,6 +77,20 @@ std::vector<std::shared_ptr<Collision>> Grid::CheckCells(int rowA, int colA, int
         {
             std::shared_ptr<Collider> first = dynamicCollidersA[i];
             std::shared_ptr<Collider> second = staticCollidersB[j];
+            std::shared_ptr<Collision> collision = this->collisionDetector.CheckCollision(first, second);
+            if (collision != nullptr)
+            {
+                collisions.push_back(collision);
+            }
+        }
+    }
+
+    for (int i = 0; i < staticCollidersA.size(); i++)
+    {
+        for (int j = 0; j < dynamicCollidersB.size(); j++)
+        {
+            std::shared_ptr<Collider> first = staticCollidersA[i];
+            std::shared_ptr<Collider> second = dynamicCollidersB[j];
             std::shared_ptr<Collision> collision = this->collisionDetector.CheckCollision(first, second);
             if (collision != nullptr)
             {
@@ -172,4 +189,9 @@ std::vector<std::pair<int, int>> Grid::GetEligibleCells(int cellRow, int cellCol
         }
     }
     return result;
+}
+
+const std::vector< std::vector< std::shared_ptr<Cell>> > Grid::GetCells()
+{
+    return this->cells;
 }

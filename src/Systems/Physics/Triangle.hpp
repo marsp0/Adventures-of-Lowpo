@@ -26,6 +26,5 @@ class Triangle : public Collider
 
         // DATA
         glm::vec3               normal;
-        std::vector<glm::vec3>  points;
     private:
 };
