@@ -1,6 +1,7 @@
+#include <math.h>
+#include <memory>
 #include <iostream>
 #include <unordered_map>
-#include <memory>
 #include "CollisionDetector.hpp"
 
 
@@ -279,6 +280,7 @@ bool CollisionDetector::IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::v
 
 glm::vec3 CollisionDetector::GetContactBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
 {
+    // TODO (Martin) : refactor to match the method below
     glm::vec3 d1 = edgeA.second - edgeA.first;
     glm::vec3 d2 = edgeB.second - edgeB.first;
     glm::vec3 r  = edgeA.first - edgeB.first;
@@ -300,23 +302,29 @@ glm::vec3 CollisionDetector::GetContactBetweenEdges(const std::pair<glm::vec3, g
 
 glm::vec3 CollisionDetector::ShortestVectorBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
 {
-    glm::vec3 d1 = edgeA.second - edgeA.first;
-    glm::vec3 d2 = edgeB.second - edgeB.first;
+    // experimental
+    float epsilon = 0.0005f;
+    glm::vec3 d1 = glm::normalize(edgeA.second - edgeA.first);
+    glm::vec3 d2 = glm::normalize(edgeB.second - edgeB.first);
     glm::vec3 r  = edgeA.first - edgeB.first;
-    float a = glm::dot(d1, d1);
-    float b = glm::dot(d1, d2);
-    float c = glm::dot(d1, r);
-    float e = glm::dot(d2, d2);
-    float f = glm::dot(d2, r);
-    float d = a * e - b * b;
-    assert(d != 0.f);
-
-    float s = (b * f - c * e) / d;
-    float t = (a * f - b * c) / d;
-
-    glm::vec3 l1 = edgeA.first + s * d1;
-    glm::vec3 l2 = edgeB.first + t * d2;
-    return l2 - l1;
+    glm::vec3 result = glm::vec3(0.f, 0.f, 0.f);
+    float diff = std::abs(glm::dot(d1, d2) - 1.f);
+    if (diff < epsilon)
+    {
+        // do parallel lines here
+        float rMagnitude = glm::length(r);
+        float rProjectionMagnitude = glm::dot(r, d2);
+        glm::vec3 rProjection = rProjectionMagnitude * d2;
+        float shortestDistance = std::sqrt(std::pow(rMagnitude, 2.f) - std::pow(rProjectionMagnitude, 2.f));
+        result = glm::normalize(r - rProjection) * shortestDistance;
+        return result;
+    }
+    // do skew lines here
+    // https://www.quora.com/How-do-I-find-the-shortest-distance-between-two-skew-lines
+    glm::vec3 crossProduct = glm::cross(d1, d2);
+    float shortestDistance = glm::dot(r, crossProduct);
+    result = crossProduct * shortestDistance;
+    return result;
 }
 
 std::vector<glm::vec3> CollisionDetector::Clip(std::vector<glm::vec3> points, std::vector<std::pair<glm::vec3, float>> planes)

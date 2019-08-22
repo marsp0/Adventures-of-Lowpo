@@ -85,16 +85,20 @@ std::vector<std::shared_ptr<Collision>> Grid::CheckCells(int rowA, int colA, int
         }
     }
 
-    for (int i = 0; i < staticCollidersA.size(); i++)
+    // prevents us from doulbe checking dynamic -> static when checking the same cell against itself.
+    if (rowA != rowB || colA != colB)
     {
-        for (int j = 0; j < dynamicCollidersB.size(); j++)
+        for (int i = 0; i < staticCollidersA.size(); i++)
         {
-            std::shared_ptr<Collider> first = staticCollidersA[i];
-            std::shared_ptr<Collider> second = dynamicCollidersB[j];
-            std::shared_ptr<Collision> collision = this->collisionDetector.CheckCollision(first, second);
-            if (collision != nullptr)
+            for (int j = 0; j < dynamicCollidersB.size(); j++)
             {
-                collisions.push_back(collision);
+                std::shared_ptr<Collider> first = staticCollidersA[i];
+                std::shared_ptr<Collider> second = dynamicCollidersB[j];
+                std::shared_ptr<Collision> collision = this->collisionDetector.CheckCollision(first, second);
+                if (collision != nullptr)
+                {
+                    collisions.push_back(collision);
+                }
             }
         }
     }
