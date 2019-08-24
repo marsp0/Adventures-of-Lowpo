@@ -96,7 +96,6 @@ std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AAB
 
     std::vector<glm::vec3> collisionPoints;
 
-    // NEW IMPLEMENTATION
     // get edges and faces
     std::vector<glm::vec3> pointsA = box->GetPoints();
     const std::vector<glm::vec3> pointsOnFacesA = box->GetPointsOnFaces();
@@ -178,7 +177,7 @@ std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AAB
                 isFaceCollision = false;
                 separatingAxis  = possibleSeparatingAxis;
 
-                minPenetrationDepth     = tempPenetrationDepth;
+                    minPenetrationDepth     = tempPenetrationDepth;
                 minDistanceBetweenEdges = edgeDistance;
             }
         }
@@ -316,15 +315,13 @@ glm::vec3 CollisionDetector::ShortestVectorBetweenEdges(const std::pair<glm::vec
         float rProjectionMagnitude = glm::dot(r, d2);
         glm::vec3 rProjection = rProjectionMagnitude * d2;
         float shortestDistance = std::sqrt(std::pow(rMagnitude, 2.f) - std::pow(rProjectionMagnitude, 2.f));
-        result = glm::normalize(r - rProjection) * shortestDistance;
-        return result;
+        return glm::normalize(r - rProjection) * shortestDistance;
     }
     // do skew lines here
     // https://www.quora.com/How-do-I-find-the-shortest-distance-between-two-skew-lines
     glm::vec3 crossProduct = glm::cross(d1, d2);
     float shortestDistance = glm::dot(r, crossProduct);
-    result = crossProduct * shortestDistance;
-    return result;
+    return crossProduct * shortestDistance;
 }
 
 std::vector<glm::vec3> CollisionDetector::Clip(std::vector<glm::vec3> points, std::vector<std::pair<glm::vec3, float>> planes)
