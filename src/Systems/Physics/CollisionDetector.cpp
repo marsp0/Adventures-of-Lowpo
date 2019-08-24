@@ -12,25 +12,13 @@ CollisionDetector::CollisionDetector()
 
 std::shared_ptr<Collision> CollisionDetector::CheckCollision(std::shared_ptr<Collider> first, std::shared_ptr<Collider> second)
 {
-    if (first->colliderType == ColliderType::BOX && second->colliderType == ColliderType::TRIANGLE || \
-        first->colliderType == ColliderType::TRIANGLE && second->colliderType == ColliderType::BOX)
-    {
-        if (first->colliderType == ColliderType::BOX)
-        {
-            std::shared_ptr<AABB> box = std::static_pointer_cast<AABB>(first);
-            std::shared_ptr<Triangle> triangle = std::static_pointer_cast<Triangle>(second);
-            return this->AABBToTriangle(box,triangle);
-        }
-        std::shared_ptr<AABB> box = std::static_pointer_cast<AABB>(second);
-        std::shared_ptr<Triangle> triangle = std::static_pointer_cast<Triangle>(first);
-        return this->AABBToTriangle(box,triangle);
-    }
-    else if (first->colliderType == ColliderType::BOX && second->colliderType == ColliderType::BOX)
+    if (first->colliderType == ColliderType::BOX && second->colliderType == ColliderType::BOX)
     {
         std::shared_ptr<AABB> firstBox = std::static_pointer_cast<AABB>(first);
         std::shared_ptr<AABB> secondBox = std::static_pointer_cast<AABB>(second);
         return this->AABBToAABB(firstBox, secondBox);
     }
+    return this->Collide(first, second);
 }
 
 std::shared_ptr<Collision> CollisionDetector::AABBToAABB(std::shared_ptr<AABB> first, std::shared_ptr<AABB> second)
@@ -78,73 +66,68 @@ std::shared_ptr<Collision> CollisionDetector::AABBToAABB(std::shared_ptr<AABB> f
     return collision;
 }
 
-std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AABB> box, std::shared_ptr<Triangle> triangle)
+std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> first, std::shared_ptr<Collider> second)
 {
     int indexFace;
     int indexEdgeA;
     int indexEdgeB;
 
     bool indexFaceA = false;
-    bool updateAxis = false;
     bool isFaceCollision = false;
 
-    glm::vec3 separatingAxis;
-    
-    float tempPenetrationDepth = 0.f;
-    float minPenetrationDepth = 10000.f;
-    float minDistanceBetweenEdges = 10000.f;
+    // collision axis on which the penetration is minimal
+    glm::vec3 collisionAxis;
+    float currPenDepth = 0.f;
+    float minPenDepth = 10000.f;
+    float minEdgeDistance = 10000.f;
 
     std::vector<glm::vec3> collisionPoints;
 
     // get edges and faces
-    std::vector<glm::vec3> pointsA = box->GetPoints();
-    const std::vector<glm::vec3> pointsOnFacesA = box->GetPointsOnFaces();
-    const std::vector<std::pair<glm::vec3, float>>&     facesA = box->GetFaces();
-    const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesA = box->GetEdges();
+    const std::vector<glm::vec3>& pointsA                       = first->GetPoints();
+    const std::vector<glm::vec3>& pointsOnFacesA                = first->GetPointsOnFaces();
+    const std::vector<std::pair<glm::vec3, float>>&     facesA  = first->GetFaces();
+    const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesA  = first->GetEdges();
 
-    std::vector<glm::vec3> pointsB = triangle->GetPoints();
-    const std::vector<glm::vec3> pointsOnFacesB = triangle->GetPointsOnFaces();
-    const std::vector<std::pair<glm::vec3, float>>&     facesB = triangle->GetFaces();
-    const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesB = triangle->GetEdges();
+    const std::vector<glm::vec3>& pointsB                       = second->GetPoints();
+    const std::vector<glm::vec3>& pointsOnFacesB                = second->GetPointsOnFaces();
+    const std::vector<std::pair<glm::vec3, float>>&     facesB  = second->GetFaces();
+    const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesB  = second->GetEdges();
 
-    // TODO : refactor this into a function
     for (int i = 0; i < facesA.size(); i++)
     {
-        if (this->IsSeparatingAxis(pointsA, pointsB, facesA[i].first, tempPenetrationDepth))
+        if (this->IsSeparatingAxis(pointsA, pointsB, facesA[i].first, currPenDepth))
         {
             return nullptr;
         }
-        bool smaller = tempPenetrationDepth < minPenetrationDepth;
-        bool equal = tempPenetrationDepth == minPenetrationDepth;
-        bool sameDir = glm::dot(triangle->center - box->center, facesA[i].first) > 0.f;
-        if (smaller || equal && sameDir)
+        bool sameDirection = glm::dot(first->center - second->center, facesA[i].first) > 0.f;
+        if (currPenDepth < minPenDepth || (currPenDepth == minPenDepth && sameDirection))
         {   
             indexFace = i;
             indexFaceA = true;
             isFaceCollision = true;
-            separatingAxis = facesA[i].first;
-            minPenetrationDepth = tempPenetrationDepth;
+            collisionAxis = facesA[i].first;
+            minPenDepth = currPenDepth;
         }
     }
 
-    // TODO : refactor this into a function
     for (int i = 0; i < facesB.size(); i++)
     {
-        if (this->IsSeparatingAxis(pointsA, pointsB, facesB[i].first, tempPenetrationDepth))
+        if (this->IsSeparatingAxis(pointsA, pointsB, facesB[i].first, currPenDepth))
         {
             return nullptr;
         }
-        if (tempPenetrationDepth < minPenetrationDepth)
+        bool sameDirection = glm::dot(first->center - second->center, facesA[i].first) > 0.f;
+        if (currPenDepth < minPenDepth || (currPenDepth == minPenDepth && sameDirection))
         {
             indexFace = i;
             indexFaceA = false;
             isFaceCollision = true;
-            separatingAxis = facesB[i].first;
-            minPenetrationDepth = tempPenetrationDepth; 
+            collisionAxis = facesB[i].first;
+            minPenDepth = currPenDepth; 
         }
     }
 
-    // TODO : refactor this into a function
     for (int i = 0; i < edgesA.size(); i++)
     {
         for (int j = 0; j < edgesB.size(); j++)
@@ -152,36 +135,35 @@ std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AAB
             // take the cross
             glm::vec3 edgeA = edgesA[i].second - edgesA[i].first;
             glm::vec3 edgeB = edgesB[j].second - edgesB[j].first;
-            glm::vec3 possibleSeparatingAxis = glm::cross(edgeA, edgeB);
+            glm::vec3 possibleCollisionAxis = glm::cross(edgeA, edgeB);
 
             // maintain normal orientation
-            if (glm::dot(edgesA[i].first - box->center, possibleSeparatingAxis) < 0)
+            if (glm::dot(edgesA[i].first - first->center, possibleCollisionAxis) < 0)
             {
-                possibleSeparatingAxis = -possibleSeparatingAxis;
+                possibleCollisionAxis = -possibleCollisionAxis;
             }
             // SAT check
-            if (this->IsSeparatingAxis(pointsA, pointsB, possibleSeparatingAxis, tempPenetrationDepth) && glm::length(possibleSeparatingAxis) > 0.f)
+            if (this->IsSeparatingAxis(pointsA, pointsB, possibleCollisionAxis, currPenDepth) && glm::length(possibleCollisionAxis) > 0.f)
             {
                 return nullptr;
             }
             // we need this as we can have multiple edges with the same penetration depth,
             // but where the actual distance between the edges is different. AABB one such collider
-            glm::vec3 shortestVec = this->ShortestVectorBetweenEdges(edgesA[i], edgesB[j]);
-            float edgeDistance = glm::length(shortestVec);
-            if (tempPenetrationDepth <= minPenetrationDepth && edgeDistance < minDistanceBetweenEdges)
+            float currMinDistance = this->GetMinDistanceBetweenEdges(edgesA[i], edgesB[j]);
+            if (currPenDepth <= minPenDepth && currMinDistance < minEdgeDistance)
             {
                 // Add this check to the if above to make sure that we get the correct edge
                 indexEdgeA = i;
                 indexEdgeB = j;
 
                 isFaceCollision = false;
-                separatingAxis  = possibleSeparatingAxis;
+                collisionAxis   = possibleCollisionAxis;
 
-                    minPenetrationDepth     = tempPenetrationDepth;
-                minDistanceBetweenEdges = edgeDistance;
+                minPenDepth     = currPenDepth;
+                minEdgeDistance = currMinDistance;
             }
         }
-    } 
+    }
     // check if contact is edge edge or face whatever
     if (!isFaceCollision)
     {
@@ -202,7 +184,7 @@ std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AAB
             for (int i = 0; i < facesA.size(); i++)
             {
                 glm::vec3 normal = facesA[i].first;
-                if (glm::dot(normal, separatingAxis) == 0.0f)
+                if (glm::dot(normal, collisionAxis) == 0.0f)
                 {
                     planes.push_back(facesA[i]);
                 }
@@ -211,7 +193,7 @@ std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AAB
             int secondFaceIndex;
             for (int i = 0; i < facesA.size(); i++)
             {
-                float dotProduct = glm::dot(facesA[i].first, separatingAxis);
+                float dotProduct = glm::dot(facesA[i].first, collisionAxis);
                 if (dotProduct == -1.0f)
                 {
                     secondFaceIndex = i;
@@ -220,45 +202,62 @@ std::shared_ptr<Collision> CollisionDetector::AABBToTriangle(std::shared_ptr<AAB
             std::vector<glm::vec3> clippedPoints = this->Clip(pointsB, planes);
             for (int i = 0; i < clippedPoints.size(); i++)
             {
-                float dotFaceOne = glm::dot(separatingAxis, clippedPoints[i] - pointsOnFacesA[indexFace]);
+                float dotFaceOne = glm::dot(collisionAxis, clippedPoints[i] - pointsOnFacesA[indexFace]);
                 float dotFaceTwo = glm::dot(facesA[secondFaceIndex].first, clippedPoints[i] - pointsOnFacesA[secondFaceIndex]);
                 if ( dotFaceOne <= 0.f && dotFaceTwo <= 0.f)
                 {
                     collisionPoints.push_back(clippedPoints[i]);
                 }
-                
             }
         }
         else
         {
-            for (int i = 0; i < pointsA.size(); i++)
+            // get all 4 planes to clip against
+            // clip the remaining points against the plane of the AABB with the same normal as the axisFase
+            std::vector<std::pair<glm::vec3, float>> planes;
+            for (int i = 0; i < facesB.size(); i++)
             {
-                float dotProduct = glm::dot(separatingAxis, pointsA[i] - pointsB[0]);
-                if (dotProduct <= 0.f)
+                glm::vec3 normal = facesB[i].first;
+                if (glm::dot(normal, collisionAxis) == 0.0f)
                 {
-                    collisionPoints.push_back(pointsA[i]);
+                    planes.push_back(facesB[i]);
+                }
+            }
+            // find the 2 faces that are on the same axis
+            int secondFaceIndex;
+            for (int i = 0; i < facesB.size(); i++)
+            {
+                float dotProduct = glm::dot(facesB[i].first, collisionAxis);
+                if (dotProduct == -1.0f)
+                {
+                    secondFaceIndex = i;
+                }
+            }
+            std::vector<glm::vec3> clippedPoints = this->Clip(pointsA, planes);
+            for (int i = 0; i < clippedPoints.size(); i++)
+            {
+                float dotFaceOne = glm::dot(collisionAxis, clippedPoints[i] - pointsOnFacesB[indexFace]);
+                float dotFaceTwo = glm::dot(facesA[secondFaceIndex].first, clippedPoints[i] - pointsOnFacesB[secondFaceIndex]);
+                if ( dotFaceOne <= 0.f && dotFaceTwo <= 0.f)
+                {
+                    collisionPoints.push_back(clippedPoints[i]);
                 }
             }
         }
     }
     std::vector<Contact> contacts;
-    std::shared_ptr<Collision> collision = std::make_shared<Collision>(box->entityID, box, triangle->entityID, triangle, contacts);
+    std::shared_ptr<Collision> collision = std::make_shared<Collision>(first->entityID, first, second->entityID, second, contacts);
     for (int i = 0; i < collisionPoints.size(); i++)
     {
         glm::vec3 point = collisionPoints[i];
-        Contact contact = Contact(point, separatingAxis, minPenetrationDepth);
+        Contact contact = Contact(point, collisionAxis, minPenDepth);
         collision->contacts.push_back(contact);
     }
     return collision;
+
 }
 
-
-std::shared_ptr<Collision> CollisionDetector::TriangleToAABB(std::shared_ptr<Triangle> triangle, std::shared_ptr<AABB> box)
-{
-    return this->AABBToTriangle(box, triangle);
-}
-
-bool CollisionDetector::IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::vector<glm::vec3>& pointsB, glm::vec3 direction, float& tempPenDepth)
+bool CollisionDetector::IsSeparatingAxis(const std::vector<glm::vec3>& pointsA, const std::vector<glm::vec3>& pointsB, glm::vec3 direction, float& tempPenDepth)
 {
     float minA = glm::dot(direction, this->GetSupportPoint(pointsA, -direction));
     float maxA = glm::dot(direction, this->GetSupportPoint(pointsA, direction));
@@ -279,29 +278,19 @@ bool CollisionDetector::IsSeparatingAxis(std::vector<glm::vec3>& pointsA, std::v
 
 glm::vec3 CollisionDetector::GetContactBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
 {
-    // TODO (Martin) : refactor to match the method below
     glm::vec3 d1 = edgeA.second - edgeA.first;
     glm::vec3 d2 = edgeB.second - edgeB.first;
-    glm::vec3 r  = edgeA.first - edgeB.first;
-    float a = glm::dot(d1, d1);
-    float b = glm::dot(d1, d2);
-    float c = glm::dot(d1, r);
-    float e = glm::dot(d2, d2);
-    float f = glm::dot(d2, r);
-    float d = a * e - b * b;
-    assert(d != 0.f);
-
-    float s = (b * f - c * e) / d;
-    float t = (a * f - b * c) / d;
-
-    glm::vec3 l1 = edgeA.first + s * d1;
-    glm::vec3 l2 = edgeB.first + t * d2;
-    return l1 + 0.5f * (l2 - l1);
+    glm::vec3 r = edgeB.first - edgeA.first;
+    glm::vec3 normal = glm::cross(d1, d2);
+    glm::vec3 normal1 = glm::cross(d1, normal);
+    glm::vec3 normal2 = glm::cross(d2, normal);
+    glm::vec3 p1 = edgeA.first + (glm::dot(r, normal2)/glm::dot(d1, normal2)) * d1;
+    glm::vec3 p2 = edgeB.first + (glm::dot(-r, normal1)/glm::dot(d2, normal1)) * d2;
+    return p1 + 0.5f * (p2 - p1);
 }
 
-glm::vec3 CollisionDetector::ShortestVectorBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
+float CollisionDetector::GetMinDistanceBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
 {
-    // experimental
     float epsilon = 0.0005f;
     glm::vec3 d1 = glm::normalize(edgeA.second - edgeA.first);
     glm::vec3 d2 = glm::normalize(edgeB.second - edgeB.first);
@@ -315,16 +304,16 @@ glm::vec3 CollisionDetector::ShortestVectorBetweenEdges(const std::pair<glm::vec
         float rProjectionMagnitude = glm::dot(r, d2);
         glm::vec3 rProjection = rProjectionMagnitude * d2;
         float shortestDistance = std::sqrt(std::pow(rMagnitude, 2.f) - std::pow(rProjectionMagnitude, 2.f));
-        return glm::normalize(r - rProjection) * shortestDistance;
+        return shortestDistance;
     }
     // do skew lines here
     // https://www.quora.com/How-do-I-find-the-shortest-distance-between-two-skew-lines
     glm::vec3 crossProduct = glm::cross(d1, d2);
     float shortestDistance = glm::dot(r, crossProduct);
-    return crossProduct * shortestDistance;
+    return shortestDistance;
 }
 
-std::vector<glm::vec3> CollisionDetector::Clip(std::vector<glm::vec3> points, std::vector<std::pair<glm::vec3, float>> planes)
+std::vector<glm::vec3> CollisionDetector::Clip(const std::vector<glm::vec3> points, std::vector<std::pair<glm::vec3, float>> planes)
 {
     // Used Sutherland-Hodgman for the clipping
     // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
@@ -360,7 +349,7 @@ std::vector<glm::vec3> CollisionDetector::Clip(std::vector<glm::vec3> points, st
     return output;
 }
 
-glm::vec3 CollisionDetector::GetSupportPoint(std::vector<glm::vec3>& points, glm::vec3 direction)
+glm::vec3 CollisionDetector::GetSupportPoint(const std::vector<glm::vec3>& points, glm::vec3 direction)
 {
     assert(points.size() != 0);
     float max = glm::dot(direction, points[0]);

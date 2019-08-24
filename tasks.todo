@@ -1,19 +1,18 @@
 Rendering:
   ☐ shadows
   ☐ debug mode rendering
-
 Physics:
   ☐ object movement with both input and physics sim. Should find a way to be able to sync those to flow through the physics system.
   ☐ Resolving interpenetration
   ☐ the grid uses the positive z axis but open gl uses the negative z axis as forward. Need to sync this.
   ☐ refactor CollisionDetector.
-
 General:
   ☐ Investigate a bug where the whole game freezes on startup
   ☐ Hot Loading Variables - see Johnatan Blow's videos
   ☐ Logging
   Unit Tests:
-    ☐ Grid unit tests
+    ☐ Grid unit tests @today
+      ☐ refactor the GetContactBetweenEdges method @started(19-08-24 12:30)
 Animation:
   ☐ Animation Blending
 
