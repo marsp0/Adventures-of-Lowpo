@@ -60,3 +60,37 @@ TEST_CASE("Grid Test")
 	}
 
 }
+
+TEST_CASE("Box - Box")
+{
+	float epsilon = 0.00005f;
+	float gridLen = 200.f;
+	float halfWidth = 10.f;
+	Grid grid(gridLen, halfWidth);
+	const std::vector< std::vector< std::shared_ptr<Cell>> > cells = grid.GetCells();
+	REQUIRE(cells.size() == 10);
+	REQUIRE(cells[0].size() == 10);
+
+	std::shared_ptr<AABB> box1 = std::make_shared<AABB>(AABB(1, glm::vec3(18.f,10.f,17.f), "box1", glm::vec3(10.f,10.f,10.f), ColliderType::BOX, DynamicType::Dynamic));
+	std::shared_ptr<AABB> box2 = std::make_shared<AABB>(AABB(2, glm::vec3(30.f,7.f,15.f), "box2", glm::vec3(5.f,5.f,5.f), ColliderType::BOX, DynamicType::WithPhysics));
+	grid.Insert(box1);
+	grid.Insert(box2);
+	SECTION("Face - Face")
+	{
+		std::vector<std::shared_ptr<Collision>> collisions = grid.CheckCollisions();
+		REQUIRE(collisions.size() == 1);
+		
+		std::shared_ptr<Collision> collision = collisions[0];
+		REQUIRE(collision->first == 1);
+		REQUIRE(collision->second == 2);
+
+		std::vector<Contact> contacts = collision->contacts;
+		REQUIRE(contacts.size() == 4);
+
+		for (int i = 0; i < contacts.size(); i++)
+		{
+			REQUIRE(glm::dot(contacts[i].contactNormal, glm::vec3(1.f,0.f, 0.f)) - 1.f <= epsilon);
+			REQUIRE(contacts[i].penetration - 3.f <= epsilon);
+		}
+	}
+}

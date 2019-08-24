@@ -11,8 +11,8 @@ General:
   ☐ Hot Loading Variables - see Johnatan Blow's videos
   ☐ Logging
   Unit Tests:
-    ☐ Grid unit tests @today
-      ☐ refactor the GetContactBetweenEdges method @started(19-08-24 12:30)
+    ✔ Grid unit tests @today @done (19-08-24 17:33)
+      ✔ refactor the GetContactBetweenEdges method @started(19-08-24 12:30) @done (19-08-24 17:33) @lasted(5:03)
 Animation:
   ☐ Animation Blending
 

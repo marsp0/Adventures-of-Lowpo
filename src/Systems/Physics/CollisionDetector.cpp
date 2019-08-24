@@ -254,7 +254,6 @@ std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> 
         collision->contacts.push_back(contact);
     }
     return collision;
-
 }
 
 bool CollisionDetector::IsSeparatingAxis(const std::vector<glm::vec3>& pointsA, const std::vector<glm::vec3>& pointsB, glm::vec3 direction, float& tempPenDepth)
