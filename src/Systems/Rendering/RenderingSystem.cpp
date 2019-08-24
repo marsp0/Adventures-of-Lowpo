@@ -31,6 +31,7 @@ void RenderingSystem::AddShaders(std::vector<std::string> shaders, std::vector<s
     {
         this->shaders.push_back(Shader(shaders[i], shaders[i+1]));
         this->shadowShaders.push_back(Shader(shadowShaders[i], shadowShaders[i+1]));
+        std::cout << "Loading " << i << std::endl;
     }
 }
 

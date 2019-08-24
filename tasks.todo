@@ -1,8 +1,9 @@
 Rendering:
   ☐ shadows
   ☐ debug mode rendering
+  ☐ dont generate normals manually, but load them from models.
 Physics:
-  ☐ object movement with both input and physics sim. Should find a way to be able to sync those to flow through the physics system.
+  ☐ object movement with both input and physics sim. Should find a way to be able to sync those to flow through the physics system. @started(19-08-24 17:34)
   ☐ Resolving interpenetration
   ☐ the grid uses the positive z axis but open gl uses the negative z axis as forward. Need to sync this.
   ☐ refactor CollisionDetector.

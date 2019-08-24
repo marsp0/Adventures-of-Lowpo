@@ -1,6 +1,6 @@
 out/
 *.out
-Resources/
+resources/
 output
 .tags
 .tags_sorted_by_file

@@ -35,12 +35,11 @@ void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>
                 this->generateKeyMessage = true;
                 this->generateKeyRelease = true;
             }
-            else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_S) == GLFW_RELEASE && \
-                     glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE && \
-                     this->generateKeyRelease)
+            else if (this->generateKeyRelease)
             {
                 this->generateKeyMessage = true;
-            }   this->generateKeyRelease = false;
+                this->generateKeyRelease = false;
+            }
 
             if (this->generateKeyMessage)
             {

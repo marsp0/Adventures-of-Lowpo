@@ -39,7 +39,6 @@ unsigned int Shader::Load(std::string vertexPath, std::string fragmentPath)
     // compile vertex shader
     unsigned int vertexID;
     vertexID = glCreateShader(GL_VERTEX_SHADER);
-    std::cout << 1 << std::endl;
     glShaderSource(vertexID,1, &vertexSource, NULL);
     glCompileShader(vertexID);
     glGetShaderiv(vertexID,GL_COMPILE_STATUS,&success);

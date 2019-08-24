@@ -82,18 +82,17 @@ Game::Game(int width, int height) :
     this->Init();
     // adding shaders after the init as we need to initialize OPENGL before
     // we do anythin with it. It happens in the InitConfig method.
-    this->renderingSystem.AddShaders(std::vector<std::string>{  "./Systems/Rendering/vertex.glsl", 
-                                                                "./Systems/Rendering/fragment.glsl"}, 
-                                    std::vector<std::string>{   "./Systems/Rendering/vertexShadow.glsl", 
-                                                                "./Systems/Renderin.renderingSystem.glsl"});
+    this->renderingSystem.AddShaders(std::vector<std::string>{  "./src/Systems/Rendering/vertex.glsl", 
+                                                                "./src/Systems/Rendering/fragment.glsl"}, 
+                                    std::vector<std::string>{   "./src/Systems/Rendering/vertexShadow.glsl", 
+                                                                "./src/Systems/Rendering/fragmentShadow.glsl"});
 }
 
 void Game::Init()
 {
     this->InitConfig();
-    std::string filename = "Resources/terrain_patch.dae";
+    std::string filename = "resources/terrain_patch.dae";
     this->InitScene(filename, this->entities);
-
     // subscribe
     this->Subscribe(MessageType::MouseMove, System::RenderingSys);
     this->Subscribe(MessageType::Move, System::PhysicsSys);
@@ -130,7 +129,7 @@ void Game::InitConfig()
 
 void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>& entities)
 {
-    unsigned int textureID = this->renderingSystem.CreateTexture("Resources/DiffuseColor_Texture.png");
+    unsigned int textureID = this->renderingSystem.CreateTexture("resources/DiffuseColor_Texture.png");
     tinyxml2::XMLDocument document;
     // TODO : check for the extension and report error if different from .dae
     tinyxml2::XMLError error = document.LoadFile(filename.c_str());
@@ -242,6 +241,7 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
         }
         // push_back
         entities.push_back(entity);
+        // std::cout << entities.size() << std::endl;
     }
     // Push back an entity
 }

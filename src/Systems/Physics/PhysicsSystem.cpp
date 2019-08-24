@@ -156,19 +156,20 @@ void PhysicsSystem::HandleMessages(std::vector<Message>& messages, PhysicsCompon
         Message message = messages[i];
         if (message.type == MessageType::Move)
         {
+            glm::vec3 result = glm::vec3(0.f, 0.f, 0.f);
             std::shared_ptr<MoveData> moveData = std::static_pointer_cast<MoveData>(message.data);
             if (moveData->forward)
-                component->velocity = glm::vec3(0.f,0.f,-1.f);
-            else
-            {
-                component->velocity = glm::vec3(0.f,0.f,0.f);
-            }
+                result += glm::vec3(0.f,0.f,-1.f);
+            else if (moveData->backward)
+                result += glm::vec3(0.f,0.f, 1.f);
+            else if (moveData->left)
+                result += glm::vec3(-1.f,0.f, 0.f);
+            else if (moveData->right)
+                result += glm::vec3(1.f,0.f, 0.f);
+            component->velocity = result;
         }
         else if (message.type == MessageType::MouseMove)
         {
-            // delta X
-            // deltaY
-            // direction of angular velocity
             std::shared_ptr<MouseMoveData> mouseMoveData = std::static_pointer_cast<MouseMoveData>(message.data);
         }
     }
