@@ -17,7 +17,6 @@ RenderingSystem::RenderingSystem() : camera(glm::vec3(0.f,0.f,0.f), glm::vec3(1.
     this->ambient = 0.3f;
     this->diffuse = 0.5f;
     this->lightDirection = glm::vec3(-48.f,-128.f,0.f);
-    // TODO : Make shadows appear
 }
 
 RenderingSystem::~RenderingSystem()
@@ -31,7 +30,6 @@ void RenderingSystem::AddShaders(std::vector<std::string> shaders, std::vector<s
     {
         this->shaders.push_back(Shader(shaders[i], shaders[i+1]));
         this->shadowShaders.push_back(Shader(shadowShaders[i], shadowShaders[i+1]));
-        std::cout << "Loading " << i << std::endl;
     }
 }
 

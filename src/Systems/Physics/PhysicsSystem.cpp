@@ -112,8 +112,8 @@ void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::v
             // post - prefix used to indicate post collision variable value
             // find impulse
             glm::vec3 normal = contact.contactNormal;
-            glm::vec3 rA = normal - firstCollider->center;
-            glm::vec3 rB = normal - secondCollider->center;
+            glm::vec3 rA = contact.contactPoint - firstCollider->center;
+            glm::vec3 rB = contact.contactPoint - secondCollider->center;
             glm::vec3 vA = first->velocity;
             glm::vec3 wA = first->angularVel;
             glm::vec3 vB = second->velocity;

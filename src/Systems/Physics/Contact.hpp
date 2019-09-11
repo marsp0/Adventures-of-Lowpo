@@ -13,7 +13,7 @@ class Contact
                 float     penetration);
 
         /* 
-        Holds the point of contact in _______ space 
+        Holds the point of contact in world space 
         */
         glm::vec3 contactPoint;
         /* 
