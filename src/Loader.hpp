@@ -87,11 +87,17 @@ class InstanceController
         std::string url;
 };
 
+/*
+Loader class takes care of the loading of all the data on disk.
+- collada data
+- physics data
+*/
 class Loader
 {
     public:
-        static tinyxml2::XMLElement* LoadFile(std::string filename);
 
+        // Collada
+        static tinyxml2::XMLElement* LoadFile(std::string filename);
         static std::shared_ptr<SkeletonNode>                                        ParseSkeletonNodes(tinyxml2::XMLElement* node);
         static std::unordered_map<std::string, std::shared_ptr<Geometry>>           ParseGeometry(tinyxml2::XMLElement* libraryGeometry);
         static std::unordered_map<std::string, std::shared_ptr<Controller>>         ParseControllers(tinyxml2::XMLElement* libraryControllers);
@@ -99,6 +105,10 @@ class Loader
         static std::unordered_map<std::string, std::shared_ptr<AnimationNode>>      ParseAnimations(tinyxml2::XMLElement* libraryAnimations);
         static std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>>   ParseVisualScenesStatic(tinyxml2::XMLElement* libraryVisualScenes);
         static std::unordered_map<std::string, std::shared_ptr<InstanceController>> ParseVisualScenesAnimated(tinyxml2::XMLElement* libraryVisualScenes);
+
+        // Physics Loader
+        static std::unordered_map<std::string, std::unordered_map<std::string, float>> LoadPhysicsData(std::string filename);
+
         // =======
         // UTILITY
         // =======

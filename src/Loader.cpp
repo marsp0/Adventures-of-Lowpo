@@ -1,3 +1,6 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -573,4 +576,27 @@ SkeletonNode::SkeletonNode( std::string id,
                             children(children)
 {
 
+}
+
+// PHYSICS
+
+std::unordered_map<std::string, std::unordered_map<std::string, float>> Loader::LoadPhysicsData(std::string filename)
+{
+    std::unordered_map<std::string, std::unordered_map<std::string, float>> result;
+    std::ifstream fileStream(filename);
+    std::string line;
+    std::string current;
+    while (std::getline(fileStream, line))
+    {
+        std::vector<std::string> tokens = Loader::SplitString(line);
+        if (tokens.size() == 1)
+        {
+            current = tokens[0];
+            result[current] = std::unordered_map<std::string, float>{};
+        }
+        else
+            result[current][tokens[0]] = std::stof(tokens[1]);
+    }
+    fileStream.close();
+    return result;
 }

@@ -129,6 +129,7 @@ void Game::InitConfig()
 
 void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>& entities)
 {
+    Loader::LoadPhysicsData("resources/physics_data.txt");
     unsigned int textureID = this->renderingSystem.CreateTexture("resources/DiffuseColor_Texture.png");
     tinyxml2::XMLDocument document;
     // TODO : check for the extension and report error if different from .dae

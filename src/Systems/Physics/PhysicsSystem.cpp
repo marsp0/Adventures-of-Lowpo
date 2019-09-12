@@ -80,6 +80,10 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
                     this->grid.Insert(component->colliders[j]);
                 }
             }
+
+            // clear accumulators
+            component->forceAccumulator = glm::vec3(0.f, 0.f, 0.f);
+            component->torqueAccumulator = glm::vec3(0.f, 0.f, 0.f);
         }
     } 
     // 2. Check for collision
@@ -108,9 +112,6 @@ void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::v
         for (int j = 0; j < collision->contacts.size(); j++)
         {
             Contact contact = collision->contacts[j];
-            // pre - prefix used to indicate pre collision variable value
-            // post - prefix used to indicate post collision variable value
-            // find impulse
             glm::vec3 normal = contact.contactNormal;
             glm::vec3 rA = contact.contactPoint - firstCollider->center;
             glm::vec3 rB = contact.contactPoint - secondCollider->center;
@@ -139,12 +140,22 @@ void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::v
             // update angular velocity of objects based on impulse.
             glm::vec3 wA2 = wA + invInertiaTensorA * glm::cross(rA, impulse * normal);
             glm::vec3 wB2 = wB - invInertiaTensorB * glm::cross(rB, impulse * normal);
-
-            first->velocity = vA2;
-            first->angularVel = wA2;
             
-            second->velocity = vB2;
-            second->angularVel = wB2;
+            if (firstCollider->dynamicType != DynamicType::Static)
+            {
+                first->velocity = vA2;
+                std::cout << vA2.x << std::endl;
+                std::cout << vA2.y << std::endl;
+                std::cout << vA2.z << std::endl;
+                first->angularVel = wA2;
+                std::cout << "modifying first" << std::endl;
+            }
+            if (secondCollider->dynamicType != DynamicType::Static)
+            {
+                second->velocity = vB2;
+                second->angularVel = wB2;
+                std::cout << "modifying second" << std::endl;
+            }
         }
     }
 }
