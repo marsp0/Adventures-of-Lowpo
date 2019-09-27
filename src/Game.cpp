@@ -223,7 +223,7 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
         float mass = 1.0f;
         if (objectToColliders[it->first].size() > 0)
             std::cout << "setting mass " << std::endl;
-            mass = physicsDataMap[objectToColliders[it->first][0]->name]["mass"];
+            mass = 1.0f;
         std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), type));
         // assign colliders to component and insert into grid
         physicsComponent->colliders = objectToColliders[it->first];

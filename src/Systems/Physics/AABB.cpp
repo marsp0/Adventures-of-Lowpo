@@ -82,8 +82,3 @@ void AABB::Update(glm::vec3 translation)
     this->center += translation;
     this->ComputeDerivedData();
 }
-
-glm::vec3 AABB::GetAxisRadii()
-{
-    return this->axisRadii;
-}

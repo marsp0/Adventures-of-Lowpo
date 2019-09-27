@@ -14,13 +14,12 @@ TEST_CASE("Test AABB")
 	glm::vec3 axisRadii = glm::vec3(1.f,2.f,3.f);
 	ColliderType colliderType = ColliderType::BOX;
 	DynamicType dynamicType = DynamicType::Dynamic;
-	AABB box = AABB(id, center, name, axisRadii, colliderType, dynamicType);
+	AABB box = AABB(id, center, colliderType, dynamicType, axisRadii);
 	box.ComputeDerivedData();
 
 	SECTION("Test Init")
 	{
 		REQUIRE(box.entityID == 1);
-		REQUIRE(box.name == "box1");
 		REQUIRE(box.center.x - 2.f <= EPSILON);
 		REQUIRE(box.center.y - 2.f <= EPSILON);
 		REQUIRE(box.center.z - 2.f <= EPSILON);

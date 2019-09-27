@@ -15,9 +15,9 @@ class AABB : public Collider
 
         virtual void ComputeDerivedData();
         virtual void Update(glm::vec3 translation);
-        glm::vec3 GetAxisRadii();
+
+        glm::vec3 axisRadii;
 
     private:
 
-        glm::vec3 axisRadii;
 };

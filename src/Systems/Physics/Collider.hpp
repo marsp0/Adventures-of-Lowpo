@@ -41,7 +41,6 @@ class Collider
 
         int                         row;
         int                         col;
-        std::string                 name;
         glm::vec3                   center;
         int                         entityID;
         DynamicType                 dynamicType;
