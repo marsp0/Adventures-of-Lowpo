@@ -129,7 +129,7 @@ void Game::InitConfig()
 
 void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>& entities)
 {
-    Loader::LoadPhysicsData("resources/physics_data.txt");
+    std::unordered_map<std::string, std::unordered_map<std::string, float>> physicsDataMap = Loader::LoadPhysicsData("resources/physics_data.txt");
     unsigned int textureID = this->renderingSystem.CreateTexture("resources/DiffuseColor_Texture.png");
     tinyxml2::XMLDocument document;
     // TODO : check for the extension and report error if different from .dae
@@ -186,7 +186,7 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
             DynamicType type = DynamicType::Static;
             if (objectName == "Player")
                 type = DynamicType::Dynamic;
-            std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(0, center, it->first, axisRadii, ColliderType::BOX, type));
+            std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(0, center, ColliderType::BOX, type, axisRadii));
             objectToColliders[objectName].push_back(collider);
         }
     }
@@ -220,6 +220,10 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
         DynamicType type = DynamicType::Static;
         if (it->first == "Player")
             type = DynamicType::Dynamic;
+        float mass = 1.0f;
+        if (objectToColliders[it->first].size() > 0)
+            std::cout << "setting mass " << std::endl;
+            mass = physicsDataMap[objectToColliders[it->first][0]->name]["mass"];
         std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), type));
         // assign colliders to component and insert into grid
         physicsComponent->colliders = objectToColliders[it->first];

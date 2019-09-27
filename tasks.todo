@@ -7,6 +7,7 @@ Physics:
   ☐ Resolving interpenetration
   ☐ the grid uses the positive z axis but open gl uses the negative z axis as forward. Need to sync this.
   ☐ Collision response @started(19-08-24 19:39)
+    ☐  Plane Collider @started(19-09-26 22:30)
 General:
   ☐ Investigate a bug where the whole game freezes on startup
   ☐ Hot Loading Variables - see Johnatan Blow's videos

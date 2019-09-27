@@ -12,7 +12,7 @@ void Cell::Insert(std::shared_ptr<Collider> object)
 {
     object->row = this->row;
     object->col = this->col;
-    if (object->GetType() == DynamicType::Dynamic || object->GetType() == DynamicType::WithPhysics)
+    if (object->dynamicType == DynamicType::Dynamic || object->dynamicType == DynamicType::WithPhysics)
         this->dynamicColliders.push_back(object);
     else
         this->staticColliders.push_back(object);
@@ -20,7 +20,7 @@ void Cell::Insert(std::shared_ptr<Collider> object)
 
 void Cell::Remove(std::shared_ptr<Collider> object)
 {
-    if (object->GetType() == DynamicType::Dynamic || object->GetType() == DynamicType::WithPhysics)
+    if (object->dynamicType == DynamicType::Dynamic || object->dynamicType == DynamicType::WithPhysics)
     {
         for (int i = 0; i < this->dynamicColliders.size(); i++)
         {

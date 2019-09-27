@@ -3,11 +3,10 @@
 
 AABB::AABB( int entityID,
             glm::vec3 center, 
-            std::string name,
-            glm::vec3 axisRadii, 
             ColliderType colliderType,
-            DynamicType  dynamicType) : \
-            Collider(entityID, center, name, colliderType, dynamicType), 
+            DynamicType  dynamicType,
+            glm::vec3 axisRadii) : \
+            Collider(entityID, center, colliderType, dynamicType), 
             axisRadii(axisRadii)
 {
     this->ComputeDerivedData();
@@ -76,4 +75,15 @@ void AABB::ComputeDerivedData()
     this->pointsOnFaces.push_back(this->points[0]);
     this->pointsOnFaces.push_back(this->points[2]);
     this->pointsOnFaces.push_back(this->points[0]);
+}
+
+void AABB::Update(glm::vec3 translation)
+{
+    this->center += translation;
+    this->ComputeDerivedData();
+}
+
+glm::vec3 AABB::GetAxisRadii()
+{
+    return this->axisRadii;
 }

@@ -144,17 +144,12 @@ void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::v
             if (firstCollider->dynamicType != DynamicType::Static)
             {
                 first->velocity = vA2;
-                std::cout << vA2.x << std::endl;
-                std::cout << vA2.y << std::endl;
-                std::cout << vA2.z << std::endl;
                 first->angularVel = wA2;
-                std::cout << "modifying first" << std::endl;
             }
             if (secondCollider->dynamicType != DynamicType::Static)
             {
                 second->velocity = vB2;
                 second->angularVel = wB2;
-                std::cout << "modifying second" << std::endl;
             }
         }
     }

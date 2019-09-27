@@ -1,14 +1,12 @@
 #include "Collider.hpp"
 #include "../../Components/PhysicsComponent.hpp"
 
-Collider::Collider( int id,
-                    glm::vec3 center, 
-                    std::string name,
+Collider::Collider( int entityID,
+                    glm::vec3 center,
                     ColliderType colliderType,
                     DynamicType dynamicType) : \
-                    entityID(id),
+                    entityID(entityID),
                     center(center), 
-                    name(name),
                     colliderType(colliderType),
                     dynamicType(dynamicType)
 {
@@ -42,15 +40,4 @@ const std::vector<glm::vec3>& Collider::GetPointsOnFaces()
 {
     assert(this->pointsOnFaces.size() > 0);
     return this->pointsOnFaces;
-}
-
-void Collider::Update(glm::vec3 translation)
-{
-    this->center += translation;
-    this->ComputeDerivedData();
-}
-
-DynamicType Collider::GetType()
-{
-    return this->dynamicType;
 }

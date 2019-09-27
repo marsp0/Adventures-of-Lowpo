@@ -8,13 +8,16 @@ class AABB : public Collider
 
         AABB( int entityID,
               glm::vec3 center, 
-              std::string name,
-              glm::vec3 axisRadii, 
               ColliderType colliderType,
-              DynamicType  dynamicType);
+              DynamicType  dynamicType,
+              glm::vec3 axisRadii);
         ~AABB();
+
         virtual void ComputeDerivedData();
-        glm::vec3 axisRadii;
+        virtual void Update(glm::vec3 translation);
+        glm::vec3 GetAxisRadii();
 
     private:
+
+        glm::vec3 axisRadii;
 };

@@ -5,9 +5,8 @@
 
 #include "Collision.hpp"
 
-#include "AABB.hpp"
 #include "Collider.hpp"
-#include "Triangle.hpp"
+#include "AABB.hpp"
 
 /* 
 Collision detector contains all the logic that checks if two colliders are intersecting.

@@ -7,47 +7,45 @@
 
 enum ColliderType
 {
-    TRIANGLE,
     BOX,
     PLANE
 };
 
 /* 
-Collider is the base class of all colliders in the engine.
-declares the behaviour/data that every collider should have.
+Collider - currently represents either a box or plane. Both use the same interface.
 */
 class Collider
 {
     public:
         /* 
-        center - the center point of the collidera
-        dynamic - should the collider be treated as static environment or a normal object
-        that can be rotated/translated etc when forces are applied to it.
+        entityID     - the ID of the entity that owns the collider.
+        center       - the center point of the collider
+        colliderType - runtime type info.
+        dynamic      - enum indicating how we should treat the collider during collisions
         */
-        Collider( int id,
+        Collider( int entityID,
                   glm::vec3 center,
-                  std::string name,
                   ColliderType colliderType,
                   DynamicType  dynamicType);
 
         virtual ~Collider();
+        virtual void ComputeDerivedData() = 0;
+        virtual void Update(glm::vec3 translation) = 0;
 
-        const std::vector<glm::vec3>&                       GetPoints();
-        const std::vector<glm::vec3>&                       GetPointsOnFaces();
+        // ACCESSORS
+
+        const std::vector<glm::vec3>& GetPoints();
+        const std::vector<glm::vec3>& GetPointsOnFaces();
         const std::vector<std::pair<glm::vec3, float>>&     GetFaces();
         const std::vector<std::pair<glm::vec3, glm::vec3>>& GetEdges();
 
-        virtual void                                        ComputeDerivedData() = 0;
-        void                                                Update(glm::vec3 translation);
-        DynamicType                                         GetType();
-
-        int          row;
-        int          col;
-        std::string  name;
-        glm::vec3    center;
-        int          entityID;
-        ColliderType colliderType;
-        DynamicType  dynamicType;
+        int                         row;
+        int                         col;
+        std::string                 name;
+        glm::vec3                   center;
+        int                         entityID;
+        DynamicType                 dynamicType;
+        ColliderType                colliderType;
 
     protected:
 

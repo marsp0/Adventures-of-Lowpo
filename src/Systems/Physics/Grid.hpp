@@ -5,7 +5,6 @@
 #include "AABB.hpp"
 #include "Cell.hpp"
 #include "Collider.hpp"
-#include "Triangle.hpp"
 #include "CollisionDetector.hpp"
 
 class Grid
