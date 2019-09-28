@@ -57,7 +57,11 @@ std::vector<std::shared_ptr<Collision>> Grid::CheckCells(int rowA, int colA, int
     std::vector<std::shared_ptr<Collider>> staticCollidersB = this->cells[rowB][colB]->GetStaticColliders();
     for (int i = 0; i < dynamicCollidersA.size(); i++)
     {
-        for (int j = 0; j < dynamicCollidersB.size(); j++)
+        // the starting point of dynamicCollidersB changes based on wether or not we are checking the same cell.
+        int start = 0;
+        if (rowA == rowB && colA == colB)
+            start = i;
+        for (int j = start; j < dynamicCollidersB.size(); j++)
         {
             if (rowA == rowB && colA == colB && i == j)
                 continue;

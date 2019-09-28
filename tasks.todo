@@ -7,7 +7,12 @@ Physics:
   ☐ Resolving interpenetration
   ☐ the grid uses the positive z axis but open gl uses the negative z axis as forward. Need to sync this.
   ☐ Collision response @started(19-08-24 19:39)
-    ☐  Plane Collider @started(19-09-26 22:30)
+    ✔  Plane Collider @started(19-09-26 22:30) @done (19-09-27 23:48) @lasted(1 day, 1:18)
+    ☐ Add Plane Unit tests @started(19-09-27 23:48)
+      ✔ plane test @done (19-09-28 00:07)
+      ✔ cell test @done (19-09-28 00:15)
+      ✔ grid test @done (19-09-28 20:06)
+      ✔ collision detector test @done (19-09-28 20:06)
 General:
   ☐ Investigate a bug where the whole game freezes on startup
   ☐ Hot Loading Variables - see Johnatan Blow's videos
@@ -16,6 +21,7 @@ General:
     ✔ Grid unit tests @today @done (19-08-24 17:33)
       ✔ refactor the GetContactBetweenEdges method @started(19-08-24 12:30) @done (19-08-24 17:33) @lasted(5:03)
 Animation:
+  ☐ Animation Implementation
   ☐ Animation Blending
 
 Game Design:

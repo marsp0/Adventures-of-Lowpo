@@ -8,6 +8,7 @@ Plane::Plane(int entityID,
 			 Collider(entityID, center, colliderType, dynamicType)
 {
 	this->points = points;
+	this->ComputeDerivedData();
 }
 
 Plane::~Plane()
