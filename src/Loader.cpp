@@ -582,6 +582,8 @@ SkeletonNode::SkeletonNode( std::string id,
 
 std::unordered_map<std::string, std::unordered_map<std::string, float>> Loader::LoadPhysicsData(std::string filename)
 {
+    const std::string MASS = "mass";
+    const std::string INERTIA = "inertia";
     std::unordered_map<std::string, std::unordered_map<std::string, float>> result;
     std::ifstream fileStream(filename);
     std::string line;

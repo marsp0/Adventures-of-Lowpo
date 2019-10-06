@@ -304,3 +304,8 @@ TEST_CASE("Visual Scene Skeleton Parsing")
     REQUIRE( glm::determinant(footREnd->matrix) - glm::determinant(glm::transpose(glm::make_mat4(Loader::SplitStringFloat(matrixString).data()))) < EPSILON);
     REQUIRE( footREnd->children.size() == 0 );
 }
+
+TEST_CASE("Physics Data Parsing")
+{
+    
+}

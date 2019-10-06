@@ -14,6 +14,8 @@ Physics:
       ✔ grid test @done (19-09-28 20:06)
       ✔ collision detector test @done (19-09-28 20:06)
   ☐ PhysicsSystem Unit test @started(19-10-06 15:22)
+      ☐ Data Loading (test and implementation)
+      ☐ Simulation
 General:
   ☐ Investigate a bug where the whole game freezes on startup
   ☐ Hot Loading Variables - see Johnatan Blow's videos

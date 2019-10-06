@@ -91,7 +91,7 @@ Game::Game(int width, int height) :
 void Game::Init()
 {
     this->InitConfig();
-    std::string filename = "resources/terrain_patch.dae";
+    std::string filename = "resources/test.dae";
     this->InitScene(filename, this->entities);
     // subscribe
     this->Subscribe(MessageType::MouseMove, System::RenderingSys);

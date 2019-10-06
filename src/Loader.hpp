@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include "External/tinyxml2.hpp"
 
-/* 
+/**
 Contains the parsed information from a <geometry> node in a collada file.
  */
 class Geometry
@@ -86,6 +86,14 @@ class InstanceController
         std::string name;
         std::string url;
 };
+
+class PhysicsData
+{
+    public:
+        std::vector<std::string>    names;
+        std::vector<glm::mat4>      inertiaTensors;
+        std::vector<float>          masses;
+}
 
 /*
 Loader class takes care of the loading of all the data on disk.
