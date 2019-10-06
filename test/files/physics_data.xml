@@ -1,0 +1,7 @@
+<physics version="1.0.0">
+    <object name="Player">
+        <attribute name="mass">
+            10
+        </attribute>
+    </object>
+</physics>

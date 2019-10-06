@@ -307,5 +307,10 @@ TEST_CASE("Visual Scene Skeleton Parsing")
 
 TEST_CASE("Physics Data Parsing")
 {
-    
+    std::shared_ptr<PhysicsData> result = Loader::LoadPhysicsData("./test/files/physics_data.xml");
+    REQUIRE(result->names.size() == 1);
+    REQUIRE(result->names[0] == "Player");
+    REQUIRE(result->masses.size() == 1);
+    REQUIRE(result->masses[0] == 10.f);
+    REQUIRE(result->inertiaTensors.size() == 0);
 }

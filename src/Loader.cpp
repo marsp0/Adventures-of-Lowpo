@@ -580,25 +580,41 @@ SkeletonNode::SkeletonNode( std::string id,
 
 // PHYSICS
 
-std::unordered_map<std::string, std::unordered_map<std::string, float>> Loader::LoadPhysicsData(std::string filename)
+PhysicsData::PhysicsData(std::vector<std::string> names,
+                         std::vector<float> masses,
+                         std::vector<glm::mat4> inertiaTensors) : \
+                         names(names),
+                         masses(masses),
+                         inertiaTensors(inertiaTensors)
+{
+
+}
+
+std::shared_ptr<PhysicsData> Loader::LoadPhysicsData(std::string filename)
 {
     const std::string MASS = "mass";
     const std::string INERTIA = "inertia";
-    std::unordered_map<std::string, std::unordered_map<std::string, float>> result;
-    std::ifstream fileStream(filename);
-    std::string line;
-    std::string current;
-    while (std::getline(fileStream, line))
+    std::vector<std::string> names;
+    std::vector<glm::mat4> inertiaTensors;
+    std::vector<float> masses;
+
+    XMLDocument document;
+    XMLError error = document.LoadFile(filename.c_str());
+    if (error != 0)
+        return nullptr;
+    // the document represents the "whole" file so we need to qu
+    // is always Collada
+    XMLElement* physicsData = document.FirstChildElement("physics");
+    for (XMLElement* currentObject = physicsData->FirstChildElement("object"); currentObject != NULL ; currentObject = currentObject->NextSiblingElement("object"))
     {
-        std::vector<std::string> tokens = Loader::SplitString(line);
-        if (tokens.size() == 1)
+        names.push_back(currentObject->Attribute("name"));
+        for (XMLElement* currentAttribute = currentObject->FirstChildElement("attribute"); currentAttribute != NULL ; currentAttribute = currentAttribute->NextSiblingElement("attribute"))
         {
-            current = tokens[0];
-            result[current] = std::unordered_map<std::string, float>{};
+            std::string name = currentAttribute->Attribute("name");
+            if (name == MASS)
+                masses.push_back( std::stof( currentAttribute->GetText() ) );
         }
-        else
-            result[current][tokens[0]] = std::stof(tokens[1]);
     }
-    fileStream.close();
+    std::shared_ptr<PhysicsData> result = std::make_shared<PhysicsData>(PhysicsData(names, masses, inertiaTensors));
     return result;
 }

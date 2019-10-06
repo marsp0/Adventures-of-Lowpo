@@ -127,9 +127,25 @@ class InstanceController
         std::string url;
 };
 
+
+/**
+Looks like
+\code
+<physics version="1.0.0">
+    <object name="Player">
+        <attribute name="mass">
+            10
+        </attribute>
+    </object>
+</physics>
+\endcode
+*/
 class PhysicsData
 {
     public:
+        PhysicsData(std::vector<std::string> names,
+                    std::vector<float> masses,
+                    std::vector<glm::mat4> inertiaTensors);
         std::vector<std::string>    names;
         std::vector<glm::mat4>      inertiaTensors;
         std::vector<float>          masses;
@@ -155,7 +171,7 @@ class Loader
         static std::unordered_map<std::string, std::shared_ptr<InstanceController>> ParseVisualScenesAnimated(tinyxml2::XMLElement* libraryVisualScenes);
 
         // Physics Loader
-        static std::unordered_map<std::string, std::unordered_map<std::string, float>> LoadPhysicsData(std::string filename);
+        static std::shared_ptr<PhysicsData> LoadPhysicsData(std::string filename);
 
         // =======
         // UTILITY
