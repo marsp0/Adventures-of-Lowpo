@@ -12,5 +12,14 @@
 #### Dependencies
 
 1. GLFW
+```sh
+apt install libglfw3-dev
+```
 2. GLEW
+```sh
+apt install libglew-dev
+```
 3. GLM
+```sh
+apt install libglm-dev
+```
