@@ -18,6 +18,7 @@ Physics:
       ☐ Simulation
 General:
   ☐ Investigate a bug where the whole game freezes on startup
+  ☐ Loader - stride used in geometry class assumes that each section (normals, vertex etc) will contain 3 floats. Fix that to not be hard-coded number.
   ☐ Hot Loading Variables - see Johnatan Blow's videos
   ☐ Logging
   Unit Tests:

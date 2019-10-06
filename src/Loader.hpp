@@ -15,11 +15,34 @@ class Geometry
     public:
         Geometry(std::string id, std::string name, int stride, std::vector<int> indices, std::vector<float> vertices, std::vector<float> texCoords);
 
+        /**
+        stride indicates the amount of sections the geometry object has.
+        VERTEX / NORMAL / TEX -> 3
+        VERTEX / NORMAL -> 2
+        */
         int stride;
+        /**
+        id of the geometry object
+        `<geometry *id="Player_hitbox-mesh" * name="Player_hitbox">`
+        */
         std::string id;
+        /**
+        name of the geometry object
+        `<geometry id="Player_hitbox-mesh" *name="Player_hitbox" *>`
+        */
         std::string name;
+        /**
+        vector that holds the indices of the object. This is used in conjunction with _vertices_ and _texCoords_ to build
+        the buffer data.
+        */
         std::vector<int> indices;
+        /**
+        vector that holds the distinct vertices present in the object. Order is not specified.
+        */
         std::vector<float> vertices;
+        /**
+        vector that holds the distinct tex coords present in the object. Order is not specified.
+        */
         std::vector<float> texCoords;
 };
 
