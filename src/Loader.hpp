@@ -17,37 +17,36 @@ class Geometry
 
         /**
         stride indicates the amount of sections the geometry object has.
+
         VERTEX / NORMAL / TEX -> 3
+        
         VERTEX / NORMAL -> 2
         */
         int stride;
         /**
         Identifier of the geometry object taken from the collada file.
-        
-        `<geometry \b id="Player_hitbox-mesh" name="Player_hitbox">`
         */
         std::string id;
         /**
-        name of the geometry object
-        `<geometry id="Player_hitbox-mesh" *name="Player_hitbox" *>`
+        Name of the geometry object taken from the collada file.
         */
         std::string name;
         /**
-        vector that holds the indices of the object. This is used in conjunction with _vertices_ and _texCoords_ to build
-        the buffer data.
+        Vector that holds the indices of the object. This is used in conjunction with \b vertices and \b texCoords 
+        to build the buffer data.
         */
         std::vector<int> indices;
         /**
-        vector that holds the distinct vertices present in the object. Order is not specified.
+        Vector that holds the distinct vertices present in the object. Order is not specified.
         */
         std::vector<float> vertices;
         /**
-        vector that holds the distinct tex coords present in the object. Order is not specified.
+        Vector that holds the distinct tex coords present in the object. Order is not specified.
         */
         std::vector<float> texCoords;
 };
 
-/* 
+/**
 Contains the parsed information of a <controller> in a collada file.
  */
 class Controller
@@ -55,25 +54,42 @@ class Controller
     public:
         Controller(std::string id, std::string name, std::vector<float> indices, std::vector<float> weights);
         std::string id;
+        /**
+        Identifier of the controller object taken from the collada file.
+        */
         std::string name;
+        /**
+        Vector containing the indices of the bones that are affecting each vertex in order.
+        */
         std::vector<float> indices;
+        /**
+        Vector containing the indices of the weights that are affecting each vertex in order.
+        */
         std::vector<float> weights;
 };
 
-/* 
+/**
 Contains parsed information from an <animation> node in a collada file
  */
 class AnimationNode
 {
     public:
         AnimationNode(std::string id, std::vector<float> timeStamps, std::vector<glm::mat4> matrices);
-
+        /**
+        Identifier of the bone being animated.
+        */
         std::string             id;
+        /**
+        Time stamps of the keyframes.
+        */
         std::vector<float>      timeStamps;
+        /**
+        Matrices of the keyframes at the given time.
+        */
         std::vector<glm::mat4>  matrices;
 };
 
-/* 
+/**
 Contains the skeleton information of a parsed <node> node from library_visual_scenes in a collada file.
  */
 class SkeletonNode
