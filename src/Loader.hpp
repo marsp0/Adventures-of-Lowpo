@@ -22,8 +22,9 @@ class Geometry
         */
         int stride;
         /**
-        id of the geometry object
-        `<geometry *id="Player_hitbox-mesh" * name="Player_hitbox">`
+        Identifier of the geometry object taken from the collada file.
+        
+        `<geometry \b id="Player_hitbox-mesh" name="Player_hitbox">`
         */
         std::string id;
         /**
