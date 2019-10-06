@@ -93,7 +93,7 @@ class PhysicsData
         std::vector<std::string>    names;
         std::vector<glm::mat4>      inertiaTensors;
         std::vector<float>          masses;
-}
+};
 
 /*
 Loader class takes care of the loading of all the data on disk.
