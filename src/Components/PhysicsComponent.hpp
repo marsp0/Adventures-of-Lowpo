@@ -24,10 +24,7 @@ class PhysicsComponent : public Component
                         glm::mat3 inertiaTensor,
                         DynamicType type);
         ~PhysicsComponent();
-        void SetMass(float mass);
-        float GetMass();
 
-        void Clear();
         // linear components;
         float     inverseMass;
         glm::vec3 acceleration;
@@ -42,6 +39,7 @@ class PhysicsComponent : public Component
         glm::quat orientation;
         glm::vec3 torqueAccumulator;
         glm::mat3 invInertiaTensor;
+        glm::mat3 invInertiaTensorLocal;
 
         // Collider info
         std::vector<std::shared_ptr<Collider>> colliders;

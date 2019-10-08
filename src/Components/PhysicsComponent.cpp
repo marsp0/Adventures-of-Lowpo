@@ -1,4 +1,5 @@
 #include "PhysicsComponent.hpp"
+#include <glm/glm.hpp>
 
 PhysicsComponent::PhysicsComponent( float mass,
                                     glm::vec3 position,
@@ -15,7 +16,9 @@ PhysicsComponent::PhysicsComponent( float mass,
                                     angularAcc(0.f),
                                     angularVel(0.f)
 {
-    // invert the mass and inertia tensor here
+      assert(mass != 0.f);
+      this->inverseMass = 1/mass;
+      this->invInertiaTensor = glm::inverse(inertiaTensor);
 }
 
 PhysicsComponent::~PhysicsComponent()

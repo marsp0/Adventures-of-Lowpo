@@ -41,3 +41,8 @@ const std::vector<glm::vec3>& Collider::GetPointsOnFaces()
     assert(this->pointsOnFaces.size() > 0);
     return this->pointsOnFaces;
 }
+
+void Collider::ConvexHull()
+{
+
+}

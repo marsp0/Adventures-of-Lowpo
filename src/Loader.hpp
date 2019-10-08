@@ -151,7 +151,7 @@ class PhysicsData
         std::vector<float>          masses;
 };
 
-/*
+/**
 Loader class takes care of the loading of all the data on disk.
 - collada data
 - physics data
