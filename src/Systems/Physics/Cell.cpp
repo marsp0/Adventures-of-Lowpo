@@ -4,7 +4,7 @@
 #include "CollisionDetector.hpp"
 #include "../../Components/PhysicsComponent.hpp"
 
-Cell::Cell(glm::vec3 center, float halfWidth, int row, int col) : center(center), halfWidth(halfWidth)
+Cell::Cell(glm::vec3 center, float halfWidth, int row, int col) : center(center), halfWidth(halfWidth), row(row), col(col)
 {
 }
 

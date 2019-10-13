@@ -31,7 +31,6 @@ class Collider
         virtual ~Collider();
         virtual void ComputeDerivedData() = 0;
         virtual void Update(glm::vec3 translation) = 0;
-        void ConvexHull();
 
         // ACCESSORS
 

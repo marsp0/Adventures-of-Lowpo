@@ -31,7 +31,6 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
     {
         idToMessage[messages[i].senderID].push_back(messages[i]);
     }
-
     std::unordered_map<int, int> idToIndexMap;
     // Integration step
     for (int i = 0; i < entities.size(); i++)
@@ -92,6 +91,7 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
     this->Solve(entities, collisions, idToIndexMap);
     // 4. Resolve Interpenetration
     // TO DO
+    std::cout << collisions.size() << std::endl;
 }
 
 void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::vector<std::shared_ptr<Collision>>& collisions, std::unordered_map<int, int>& idToIndexMap)

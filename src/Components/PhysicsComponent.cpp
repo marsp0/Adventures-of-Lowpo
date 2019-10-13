@@ -13,6 +13,7 @@ PhysicsComponent::PhysicsComponent( float mass,
                                     acceleration(0.f),
                                     velocity(0.f),
                                     forceAccumulator(0.f),
+                                    torqueAccumulator(0.f),
                                     angularAcc(0.f),
                                     angularVel(0.f)
 {
