@@ -85,11 +85,15 @@ TEST_CASE("Grid Test")
 		REQUIRE(collision1->second == 1);
 		REQUIRE(collision1->firstCollider->entityID == 3);
 		REQUIRE(collision1->secondCollider->entityID == 1);
+		std::cout << "-------------------" << std::endl;
+		std::cout << collision1->contacts[0].contactNormal.x << std::endl;
+		std::cout << collision1->contacts[0].contactNormal.y << std::endl;
+		std::cout << collision1->contacts[0].contactNormal.z << std::endl;
 		REQUIRE(collision1->contacts.size() == 2);
 		for (int i = 0; i < collision1->contacts.size(); i++)
 		{
 			REQUIRE(collision1->contacts[i].penetration - 1.0f < 0.00005f);
-			REQUIRE(fabs(glm::dot(collision1->contacts[i].contactNormal, glm::vec3(-1.f,0.f,0.f))) == 1.f);
+			REQUIRE(glm::dot(collision1->contacts[i].contactNormal, glm::vec3(-1.f,0.f,0.f)) - 1.f < 0.00005f);
 		}
 		REQUIRE(collision1->contacts[0].contactPoint.x == 3.f);
 		REQUIRE(collision1->contacts[0].contactPoint.y == 3.f);

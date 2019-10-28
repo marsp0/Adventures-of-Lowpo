@@ -21,7 +21,12 @@ class PhysicsSystem
                     std::vector<std::shared_ptr<Entity>>& entities,
                     std::vector<Message>& messages,
                     std::vector<Message>& globalQueue);
-
+        /**
+        Method that iterates over all the collisions and resolves them one by one.
+        Impulse based formula is used here. Check
+        https://www.scss.tcd.ie/~manzkem/CS7057/cs7057-1516-09-CollisionResponse-mm.pdf
+        https://en.wikipedia.org/wiki/Collision_response#Impulse-based_reaction_model
+        */
         void Solve(	std::vector<std::shared_ptr<Entity>>& entities, 
         			std::vector<std::shared_ptr<Collision>>& collisions, 
         			std::unordered_map<int, int>& idToIndexMap);

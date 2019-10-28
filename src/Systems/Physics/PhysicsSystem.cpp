@@ -124,32 +124,33 @@ void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::v
             glm::mat3 invInertiaTensorA = first->invInertiaTensor;
             glm::mat3 invInertiaTensorB = second->invInertiaTensor;
 
-            glm::vec3 preRelativeVelocity = vA + glm::cross(wA, rA) - vB - glm::cross(wB, rB);
-            
-            float denominator1 = glm::dot(normal, normal) * invMassA + invMassB;
-            glm::vec3 denominator3 = glm::cross(invInertiaTensorA * glm::cross(rA, normal), rA);
-            glm::vec3 denominator4 = glm::cross(invInertiaTensorB * glm::cross(rB, normal), rB);
-            float denominator2 = glm::dot(denominator3 + denominator4, normal);
+            /*
+            j = nominator / denominator
+            nominator = -(1 + e) * n * ( (vA + wA x rA) - (vB + wB x rB) )
+            denominator = 1/mA + 1/mB + n * ( (invIA (rA x n) x rA) + (invIB (rB x n) x rB) )
+                          -----------         ---------------------   ---------------------
+                                /                       /                       /
+                               /                       /                       /
+                            invMassSum            angularPart1           angularPart2
+            */
+            glm::vec3 preRelVelocity = vA + glm::cross(wA, rA) - vB - glm::cross(wB, rB);
+            float nominator = glm::dot((-1.0f - ELASTICITY) * preRelVelocity, normal);
+            float invMassSum = invMassA + invMassB;
+            glm::vec3 angularPart1 = glm::cross(invInertiaTensorA * glm::cross(rA, normal), rA);
+            glm::vec3 angularPart2 = glm::cross(invInertiaTensorB * glm::cross(rB, normal), rB);
+            float angularFinal = glm::dot(angularPart1 + angularPart2, normal);
 
-            float impulse = glm::dot((-1.0f - ELASTICITY) * preRelativeVelocity, normal) / (denominator1 + denominator2);
-            
-            // update linear velocity of objects based on impulse
-            glm::vec3 vA2 = vA + impulse * normal * invMassA;
-            glm::vec3 vB2 = vB - impulse * normal * invMassB;
-
-            // update angular velocity of objects based on impulse.
-            glm::vec3 wA2 = wA + invInertiaTensorA * glm::cross(rA, impulse * normal);
-            glm::vec3 wB2 = wB - invInertiaTensorB * glm::cross(rB, impulse * normal);
+            float impulse = nominator / (invMassSum + angularFinal);
             
             if (firstCollider->dynamicType != DynamicType::Static)
             {
-                first->velocity = vA2;
-                first->angularVel = wA2;
+                first->velocity = vA + impulse * normal * invMassA;
+                first->angularVel = wA + invInertiaTensorA * glm::cross(rA, impulse * normal);
             }
             if (secondCollider->dynamicType != DynamicType::Static)
             {
-                second->velocity = vB2;
-                second->angularVel = wB2;
+                second->velocity = vB - impulse * normal * invMassB;
+                second->angularVel = wB - invInertiaTensorB * glm::cross(rB, impulse * normal);
             }
         }
     }

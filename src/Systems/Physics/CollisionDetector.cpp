@@ -81,6 +81,9 @@ std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> 
     float minPenDepth = 10000.f;
     float minEdgeDistance = 10000.f;
 
+    // used to differentiate between normals pointing in the oposite direction.
+    float pointOnFaceToCenterSum = 10000.f;
+
     std::vector<glm::vec3> collisionPoints;
 
     // get edges and faces
@@ -100,14 +103,15 @@ std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> 
         {
             return nullptr;
         }
-        bool sameDirection = glm::dot(first->center - second->center, facesA[i].first) > 0.f;
-        if (currPenDepth < minPenDepth || (currPenDepth == minPenDepth && sameDirection))
-        {   
+        float currentSum = glm::length(pointsOnFacesA[i] - first->center) + glm::length(pointsOnFacesA[i] - second->center);
+        if (currPenDepth <= minPenDepth && currentSum < pointOnFaceToCenterSum)
+        {
             indexFace = i;
             indexFaceA = true;
             isFaceCollision = true;
             collisionAxis = facesA[i].first;
             minPenDepth = currPenDepth;
+            pointOnFaceToCenterSum = currentSum;
         }
     }
 
@@ -117,14 +121,15 @@ std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> 
         {
             return nullptr;
         }
-        bool sameDirection = glm::dot(first->center - second->center, facesA[i].first) > 0.f;
-        if (currPenDepth < minPenDepth || (currPenDepth == minPenDepth && sameDirection))
+        float currentSum = glm::length(pointsOnFacesA[i] - first->center) + glm::length(pointsOnFacesA[i] - second->center);
+        if (currPenDepth <= minPenDepth && currentSum < pointOnFaceToCenterSum)
         {
             indexFace = i;
             indexFaceA = false;
             isFaceCollision = true;
             collisionAxis = facesB[i].first;
-            minPenDepth = currPenDepth; 
+            minPenDepth = currPenDepth;
+            pointOnFaceToCenterSum = currentSum;
         }
     }
 
@@ -189,22 +194,11 @@ std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> 
                     planes.push_back(facesA[i]);
                 }
             }
-            // find the 2 faces that are on the same axis
-            int secondFaceIndex;
-            for (int i = 0; i < facesA.size(); i++)
-            {
-                float dotProduct = glm::dot(facesA[i].first, collisionAxis);
-                if (dotProduct == -1.0f)
-                {
-                    secondFaceIndex = i;
-                }
-            }
             std::vector<glm::vec3> clippedPoints = this->Clip(pointsB, planes);
             for (int i = 0; i < clippedPoints.size(); i++)
             {
                 float dotFaceOne = glm::dot(collisionAxis, clippedPoints[i] - pointsOnFacesA[indexFace]);
-                float dotFaceTwo = glm::dot(facesA[secondFaceIndex].first, clippedPoints[i] - pointsOnFacesA[secondFaceIndex]);
-                if ( dotFaceOne <= 0.f && dotFaceTwo <= 0.f)
+                if ( dotFaceOne <= 0.f)
                 {
                     collisionPoints.push_back(clippedPoints[i]);
                 }
@@ -223,22 +217,11 @@ std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> 
                     planes.push_back(facesB[i]);
                 }
             }
-            // find the 2 faces that are on the same axis
-            int secondFaceIndex;
-            for (int i = 0; i < facesB.size(); i++)
-            {
-                float dotProduct = glm::dot(facesB[i].first, collisionAxis);
-                if (dotProduct == -1.0f)
-                {
-                    secondFaceIndex = i;
-                }
-            }
             std::vector<glm::vec3> clippedPoints = this->Clip(pointsA, planes);
             for (int i = 0; i < clippedPoints.size(); i++)
             {
                 float dotFaceOne = glm::dot(collisionAxis, clippedPoints[i] - pointsOnFacesB[indexFace]);
-                float dotFaceTwo = glm::dot(facesA[secondFaceIndex].first, clippedPoints[i] - pointsOnFacesB[secondFaceIndex]);
-                if ( dotFaceOne <= 0.f && dotFaceTwo <= 0.f)
+                if ( dotFaceOne <= 0.f)
                 {
                     collisionPoints.push_back(clippedPoints[i]);
                 }
