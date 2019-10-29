@@ -91,12 +91,11 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
     this->Solve(entities, collisions, idToIndexMap);
     // 4. Resolve Interpenetration
     // TO DO
-    std::cout << collisions.size() << std::endl;
 }
 
 void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::vector<std::shared_ptr<Collision>>& collisions, std::unordered_map<int, int>& idToIndexMap)
 {
-    float ELASTICITY = 0.4f;
+    float ELASTICITY = 1.f;
     for (int i = 0; i < collisions.size(); i++)
     {
         std::shared_ptr<Collision> collision = collisions[i];

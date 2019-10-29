@@ -60,23 +60,21 @@ TEST_CASE("PhysicsSystem Test")
 	std::vector<std::shared_ptr<Collider>> colliders{plane1, box1};
 	physicsSystem.Insert(colliders);
 
+	std::cout << "position before" << std::endl;
+	std::cout << component2->position.x << std::endl;
+	std::cout << component2->position.y << std::endl;
+	std::cout << component2->position.z << std::endl;
+	std::cout << "velocity before" << std::endl;
+	std::cout << component2->velocity.x << std::endl;
+	std::cout << component2->velocity.y << std::endl;
+	std::cout << component2->velocity.z << std::endl;
+
 	std::vector<std::shared_ptr<Entity>> entities{entity1, entity2};
 	std::vector<Message> messages;
 	std::vector<Message> globalQueue;
 	physicsSystem.Update(0.0166f, entities, messages, globalQueue);
 	REQUIRE(entities.size() == 2);
 	PhysicsComponent* c1 = entities[1]->GetComponent<PhysicsComponent>(ComponentType::Physics);
-	std::cout << c1->position.x << std::endl;
-	std::cout << c1->position.y << std::endl;
-	std::cout << c1->position.z << std::endl;
-
-	// PhysicsComponent* c2 = entities[0]->GetComponent<PhysicsComponent>(ComponentType::Physics);
-	// std::cout << c2->position.x << std::endl;
-	// std::cout << c2->position.y << std::endl;
-	// std::cout << c2->position.z << std::endl;
-
+	// TODO : Finish the test
 	physicsSystem.Update(0.0166f, entities, messages, globalQueue);
-	// std::cout << c1->position.x << std::endl;
-	// std::cout << c1->position.y << std::endl;
-	// std::cout << c1->position.z << std::endl;
 }

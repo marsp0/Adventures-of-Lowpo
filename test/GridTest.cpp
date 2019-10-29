@@ -85,10 +85,6 @@ TEST_CASE("Grid Test")
 		REQUIRE(collision1->second == 1);
 		REQUIRE(collision1->firstCollider->entityID == 3);
 		REQUIRE(collision1->secondCollider->entityID == 1);
-		std::cout << "-------------------" << std::endl;
-		std::cout << collision1->contacts[0].contactNormal.x << std::endl;
-		std::cout << collision1->contacts[0].contactNormal.y << std::endl;
-		std::cout << collision1->contacts[0].contactNormal.z << std::endl;
 		REQUIRE(collision1->contacts.size() == 2);
 		for (int i = 0; i < collision1->contacts.size(); i++)
 		{
