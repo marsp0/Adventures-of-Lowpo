@@ -6,9 +6,7 @@
 
 TEST_CASE("Grid Test")
 {
-	float gridLen = 200.f;
-	float halfWidth = 5.f;
-	Grid grid(gridLen, halfWidth);
+	Grid grid(200.f, 5.f);
 	const std::vector< std::vector< std::shared_ptr<Cell>> > cells = grid.GetCells();
 
 	REQUIRE(cells.size() == 20);
@@ -73,6 +71,29 @@ TEST_CASE("Grid Test")
 		REQUIRE(dynamicColliders4.size() == 0);
 		REQUIRE(staticColliders4.size() == 0);
 
+	}
+
+	SECTION("Test Removal")
+	{
+		grid.Remove(plane1);
+		grid.Remove(box1);
+		std::shared_ptr<Cell> cell1 = grid.GetCells()[0][0];
+		const std::vector<std::shared_ptr<Collider>> dynamicColliders1 = cell1->GetDynamicColliders();
+		const std::vector<std::shared_ptr<Collider>> staticColliders1 = cell1->GetStaticColliders();
+		REQUIRE(dynamicColliders1.size() == 0);
+		REQUIRE(staticColliders1.size() == 0);
+	}
+
+	SECTION("Test GetEligibleCells")
+	{
+		std::vector<std::pair<int, int>> eligibleCells = grid.GetEligibleCells(0, 0);
+		REQUIRE(eligibleCells.size() == 4);
+		std::vector<std::pair<int, int>> eligibleCells1 = grid.GetEligibleCells(4, 4);
+		REQUIRE(eligibleCells1.size() == 6);
+		std::vector<std::pair<int, int>> eligibleCells2 = grid.GetEligibleCells(19, 19);
+		REQUIRE(eligibleCells2.size() == 2);
+		std::vector<std::pair<int, int>> eligibleCells3 = grid.GetEligibleCells(19, 0);
+		REQUIRE(eligibleCells3.size() == 4);
 	}
 
 	SECTION("Test collisions")
