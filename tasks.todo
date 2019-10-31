@@ -19,6 +19,7 @@ Physics:
   ☐ Blender Physics Exporter - write an exporter that would go through the entities and and get their physics properties and write them out in an xml file that we can then use. This saves time as we wont have to do any manual modifications to the file.
   ☐ Move the elasticity to the colliders. Rather than using one elasticity for all types of collision, every collider should be able to specify its own elasticity.
   ☐ update the Solve function to avoid unecessary calculations when one of the objects is static.
+  ☐ Refactor the collision detector class @low
 General:
   ☐ Investigate a bug where the whole game freezes on startup
   ☐ Loader - stride used in geometry class assumes that each section (normals, vertex etc) will contain 3 floats. Fix that to not be hard-coded number.
@@ -27,6 +28,7 @@ General:
   Unit Tests:
     ✔ Grid unit tests @today @done (19-08-24 17:33)
       ✔ refactor the GetContactBetweenEdges method @started(19-08-24 12:30) @done (19-08-24 17:33) @lasted(5:03)
+      
 Animation:
   ☐ Animation Implementation
   ☐ Animation Blending
