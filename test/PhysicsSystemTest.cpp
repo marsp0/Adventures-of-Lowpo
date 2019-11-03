@@ -60,15 +60,6 @@ TEST_CASE("PhysicsSystem Test")
 	std::vector<std::shared_ptr<Collider>> colliders{plane1, box1};
 	physicsSystem.Insert(colliders);
 
-	std::cout << "position before" << std::endl;
-	std::cout << component2->position.x << std::endl;
-	std::cout << component2->position.y << std::endl;
-	std::cout << component2->position.z << std::endl;
-	std::cout << "velocity before" << std::endl;
-	std::cout << component2->velocity.x << std::endl;
-	std::cout << component2->velocity.y << std::endl;
-	std::cout << component2->velocity.z << std::endl;
-
 	std::vector<std::shared_ptr<Entity>> entities{entity1, entity2};
 	std::vector<Message> messages;
 	std::vector<Message> globalQueue;

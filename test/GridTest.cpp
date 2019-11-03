@@ -36,7 +36,7 @@ TEST_CASE("Grid Test")
 	glm::vec3 axisRadii2 = glm::vec3(2.5f,2.5f,2.5f);
 	std::shared_ptr<AABB> box2 = std::make_shared<AABB>(AABB(4, box_center2, ColliderType::BOX, DynamicType::Dynamic, axisRadii2));
 
-	glm::vec3 box_center3 = glm::vec3(17.5f, 2.5f, 6.5f);
+	glm::vec3 box_center3 = glm::vec3(17.5f, 3.5f, 6.5f);
 	std::shared_ptr<AABB> box3 = std::make_shared<AABB>(AABB(5, box_center3, ColliderType::BOX, DynamicType::Dynamic, axisRadii2));
 
 	grid.Insert(plane1);
@@ -126,7 +126,7 @@ TEST_CASE("Grid Test")
 		REQUIRE(collision2->second == 5);
 		REQUIRE(collision2->firstCollider->entityID == 4);
 		REQUIRE(collision2->secondCollider->entityID == 5);
-		REQUIRE(collision2->contacts.size() == 4);
+		REQUIRE(collision2->contacts.size() == 2);
 		for (int i = 0; i < collision2->contacts.size(); i++)
 		{
 			REQUIRE(collision2->contacts[i].penetration - 1.0f < 0.00005f);
