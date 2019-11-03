@@ -8,6 +8,19 @@
 #include "Collider.hpp"
 #include "AABB.hpp"
 
+class SATData
+{
+    public:
+        int         indexFace;
+        int         indexEdgeA;
+        int         indexEdgeB;
+        bool        indexFaceA;
+        bool        isFaceCollision;
+        float       minPenDepth;
+        float       minEdgeDistance;
+        glm::vec3   collisionAxis;
+};
+
 /**
 Collision detector contains all the logic that checks if two colliders are intersecting.
  */
@@ -17,8 +30,26 @@ class CollisionDetector
         CollisionDetector();
 
         std::shared_ptr<Collision> CheckCollision(std::shared_ptr<Collider> first, std::shared_ptr<Collider> second);
-        std::shared_ptr<Collision> AABBToAABB(std::shared_ptr<AABB> first, std::shared_ptr<AABB> second);
         std::shared_ptr<Collision> Collide(std::shared_ptr<Collider> first, std::shared_ptr<Collider> second);
+
+        bool CheckFaces(SATData& data, 
+                        const std::vector<glm::vec3>& pointsA, 
+                        const std::vector<glm::vec3>& pointsB,
+                        const std::vector<std::pair<glm::vec3, float>>& faces,
+                        const std::vector<glm::vec3>& pointsOnFaces,
+                        std::shared_ptr<Collider> first,
+                        std::shared_ptr<Collider> second,
+                        bool isFaceA);
+        bool CheckEdges(SATData& data,
+                        const std::vector<glm::vec3>& pointsA,
+                        const std::vector<glm::vec3>& pointsB,
+                        const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesA,
+                        const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesB);
+
+        std::vector<glm::vec3> GetCollisionPoints(SATData& data, 
+                                                  const std::vector<glm::vec3>& points,
+                                                  const std::vector<std::pair<glm::vec3, float>>& faces,
+                                                  const std::vector<glm::vec3>& pointsOnFaces);
 
         // Helpers
         /** 
