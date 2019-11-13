@@ -15,7 +15,7 @@ InputSystem::~InputSystem()
 
 }
 
-void InputSystem::Update(GLFWwindow* window, std::vector<std::shared_ptr<Entity>>& entities, std::vector<Message>& messages, std::vector<Message>& globalQueue)
+void InputSystem::Update(GLFWwindow* window, std::vector<std::unique_ptr<Entity>>& entities, std::vector<Message>& messages, std::vector<Message>& globalQueue)
 {
     // Note : we probably want to add animation triggers here.
     for (int i = 0; i < entities.size(); i++)

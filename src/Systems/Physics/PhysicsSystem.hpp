@@ -18,7 +18,7 @@ class PhysicsSystem
 
         void Insert(std::vector<std::shared_ptr<Collider>>& colliders);
         void Update(float deltaTime, 
-                    std::vector<std::shared_ptr<Entity>>& entities,
+                    std::vector<std::unique_ptr<Entity>>& entities,
                     std::vector<Message>& messages,
                     std::vector<Message>& globalQueue);
         /**
@@ -27,7 +27,7 @@ class PhysicsSystem
         https://www.scss.tcd.ie/~manzkem/CS7057/cs7057-1516-09-CollisionResponse-mm.pdf
         https://en.wikipedia.org/wiki/Collision_response#Impulse-based_reaction_model
         */
-        void Solve(	std::vector<std::shared_ptr<Entity>>& entities, 
+        void Solve(	std::vector<std::unique_ptr<Entity>>& entities, 
         			std::vector<std::shared_ptr<Collision>>& collisions, 
         			std::unordered_map<int, int>& idToIndexMap);
 

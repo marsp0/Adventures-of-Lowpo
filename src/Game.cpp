@@ -127,7 +127,7 @@ void Game::InitConfig()
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, &unusedIds, true);
 }
 
-void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>& entities)
+void Game::InitScene(std::string filename, std::vector<std::unique_ptr<Entity>>& entities)
 {
     unsigned int textureID = this->renderingSystem.CreateTexture("resources/DiffuseColor_Texture.png");
     tinyxml2::XMLDocument document;
@@ -199,7 +199,7 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
             continue;
 
         std::shared_ptr<Geometry>   current = it->second;
-        std::shared_ptr<Entity>     entity = std::make_shared<Entity>(Entity(this->CreateEntityID()));
+        std::unique_ptr<Entity>     entity = std::make_unique<Entity>(this->CreateEntityID());
 
         bufferData = Loader::BuildBufferData(current);
         worldTransform = instanceGeometries[it->first]->matrix;
@@ -244,7 +244,7 @@ void Game::InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>&
             entity->AddComponent(inputComponent);
         }
         // push_back
-        entities.push_back(entity);
+        entities.push_back(std::move(entity));
         // std::cout << entities.size() << std::endl;
     }
     // Push back an entity

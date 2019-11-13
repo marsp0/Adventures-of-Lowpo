@@ -32,7 +32,7 @@ TEST_CASE("PhysicsSystem Test")
 	std::shared_ptr<PhysicsComponent> component1 = std::make_shared<PhysicsComponent>(PhysicsComponent(mass, center1, orientation, inertiaTensor, DynamicType::Static));
 	std::shared_ptr<TransformComponent> transformComponent1 = std::make_shared<TransformComponent>(TransformComponent(center1, orientation));
 	component1->colliders.push_back(plane1);
-	std::shared_ptr<Entity> entity1 = std::make_shared<Entity>(Entity(1));
+	std::unique_ptr<Entity> entity1 = std::make_unique<Entity>(1);
 	entity1->AddComponent(component1);
 	entity1->AddComponent(transformComponent1);
 
@@ -54,13 +54,15 @@ TEST_CASE("PhysicsSystem Test")
 	std::shared_ptr<TransformComponent> transformComponent2 = std::make_shared<TransformComponent>(TransformComponent(box_center1, orientation));
 	component2->velocity = glm::vec3(-19.f, 0.f, 0.f);
 	component2->colliders.push_back(box1);
-	std::shared_ptr<Entity> entity2 = std::make_shared<Entity>(Entity(3));
+	std::unique_ptr<Entity> entity2 = std::make_unique<Entity>(3);
 	entity2->AddComponent(component2);
 	entity2->AddComponent(transformComponent2);
 	std::vector<std::shared_ptr<Collider>> colliders{plane1, box1};
 	physicsSystem.Insert(colliders);
 
-	std::vector<std::shared_ptr<Entity>> entities{entity1, entity2};
+	std::vector<std::unique_ptr<Entity>> entities;
+	entities.push_back(std::move(entity1));
+	entities.push_back(std::move(entity2));
 	std::vector<Message> messages;
 	std::vector<Message> globalQueue;
 	physicsSystem.Update(0.0166f, entities, messages, globalQueue);

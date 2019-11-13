@@ -13,7 +13,7 @@ AnimationSystem::~AnimationSystem()
 
 }
 
-void AnimationSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities, std::vector<Message>& events, std::vector<Message>& globalQueue)
+void AnimationSystem::Update(float deltaTime, std::vector<std::unique_ptr<Entity>>& entities, std::vector<Message>& events, std::vector<Message>& globalQueue)
 {
     // TODO : 
     for (int i = 0; i < entities.size(); i++)
