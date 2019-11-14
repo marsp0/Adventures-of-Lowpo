@@ -214,7 +214,7 @@ void Game::InitScene(std::string filename, std::vector<std::unique_ptr<Entity>>&
         // RenderingComponent
         // we need to have
         // VAO, VBO and Texture loaded.
-        std::shared_ptr<RenderingComponent> renderingComponent = std::make_shared<RenderingComponent>(RenderingComponent(buffers.first, buffers.second, bufferData.size() / 3, textureID, ShaderType::NormalShader));
+        std::unique_ptr<RenderingComponent> renderingComponent = std::make_unique<RenderingComponent>(buffers.first, buffers.second, bufferData.size() / 3, textureID, ShaderType::NormalShader);
         // PhysicsComponent
         DynamicType type = DynamicType::Static;
         if (it->first == "Player")
@@ -223,7 +223,7 @@ void Game::InitScene(std::string filename, std::vector<std::unique_ptr<Entity>>&
         if (objectToColliders[it->first].size() > 0)
             std::cout << "setting mass " << std::endl;
             mass = 1.0f;
-        std::shared_ptr<PhysicsComponent> physicsComponent = std::make_shared<PhysicsComponent>(PhysicsComponent(1.f, translation, rotation, glm::mat3(1.f), type));
+        std::unique_ptr<PhysicsComponent> physicsComponent = std::make_unique<PhysicsComponent>(1.f, translation, rotation, glm::mat3(1.f), type);
         // assign colliders to component and insert into grid
         physicsComponent->colliders = objectToColliders[it->first];
         for (int k = 0;k < physicsComponent->colliders.size(); k++)
@@ -231,21 +231,19 @@ void Game::InitScene(std::string filename, std::vector<std::unique_ptr<Entity>>&
             physicsComponent->colliders[k]->entityID = entity->id;
         }
         this->physicsSystem.Insert(physicsComponent->colliders);
-        std::shared_ptr<TransformComponent> transformComponent = std::make_shared<TransformComponent>(TransformComponent(translation, rotation));
-        // Entity
+        std::unique_ptr<TransformComponent> transformComponent = std::make_unique<TransformComponent>(translation, rotation);
         
-        entity->AddComponent(renderingComponent);
-        entity->AddComponent(physicsComponent);
-        entity->AddComponent(transformComponent);
+        // Entity
+        entity->AddComponent(std::move(renderingComponent));
+        entity->AddComponent(std::move(physicsComponent));
+        entity->AddComponent(std::move(transformComponent));
         if (it->first == "Player")
         {
             this->playerID = entity->id;
-            std::shared_ptr<InputComponent> inputComponent = std::make_shared<InputComponent>(InputComponent());
-            entity->AddComponent(inputComponent);
+            std::unique_ptr<InputComponent> inputComponent = std::make_unique<InputComponent>();
+            entity->AddComponent(std::move(inputComponent));
         }
-        // push_back
         entities.push_back(std::move(entity));
-        // std::cout << entities.size() << std::endl;
     }
     // Push back an entity
 }

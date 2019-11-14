@@ -39,7 +39,6 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::unique_ptr<Entity>>
         {
             PhysicsComponent* component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
             TransformComponent* transformComponent = entities[i]->GetComponent<TransformComponent>(ComponentType::Transform);
-
             // handle messages for the current entity
             if (idToMessage.find(entities[i]->id) != idToMessage.end())
                 this->HandleMessages(idToMessage[entities[i]->id], component);

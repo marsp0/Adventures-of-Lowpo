@@ -5,11 +5,11 @@ Entity::Entity(int entityID) : id(entityID), componentBitset(0), typeToIndexMap(
 
 }
 
-void Entity::AddComponent(std::shared_ptr<Component> component)
+void Entity::AddComponent(std::unique_ptr<Component> component)
 {
-    this->components.push_back(component);
     this->componentBitset = this->componentBitset | component->GetComponentType();
-    this->typeToIndexMap[component->GetComponentType()] = this->components.size() - 1;
+    this->typeToIndexMap[component->GetComponentType()] = this->components.size();
+    this->components.push_back(std::move(component));
 }
 
 bool Entity::HasComponent(std::uint32_t componentType)

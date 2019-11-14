@@ -17,7 +17,7 @@ Grid::Grid(float gridLength, float halfWidth) : \
         {
             float x = col * 2 * halfWidth + halfWidth;
             float z = row * 2 * halfWidth + halfWidth;
-            this->cells[row][col] = std::make_shared<Cell>(glm::vec3(x, 0.f, z), halfWidth, row, col);
+            this->cells[row][col] = std::make_unique<Cell>(glm::vec3(x, 0.f, z), halfWidth, row, col);
         }
     }
 }
@@ -131,7 +131,7 @@ int Grid::GetInsertCol(glm::vec3 point)
     while (high > low)
     {
         int mid = (high + low) / 2;
-        std::shared_ptr<Cell> midCell = this->cells[0][mid];
+        Cell* midCell = this->cells[0][mid].get();
         float distance = abs(point.x - midCell->center.x);
         if (distance < this->halfWidth)
         {
@@ -157,7 +157,7 @@ int Grid::GetInsertRow(glm::vec3 point)
     while (high > low)
     {
         int mid = (high + low) / 2;
-        std::shared_ptr<Cell> midCell = this->cells[mid][0];
+        Cell* midCell = this->cells[mid][0].get();
         float distance = abs(point.z - midCell->center.z);
         if (distance < this->halfWidth)
         {
@@ -199,7 +199,7 @@ std::vector<std::pair<int, int>> Grid::GetEligibleCells(int cellRow, int cellCol
     return result;
 }
 
-const std::vector< std::vector< std::shared_ptr<Cell>> > Grid::GetCells()
+const std::vector< std::vector< std::unique_ptr<Cell>> >& Grid::GetCells()
 {
     return this->cells;
 }

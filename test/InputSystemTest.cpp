@@ -12,9 +12,9 @@ extern float EPSILON;
 
 TEST_CASE("Input System Test")
 {
-	std::shared_ptr<InputComponent> component = std::make_shared<InputComponent>(InputComponent());
+	std::unique_ptr<InputComponent> component = std::make_unique<InputComponent>();
 	std::unique_ptr<Entity> entity = std::make_unique<Entity>(12);
-	entity->AddComponent(component);
+	entity->AddComponent(std::move(component));
 
 	std::vector<std::unique_ptr<Entity>> entities;
 	entities.push_back(std::move(entity));
