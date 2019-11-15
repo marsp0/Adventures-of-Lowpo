@@ -13,7 +13,7 @@ class AnimationSystem
         ~AnimationSystem();
 
         void Update(float deltaTime, 
-        			std::vector<std::shared_ptr<Entity>>& entities,
+        			std::vector<std::unique_ptr<Entity>>& entities,
         			std::vector<Message>& events,
         			std::vector<Message>& globalQueue);
 

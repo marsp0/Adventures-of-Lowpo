@@ -14,7 +14,7 @@ class InputSystem
         ~InputSystem();
 
         void Update(GLFWwindow* window, 
-        			std::vector<std::shared_ptr<Entity>>& entities, 
+        			std::vector<std::unique_ptr<Entity>>& entities, 
         			std::vector<Message>& messages,
         			std::vector<Message>& globalQueue);
 

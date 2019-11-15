@@ -33,7 +33,7 @@ void RenderingSystem::AddShaders(std::vector<std::string> shaders, std::vector<s
     }
 }
 
-void RenderingSystem::Update(std::vector<std::shared_ptr<Entity>>& entities, int playerID, std::vector<Message>& messages, std::vector<Message>& globalQueue)
+void RenderingSystem::Update(std::vector<std::unique_ptr<Entity>>& entities, int playerID, std::vector<Message>& messages, std::vector<Message>& globalQueue)
 {
     // build entity -> messages map
     std::unordered_map<int, std::vector<Message>> idToMessage;

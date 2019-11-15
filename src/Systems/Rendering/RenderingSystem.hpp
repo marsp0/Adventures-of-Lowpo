@@ -16,7 +16,7 @@ class RenderingSystem
         RenderingSystem();
         ~RenderingSystem();
         void AddShaders(std::vector<std::string> shaders, std::vector<std::string> shadowShaders);
-        void Update(std::vector<std::shared_ptr<Entity>>& entities,
+        void Update(std::vector<std::unique_ptr<Entity>>& entities,
                     int playerID,
                     std::vector<Message>& messages,
                     std::vector<Message>& globalQueue);

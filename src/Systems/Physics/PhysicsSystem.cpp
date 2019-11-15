@@ -23,7 +23,7 @@ void PhysicsSystem::Insert(std::vector<std::shared_ptr<Collider>>& colliders)
     }
 }
 
-void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>& entities, std::vector<Message>& messages, std::vector<Message>& globalQueue)
+void PhysicsSystem::Update(float deltaTime, std::vector<std::unique_ptr<Entity>>& entities, std::vector<Message>& messages, std::vector<Message>& globalQueue)
 {
     // build entity -> messages map
     std::unordered_map<int, std::vector<Message>> idToMessage;
@@ -39,7 +39,6 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
         {
             PhysicsComponent* component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
             TransformComponent* transformComponent = entities[i]->GetComponent<TransformComponent>(ComponentType::Transform);
-
             // handle messages for the current entity
             if (idToMessage.find(entities[i]->id) != idToMessage.end())
                 this->HandleMessages(idToMessage[entities[i]->id], component);
@@ -93,7 +92,7 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::shared_ptr<Entity>>
     // TO DO
 }
 
-void PhysicsSystem::Solve(std::vector<std::shared_ptr<Entity>>& entities, std::vector<std::shared_ptr<Collision>>& collisions, std::unordered_map<int, int>& idToIndexMap)
+void PhysicsSystem::Solve(std::vector<std::unique_ptr<Entity>>& entities, std::vector<std::shared_ptr<Collision>>& collisions, std::unordered_map<int, int>& idToIndexMap)
 {
     float ELASTICITY = 1.f;
     for (int i = 0; i < collisions.size(); i++)

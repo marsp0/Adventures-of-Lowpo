@@ -15,15 +15,14 @@ class Entity
     public:
         Entity(int id);
 
-        void AddComponent(std::shared_ptr<Component> component);
+        void AddComponent(std::unique_ptr<Component> component);
         // Why do i have to pass both the component name as the template arg
         // and the type as the func arg ?
         template <typename T> 
         inline T* GetComponent(std::uint32_t type)
         {
-            std::shared_ptr<Component> baseComponent = this->components[this->typeToIndexMap[type]];
-            std::shared_ptr<T> component = std::static_pointer_cast<T>(baseComponent);
-            return component.get();
+            Component* baseComponent = this->components[this->typeToIndexMap[type]].get();
+            return static_cast<T*>(baseComponent);
         }
         bool HasComponent(std::uint32_t type);
         bool IsAlive();
@@ -35,6 +34,6 @@ class Entity
 
         bool isAlive;
         std::uint32_t componentBitset;
-        std::vector<std::shared_ptr<Component>> components;
+        std::vector<std::unique_ptr<Component>> components;
         std::unordered_map<std::uint32_t, int>  typeToIndexMap;
 };

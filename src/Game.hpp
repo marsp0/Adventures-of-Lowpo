@@ -34,7 +34,7 @@ class Game
 
         void Init();
         void InitConfig();
-        void InitScene(std::string filename, std::vector<std::shared_ptr<Entity>>& entities);
+        void InitScene(std::string filename, std::vector<std::unique_ptr<Entity>>& entities);
 
         void Run();
         void Update(float deltaTime);
@@ -53,7 +53,7 @@ class Game
         GLFWwindow*                 window;
 
         // Entities
-        std::vector<std::shared_ptr<Entity>> entities;
+        std::vector<std::unique_ptr<Entity>> entities;
 
         // Player
         int                         playerID;

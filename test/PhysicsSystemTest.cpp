@@ -12,7 +12,6 @@ TEST_CASE("PhysicsSystem Test")
 {
 	// System setup
 	PhysicsSystem physicsSystem(200.f, 10.f);
-
 	// Entity setup
 	// Plane object
 	glm::quat orientation(1.0, 0.f, 0.f, 0.f);
@@ -29,13 +28,12 @@ TEST_CASE("PhysicsSystem Test")
 		coeff*4, 0.f, 0.f,
 		0.f, coeff*4, 0.f,
 		0.f, 0.f, coeff*8);
-	std::shared_ptr<PhysicsComponent> component1 = std::make_shared<PhysicsComponent>(PhysicsComponent(mass, center1, orientation, inertiaTensor, DynamicType::Static));
-	std::shared_ptr<TransformComponent> transformComponent1 = std::make_shared<TransformComponent>(TransformComponent(center1, orientation));
+	std::unique_ptr<PhysicsComponent> component1 = std::make_unique<PhysicsComponent>(mass, center1, orientation, inertiaTensor, DynamicType::Static);
+	std::unique_ptr<TransformComponent> transformComponent1 = std::make_unique<TransformComponent>(center1, orientation);
 	component1->colliders.push_back(plane1);
-	std::shared_ptr<Entity> entity1 = std::make_shared<Entity>(Entity(1));
-	entity1->AddComponent(component1);
-	entity1->AddComponent(transformComponent1);
-
+	std::unique_ptr<Entity> entity1 = std::make_unique<Entity>(1);
+	entity1->AddComponent(std::move(component1));
+	entity1->AddComponent(std::move(transformComponent1));
 	// aabb object
 	glm::vec3 box_center1 = glm::vec3(4.f, 2.f, 2.f);
 	glm::vec3 axisRadii1 = glm::vec3(2.f,2.f,2.f);
@@ -50,17 +48,18 @@ TEST_CASE("PhysicsSystem Test")
 		0.f, coeff*(xSquared + zSquared), 0.f,
 		0.f, 0.f, coeff*(xSquared + ySquared));
 	std::shared_ptr<AABB> box1 = std::make_shared<AABB>(AABB(3, box_center1, ColliderType::BOX, DynamicType::Dynamic, axisRadii1));
-	std::shared_ptr<PhysicsComponent> component2 = std::make_shared<PhysicsComponent>(PhysicsComponent(mass, box_center1, orientation, inertiaTensorBox, DynamicType::WithPhysics));
-	std::shared_ptr<TransformComponent> transformComponent2 = std::make_shared<TransformComponent>(TransformComponent(box_center1, orientation));
+	std::unique_ptr<PhysicsComponent> component2 = std::make_unique<PhysicsComponent>(mass, box_center1, orientation, inertiaTensorBox, DynamicType::WithPhysics);
+	std::unique_ptr<TransformComponent> transformComponent2 = std::make_unique<TransformComponent>(box_center1, orientation);
 	component2->velocity = glm::vec3(-19.f, 0.f, 0.f);
 	component2->colliders.push_back(box1);
-	std::shared_ptr<Entity> entity2 = std::make_shared<Entity>(Entity(3));
-	entity2->AddComponent(component2);
-	entity2->AddComponent(transformComponent2);
+	std::unique_ptr<Entity> entity2 = std::make_unique<Entity>(3);
+	entity2->AddComponent(std::move(component2));
+	entity2->AddComponent(std::move(transformComponent2));
 	std::vector<std::shared_ptr<Collider>> colliders{plane1, box1};
 	physicsSystem.Insert(colliders);
-
-	std::vector<std::shared_ptr<Entity>> entities{entity1, entity2};
+	std::vector<std::unique_ptr<Entity>> entities;
+	entities.push_back(std::move(entity1));
+	entities.push_back(std::move(entity2));
 	std::vector<Message> messages;
 	std::vector<Message> globalQueue;
 	physicsSystem.Update(0.0166f, entities, messages, globalQueue);
