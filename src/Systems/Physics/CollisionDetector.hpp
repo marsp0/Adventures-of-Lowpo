@@ -6,7 +6,6 @@
 #include "Collision.hpp"
 
 #include "Collider.hpp"
-#include "AABB.hpp"
 
 class SATData
 {
@@ -35,8 +34,7 @@ class CollisionDetector
         bool CheckFaces(SATData& data, 
                         const std::vector<glm::vec3>& pointsA, 
                         const std::vector<glm::vec3>& pointsB,
-                        const std::vector<std::pair<glm::vec3, float>>& faces,
-                        const std::vector<glm::vec3>& pointsOnFaces,
+                        const std::vector<std::pair<glm::vec3, glm::vec3>>& faces,
                         std::shared_ptr<Collider> first,
                         std::shared_ptr<Collider> second,
                         bool isFaceA);
@@ -48,8 +46,7 @@ class CollisionDetector
 
         std::vector<glm::vec3> GetCollisionPoints(SATData& data, 
                                                   const std::vector<glm::vec3>& points,
-                                                  const std::vector<std::pair<glm::vec3, float>>& faces,
-                                                  const std::vector<glm::vec3>& pointsOnFaces);
+                                                  const std::vector<std::pair<glm::vec3, glm::vec3>>& faces);
 
         // Helpers
         /** 
@@ -75,19 +72,19 @@ class CollisionDetector
          */
         glm::vec3 IntersectLinePlane(   glm::vec3 a, 
                                         glm::vec3 b, 
-                                        std::pair<glm::vec3, float> plane);
+                                        std::pair<glm::vec3, glm::vec3> plane);
 
         /** 
         ProjectPointOntoPlane projects a given point onto the given plane.
          */
         glm::vec3 ProjectPointOntoPlane(glm::vec3 point, 
-                                        std::pair<glm::vec3, float> plane);
+                                        std::pair<glm::vec3, glm::vec3> plane);
         /** 
         Clips a given list of edges against a plane. Used in collision detection to determine the contact
         points that are sent to the solver.
          */
         std::vector<glm::vec3> Clip(const std::vector<glm::vec3> points, 
-                                    std::vector<std::pair<glm::vec3, float>> planes);
+                                    std::vector<std::pair<glm::vec3, glm::vec3>> planes);
         /** 
         GetSupport Points returns the the farthest point in the given direction.
         It is an O(n) operation, but the assumption here is that we wont have massive polyhedras.
