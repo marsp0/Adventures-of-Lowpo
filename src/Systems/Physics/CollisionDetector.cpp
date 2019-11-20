@@ -316,10 +316,6 @@ std::vector<glm::vec3> CollisionDetector::GetCollisionPoints(SATData& data,
     std::vector<glm::vec3> clippedPoints = this->Clip(points, planes);
     for (int i = 0; i < clippedPoints.size(); i++)
     {
-        printVector(clippedPoints[i]);
-    }
-    for (int i = 0; i < clippedPoints.size(); i++)
-    {
         float dotFaceOne = glm::dot(data.collisionAxis, clippedPoints[i] - faces[data.indexFace].second);
         if ( dotFaceOne <= 0.f)
         {
