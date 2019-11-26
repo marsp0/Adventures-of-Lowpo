@@ -28,7 +28,6 @@ class CollisionDetector
     public:
         CollisionDetector();
 
-        std::shared_ptr<Collision> CheckCollision(std::shared_ptr<Collider> first, std::shared_ptr<Collider> second);
         std::shared_ptr<Collision> Collide(std::shared_ptr<Collider> first, std::shared_ptr<Collider> second);
 
         bool CheckFaces(SATData& data, 
@@ -45,7 +44,7 @@ class CollisionDetector
                         const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesB);
 
         std::vector<glm::vec3> GetCollisionPoints(SATData& data, 
-                                                  const std::vector<glm::vec3>& points,
+                                                  const std::vector<std::pair<glm::vec3, glm::vec3>>& edges,
                                                   const std::vector<std::pair<glm::vec3, glm::vec3>>& faces);
 
         // Helpers
@@ -73,18 +72,13 @@ class CollisionDetector
         glm::vec3 IntersectLinePlane(   glm::vec3 a, 
                                         glm::vec3 b, 
                                         std::pair<glm::vec3, glm::vec3> plane);
-
-        /** 
-        ProjectPointOntoPlane projects a given point onto the given plane.
-         */
-        glm::vec3 ProjectPointOntoPlane(glm::vec3 point, 
-                                        std::pair<glm::vec3, glm::vec3> plane);
         /** 
         Clips a given list of edges against a plane. Used in collision detection to determine the contact
         points that are sent to the solver.
          */
-        std::vector<glm::vec3> Clip(const std::vector<glm::vec3> points, 
-                                    std::vector<std::pair<glm::vec3, glm::vec3>> planes);
+        std::vector<glm::vec3> Clip(const std::vector<std::pair<glm::vec3, glm::vec3>>& edges, 
+                                    const std::vector<std::pair<glm::vec3, glm::vec3>>& planes);
+        bool ContainsPoint(glm::vec3& point, std::vector<glm::vec3>& points);
         /** 
         GetSupport Points returns the the farthest point in the given direction.
         It is an O(n) operation, but the assumption here is that we wont have massive polyhedras.
@@ -92,7 +86,8 @@ class CollisionDetector
         glm::vec3 GetSupportPoint(  const std::vector<glm::vec3>& points, 
                                     glm::vec3 direction);
 
+        float tolerance = 0.0005f;
+        
     private:
 
-        float tolerance = 0.0005f;
 };

@@ -7,7 +7,7 @@ class VecPrinter:
         self.v = v
 
     def to_string(self):
-        return "x = {}, y = {}, z = {}".format(self.v['x'], self.v['y'], self.v['z'])
+        return "x = {}, y = {}, z = {}\n".format(self.v['x'], self.v['y'], self.v['z'])
 
 
 def build_pretty_printer():

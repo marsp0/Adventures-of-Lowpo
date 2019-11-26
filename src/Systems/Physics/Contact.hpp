@@ -17,7 +17,7 @@ class Contact
         */
         glm::vec3 contactPoint;
         /* 
-        Contact normal 
+        Contact normal
         */
         glm::vec3 contactNormal;
         /*

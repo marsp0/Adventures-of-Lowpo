@@ -1,7 +1,9 @@
 #include <math.h>
 #include <memory>
 #include <iostream>
-#include <unordered_map>
+#include <unordered_set>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/norm.hpp>
 #include "CollisionDetector.hpp"
 #include "../../util.hpp"
 
@@ -9,11 +11,6 @@
 CollisionDetector::CollisionDetector()
 {
 
-}
-
-std::shared_ptr<Collision> CollisionDetector::CheckCollision(std::shared_ptr<Collider> first, std::shared_ptr<Collider> second)
-{
-    return this->Collide(first, second);
 }
 
 std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> first, std::shared_ptr<Collider> second)
@@ -66,12 +63,12 @@ std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> 
         // normal is the axis
         if (data.indexFaceA)
         {
-            collisionPoints = this->GetCollisionPoints(data, pointsB, facesA);
+            collisionPoints = this->GetCollisionPoints(data, edgesB, facesA);
             data.collisionAxis = -data.collisionAxis;
         }
         else
         {
-            collisionPoints = this->GetCollisionPoints(data, pointsA, facesB);
+            collisionPoints = this->GetCollisionPoints(data, edgesA, facesB);
         }
     }
     std::vector<Contact> contacts;
@@ -119,62 +116,146 @@ glm::vec3 CollisionDetector::GetContactBetweenEdges(const std::pair<glm::vec3, g
 
 float CollisionDetector::GetMinDistanceBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
 {
-    float epsilon = 0.0005f;
-    glm::vec3 d1 = glm::normalize(edgeA.second - edgeA.first);
-    glm::vec3 d2 = glm::normalize(edgeB.second - edgeB.first);
-    glm::vec3 r  = edgeA.first - edgeB.first;
-    glm::vec3 result = glm::vec3(0.f, 0.f, 0.f);
-    float diff = std::abs(glm::dot(d1, d2) - 1.f);
-    if (diff < epsilon)
+    glm::vec3 e1 = edgeA.second - edgeA.first;
+    glm::vec3 e2 = edgeB.second - edgeB.first;
+    glm::vec3 w = edgeB.first - edgeA.first;
+    float a = glm::dot(e1, e1);
+    float b = glm::dot(e1, e2);
+    float c = glm::dot(e2, e2);
+    float d = glm::dot(e1, w);
+    float e = glm::dot(e2, w);
+    float D = a*c - b*b;
+    float sc, sN, sD = D;
+    float tc, tN, tD = D;
+    sN = (b*e - c*d);
+    tN = (a*e - b*d);
+    if (sN < 0.0) 
     {
-        // do parallel lines here
-        float rMagnitude = glm::length(r);
-        float rProjectionMagnitude = glm::dot(r, d2);
-        glm::vec3 rProjection = rProjectionMagnitude * d2;
-        float shortestDistance = std::sqrt(std::pow(rMagnitude, 2.f) - std::pow(rProjectionMagnitude, 2.f));
-        return shortestDistance;
+        sN = 0.0;
+        tN = e;
+        tD = c;
     }
-    // do skew lines here
-    // https://www.quora.com/How-do-I-find-the-shortest-distance-between-two-skew-lines
-    glm::vec3 crossProduct = glm::cross(d1, d2);
-    float shortestDistance = glm::dot(r, crossProduct);
-    return shortestDistance;
+    else if (sN > sD) 
+    {
+        sN = sD;
+        tN = e + b;
+        tD = c;
+    }
+
+    if (tN < 0.0) 
+    {
+        tN = 0.0;
+        // recompute sc for this edge
+        if (-d < 0.0)
+            sN = 0.0;
+        else if (-d > a)
+            sN = sD;
+        else {
+            sN = -d;
+            sD = a;
+        }
+    }
+
+    else if (tN > tD) 
+    {
+        tN = tD;
+        // recompute sc for this edge
+        if ((-d + b) < 0.0)
+            sN = 0;
+        else if ((-d + b) > a)
+            sN = sD;
+        else {
+            sN = (-d +  b);
+            sD = a;
+        }
+    }
+
+    sc = (abs(sN) < 0.0005f ? 0.0 : sN / sD);
+    tc = (abs(tN) < 0.0005f ? 0.0 : tN / tD);
+
+    // get the difference of the two closest points
+    glm::vec3 dP = w + (sc * e1) - (tc * e2);  // =  S1(sc) - S2(tc)
+    // std::cout << glm::length(dP) << std::endl;
+    return glm::length(dP);
+    // float epsilon = 0.0005f;
+    // glm::vec3 d1 = glm::normalize(edgeA.second - edgeA.first);
+    // glm::vec3 d2 = glm::normalize(edgeB.second - edgeB.first);
+    // glm::vec3 r  = edgeA.first - edgeB.first;
+    // float diff = fabs(glm::dot(d1, d2) - 1.f);
+    // if (diff < epsilon)
+    // {
+    //     // do parallel lines here
+    //     float rMagnitude = glm::length(r);
+    //     float rProjectionMagnitude = glm::dot(r, d2);
+    //     glm::vec3 rProjection = rProjectionMagnitude * d2;
+    //     float shortestDistance = std::sqrt(std::pow(rMagnitude, 2.f) - std::pow(rProjectionMagnitude, 2.f));
+    //     return shortestDistance;
+    // }
+    // // do skew lines here
+    // // https://www.quora.com/How-do-I-find-the-shortest-distance-between-two-skew-lines
+    // glm::vec3 crossProduct = glm::cross(d1, d2);
+    // float shortestDistance = glm::dot(r, crossProduct);
+    // return fabs(shortestDistance);
 }
 
-std::vector<glm::vec3> CollisionDetector::Clip(const std::vector<glm::vec3> points, std::vector<std::pair<glm::vec3, glm::vec3>> planes)
+std::vector<glm::vec3> CollisionDetector::Clip(const std::vector<std::pair<glm::vec3, glm::vec3>>& edges, const std::vector<std::pair<glm::vec3, glm::vec3>>& planes)
 {
     // Used Sutherland-Hodgman for the clipping
     // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
 
     // NOTE : output may contain multiples of a single point.
-    std::vector<glm::vec3> output = points;
-    for (int j = 0; j < planes.size(); j++)
+    std::vector<glm::vec3> output;
+    for (int k = 0; k < edges.size(); k++)
     {
-        std::vector<glm::vec3> input = output;
-        output.clear();
-        std::pair<glm::vec3, glm::vec3> plane = planes[j];
-        for (int i = 0; i < input.size(); i++)
+        glm::vec3 v1 = edges[k].first;
+        glm::vec3 v2 = edges[k].second;
+
+        bool shouldAddFirst = !this->ContainsPoint(v1, output);
+        bool shouldAddSecond = !this->ContainsPoint(v2, output);
+
+        if (!shouldAddFirst && !shouldAddSecond)
         {
-            // compute intersection points
-            glm::vec3 v1 = input[i];
-            glm::vec3 v2 = input[(i+1) % input.size()];
-            glm::vec3 intersectionPoint = this->IntersectLinePlane(v1, v2, plane);
+            continue;
+        }
+
+        glm::vec3 intersectionPoint = glm::vec3(0.f, 0.f, 0.f);
+        for (int j = 0; j < planes.size(); j++)
+        {
+            std::pair<glm::vec3, glm::vec3> plane = planes[j];
+            float dotFirst = glm::dot(plane.first, v1);
+            float dotSecond = glm::dot(plane.first, v2);
             float planeOffset = glm::dot(plane.first, plane.second);
-            if (glm::dot(plane.first, v2) < planeOffset)
+            if (dotFirst > planeOffset)
+                shouldAddFirst = false;
+            if (dotSecond > planeOffset)
+                shouldAddSecond = false;
+            if (dotFirst < planeOffset && dotSecond > planeOffset || dotFirst > planeOffset && dotSecond < planeOffset)
             {
-                if (glm::dot(plane.first, v1) > planeOffset)
-                {
-                    output.push_back(intersectionPoint);
-                }
-                output.push_back(v2);
+                glm::vec3 intersectionPoint = this->IntersectLinePlane(v1, v2, plane);
             }
-            else if (glm::dot(plane.first, v1) < planeOffset)
-            {
-                output.push_back(intersectionPoint);
-            }
+        }
+
+        if (shouldAddFirst)
+            output.push_back(v1);
+        if (shouldAddSecond)
+            output.push_back(v2);
+        float magnitudeSq = glm::length2(intersectionPoint);
+        if ((shouldAddFirst || shouldAddSecond) &&  !(shouldAddFirst && shouldAddSecond) && magnitudeSq > 0.f)
+        {
+            output.push_back(intersectionPoint);
         }
     }
     return output;
+}
+
+bool CollisionDetector::ContainsPoint(glm::vec3& point, std::vector<glm::vec3>& points)
+{
+    for (int i = 0; i < points.size(); i++)
+    {
+        if (glm::all(glm::equal(point, points[i])))
+            return true;
+    }
+    return false;
 }
 
 glm::vec3 CollisionDetector::GetSupportPoint(const std::vector<glm::vec3>& points, glm::vec3 direction)
@@ -206,15 +287,6 @@ glm::vec3 CollisionDetector::IntersectLinePlane(glm::vec3 a, glm::vec3 b, std::p
         result = a + t * ab;
     }
     return result;
-}
-
-glm::vec3 CollisionDetector::ProjectPointOntoPlane(glm::vec3 point, std::pair<glm::vec3, glm::vec3> plane)
-{
-    glm::vec3 normal = plane.first;
-    float planeOffset = glm::dot(plane.first, plane.second);
-    glm::vec3 pointOnPlane = normal * planeOffset;
-    glm::vec3 r = point - (glm::dot(normal, point - pointOnPlane)) * plane.first;
-    return r;
 }
 
 bool CollisionDetector::CheckFaces( SATData& data, 
@@ -279,8 +351,14 @@ bool CollisionDetector::CheckEdges( SATData& data,
             }
             // we need this as we can have multiple edges with the same penetration depth,
             // but where the actual distance between the edges is different. AABB one such collider
+            printVector(edgesA[i].first);
+            printVector(edgesA[i].second);
+            printVector(edgesB[j].first);
+            printVector(edgesB[j].second);
             float currMinDistance = this->GetMinDistanceBetweenEdges(edgesA[i], edgesB[j]);
+            std::cout << currMinDistance << std::endl;
             if (currPenDepth <= data.minPenDepth && currMinDistance < data.minEdgeDistance)
+            // if (currPenDepth <= data.minPenDepth)
             {
                 // Add this check to the if above to make sure that we get the correct edge
                 data.indexEdgeA = i;
@@ -298,7 +376,7 @@ bool CollisionDetector::CheckEdges( SATData& data,
 }
 
 std::vector<glm::vec3> CollisionDetector::GetCollisionPoints(SATData& data, 
-                                                             const std::vector<glm::vec3>& points,
+                                                             const std::vector<std::pair<glm::vec3, glm::vec3>>& edges,
                                                              const std::vector<std::pair<glm::vec3, glm::vec3>>& faces)
 {
     std::vector<glm::vec3> collisionPoints;
@@ -313,7 +391,7 @@ std::vector<glm::vec3> CollisionDetector::GetCollisionPoints(SATData& data,
             planes.push_back(faces[i]);
         }
     }
-    std::vector<glm::vec3> clippedPoints = this->Clip(points, planes);
+    std::vector<glm::vec3> clippedPoints = this->Clip(edges, planes);
     for (int i = 0; i < clippedPoints.size(); i++)
     {
         float dotFaceOne = glm::dot(data.collisionAxis, clippedPoints[i] - faces[data.indexFace].second);

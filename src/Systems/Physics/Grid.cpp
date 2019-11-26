@@ -67,7 +67,7 @@ std::vector<std::shared_ptr<Collision>> Grid::CheckCells(int rowA, int colA, int
                 continue;
             std::shared_ptr<Collider> first = dynamicCollidersA[i];
             std::shared_ptr<Collider> second = dynamicCollidersB[j];
-            std::shared_ptr<Collision> collision = this->collisionDetector.CheckCollision(first, second);
+            std::shared_ptr<Collision> collision = this->collisionDetector.Collide(first, second);
             if (collision != nullptr)
             {
                 collisions.push_back(collision);
@@ -81,7 +81,7 @@ std::vector<std::shared_ptr<Collision>> Grid::CheckCells(int rowA, int colA, int
         {
             std::shared_ptr<Collider> first = dynamicCollidersA[i];
             std::shared_ptr<Collider> second = staticCollidersB[j];
-            std::shared_ptr<Collision> collision = this->collisionDetector.CheckCollision(first, second);
+            std::shared_ptr<Collision> collision = this->collisionDetector.Collide(first, second);
             if (collision != nullptr)
             {
                 collisions.push_back(collision);
@@ -98,7 +98,7 @@ std::vector<std::shared_ptr<Collision>> Grid::CheckCells(int rowA, int colA, int
             {
                 std::shared_ptr<Collider> first = staticCollidersA[i];
                 std::shared_ptr<Collider> second = dynamicCollidersB[j];
-                std::shared_ptr<Collision> collision = this->collisionDetector.CheckCollision(first, second);
+                std::shared_ptr<Collision> collision = this->collisionDetector.Collide(first, second);
                 if (collision != nullptr)
                 {
                     collisions.push_back(collision);
