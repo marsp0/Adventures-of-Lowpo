@@ -1,5 +1,4 @@
 os: linux
-sudo: true
 jobs:
   include:
     - stage: Build and Test
@@ -16,8 +15,7 @@ jobs:
       script: chmod +x ./scripts/run_doxygen.sh && mkdir docs && ./scripts/run_doxygen.sh
       deploy:
         provider: pages
-        skip_cleanup: true
-        github_token: $GH_TOKEN
+        token: $GH_TOKEN
         local_dir: ./docs/html
 compiler: gcc-8
 addons:

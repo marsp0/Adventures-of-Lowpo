@@ -10,9 +10,13 @@ Grid::Grid(float gridLength, float halfWidth) : \
             collisionDetector(CollisionDetector())
 {
     this->cells.resize(this->cellsInRow);
-    for (int row = 0; row < this->cells.size() ; row++)
+    for (int row = 0; row < this->cells.size(); row++)
     {
         this->cells[row].resize(this->cellsInRow);
+    }
+    // cell insertion
+    for (int row = 0; row < this->cells.size() ; row++)
+    {
         for (int col = 0; col < this->cells[row].size(); col++)
         {
             float x = col * 2 * halfWidth + halfWidth;
