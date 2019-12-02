@@ -21,6 +21,12 @@ class Cell
         */
         Cell(glm::vec3 center, float halfWidth, int row, int col);
 
+        /**
+        Copy Constructor - deleted
+        */
+
+        Cell(const Cell& other) = delete;
+
         /** 
         Inserts a collider shared pointer into the cell. Could be in dynamicObjects or staticObjects 
          */
