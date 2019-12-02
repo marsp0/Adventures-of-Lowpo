@@ -7,19 +7,18 @@ Grid::Grid(float gridLength, float halfWidth) : \
             gridLength(gridLength),
             cellsInRow(ceilf(gridLength / (2 * halfWidth))), 
             halfWidth(halfWidth),
-            collisionDetector(CollisionDetector()),
-            cells()
+            collisionDetector()
 {
     this->cells.resize(this->cellsInRow);
     // cell insertion
     for (int row = 0; row < this->cells.size() ; row++)
     {
+        this->cells[row].reserve(this->cellsInRow);
         for (int col = 0; col < this->cellsInRow; col++)
         {
             float x = col * 2 * halfWidth + halfWidth;
             float z = row * 2 * halfWidth + halfWidth;
-            std::unique_ptr<Cell> cell = std::make_unique<Cell>(glm::vec3(x, 0.f, z), halfWidth, row, col);
-            this->cells[row].push_back(std::move(cell));
+            this->cells[row].push_back(std::make_unique<Cell>(glm::vec3(x, 0.f, z), halfWidth, row, col));
         }
     }
 }
