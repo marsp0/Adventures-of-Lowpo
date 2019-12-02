@@ -10,18 +10,15 @@ Grid::Grid(float gridLength, float halfWidth) : \
             collisionDetector(CollisionDetector())
 {
     this->cells.resize(this->cellsInRow);
-    for (int row = 0; row < this->cells.size(); row++)
-    {
-        this->cells[row].resize(this->cellsInRow);
-    }
     // cell insertion
     for (int row = 0; row < this->cells.size() ; row++)
     {
-        for (int col = 0; col < this->cells[row].size(); col++)
+        for (int col = 0; col < this->cellsInRow; col++)
         {
             float x = col * 2 * halfWidth + halfWidth;
             float z = row * 2 * halfWidth + halfWidth;
-            this->cells[row][col] = std::make_unique<Cell>(glm::vec3(x, 0.f, z), halfWidth, row, col);
+            std::unique_ptr<Cell> cell = std::make_unique<Cell>(glm::vec3(x, 0.f, z), halfWidth, row, col);
+            this->cells[row].push_back(std::move(cell));
         }
     }
 }
