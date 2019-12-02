@@ -2,7 +2,8 @@
 #include <cmath>
 #include "catch.hpp"
 #include "../src/Systems/Physics/Grid.hpp"
-#include "../src/Systems/Physics/Plane.hpp"
+#include "../src/Systems/Physics/ColliderBuilder.hpp"
+#include "../src/util.hpp"
 
 TEST_CASE("Grid Test")
 {
@@ -17,33 +18,66 @@ TEST_CASE("Grid Test")
 	points1.push_back(glm::vec3(1.f, 3.f, 1.f));
 	points1.push_back(glm::vec3(3.f, 3.f, 3.f));
 	points1.push_back(glm::vec3(3.f, 1.f, 3.f));
-	glm::vec3 center1 = glm::vec3(2.f, 2.f, 2.f);
-	std::shared_ptr<Plane> plane1 = std::make_shared<Plane>(Plane(1, center1, ColliderType::PLANE, DynamicType::Static, points1));
+
+	points1.push_back(glm::vec3(1.f, 1.f, 2.f));
+	points1.push_back(glm::vec3(1.f, 3.f, 2.f));
+	points1.push_back(glm::vec3(3.f, 3.f, 4.f));
+	points1.push_back(glm::vec3(3.f, 1.f, 4.f));
+	std::shared_ptr<Collider> collider1 = ColliderBuilder::Build(1, DynamicType::Static, points1);
 
 	std::vector<glm::vec3> points2;
 	points2.push_back(glm::vec3(0.f, 0.f, 10.f));
 	points2.push_back(glm::vec3(5.f, 0.f, 10.f));
 	points2.push_back(glm::vec3(5.f, 0.f, 20.f));
 	points2.push_back(glm::vec3(0.f, 0.f, 20.f));
-	glm::vec3 center2 = glm::vec3(2.5f, 0.f, 15.f);
-	std::shared_ptr<Plane> plane2 = std::make_shared<Plane>(Plane(2, center2, ColliderType::PLANE, DynamicType::Static, points2));
 
-	glm::vec3 box_center1 = glm::vec3(4.f, 2.f, 2.f);
-	glm::vec3 axisRadii1 = glm::vec3(2.f,2.f,2.f);
-	std::shared_ptr<AABB> box1 = std::make_shared<AABB>(AABB(3, box_center1, ColliderType::BOX, DynamicType::Dynamic, axisRadii1));
+	points2.push_back(glm::vec3(0.f, 0.f, 11.f));
+	points2.push_back(glm::vec3(5.f, 0.f, 11.f));
+	points2.push_back(glm::vec3(5.f, 0.f, 21.f));
+	points2.push_back(glm::vec3(0.f, 0.f, 21.f));
+	std::shared_ptr<Collider> collider2 = ColliderBuilder::Build(2, DynamicType::Static, points2);
 
-	glm::vec3 box_center2 = glm::vec3(17.5f, 2.5f, 2.5f);
-	glm::vec3 axisRadii2 = glm::vec3(2.5f,2.5f,2.5f);
-	std::shared_ptr<AABB> box2 = std::make_shared<AABB>(AABB(4, box_center2, ColliderType::BOX, DynamicType::Dynamic, axisRadii2));
+	std::vector<glm::vec3> points3;
+	points3.push_back(glm::vec3(2.f, 0.f, 0.f));
+	points3.push_back(glm::vec3(2.f, 0.f, 4.f));
+	points3.push_back(glm::vec3(2.f, 4.f, 0.f));
+	points3.push_back(glm::vec3(2.f, 4.f, 4.f));
 
-	glm::vec3 box_center3 = glm::vec3(17.5f, 3.5f, 6.5f);
-	std::shared_ptr<AABB> box3 = std::make_shared<AABB>(AABB(5, box_center3, ColliderType::BOX, DynamicType::Dynamic, axisRadii2));
+	points3.push_back(glm::vec3(6.f, 0.f, 0.f));
+	points3.push_back(glm::vec3(6.f, 0.f, 4.f));
+	points3.push_back(glm::vec3(6.f, 4.f, 0.f));
+	points3.push_back(glm::vec3(6.f, 4.f, 4.f));
+	std::shared_ptr<Collider> collider3 = ColliderBuilder::Build(3, DynamicType::Dynamic, points3);
 
-	grid.Insert(plane1);
-	grid.Insert(plane2);
-	grid.Insert(box1);
-	grid.Insert(box2);
-	grid.Insert(box3);
+	std::vector<glm::vec3> points4;
+	points4.push_back(glm::vec3(15.f, 0.f, 0.f));
+	points4.push_back(glm::vec3(15.f, 5.f, 0.f));
+	points4.push_back(glm::vec3(15.f, 0.f, 5.f));
+	points4.push_back(glm::vec3(15.f, 5.f, 5.f));
+
+	points4.push_back(glm::vec3(20.f, 0.f, 0.f));
+	points4.push_back(glm::vec3(20.f, 5.f, 0.f));
+	points4.push_back(glm::vec3(20.f, 0.f, 5.f));
+	points4.push_back(glm::vec3(20.f, 5.f, 5.f));
+	std::shared_ptr<Collider> collider4 = ColliderBuilder::Build(4, DynamicType::Dynamic, points4);
+
+	std::vector<glm::vec3> points5;
+	points5.push_back(glm::vec3(15.f, 1.f, 4.f));
+	points5.push_back(glm::vec3(15.f, 6.f, 4.f));
+	points5.push_back(glm::vec3(15.f, 1.f, 9.f));
+	points5.push_back(glm::vec3(15.f, 6.f, 9.f));
+
+	points5.push_back(glm::vec3(20.f, 1.f, 4.f));
+	points5.push_back(glm::vec3(20.f, 6.f, 4.f));
+	points5.push_back(glm::vec3(20.f, 1.f, 9.f));
+	points5.push_back(glm::vec3(20.f, 6.f, 9.f));
+	std::shared_ptr<Collider> collider5 = ColliderBuilder::Build(5, DynamicType::Dynamic, points5);
+
+	grid.Insert(collider1);
+	grid.Insert(collider2);
+	grid.Insert(collider3);
+	grid.Insert(collider4);
+	grid.Insert(collider5);
 
 	SECTION("Test insertion")
 	{
@@ -75,8 +109,8 @@ TEST_CASE("Grid Test")
 
 	SECTION("Test Removal")
 	{
-		grid.Remove(plane1);
-		grid.Remove(box1);
+		grid.Remove(collider1);
+		grid.Remove(collider3);
 		Cell* cell1 = grid.GetCells()[0][0].get();
 		const std::vector<std::shared_ptr<Collider>> dynamicColliders1 = cell1->GetDynamicColliders();
 		const std::vector<std::shared_ptr<Collider>> staticColliders1 = cell1->GetStaticColliders();
@@ -94,43 +128,5 @@ TEST_CASE("Grid Test")
 		REQUIRE(eligibleCells2.size() == 2);
 		std::vector<std::pair<int, int>> eligibleCells3 = grid.GetEligibleCells(19, 0);
 		REQUIRE(eligibleCells3.size() == 4);
-	}
-
-	SECTION("Test collisions")
-	{
-		std::vector<std::shared_ptr<Collision>> collisions = grid.CheckCollisions();
-		REQUIRE(collisions.size() == 2);
-
-		std::shared_ptr<Collision> collision1 = collisions[0];
-		REQUIRE(collision1->first == 3);
-		REQUIRE(collision1->second == 1);
-		REQUIRE(collision1->firstCollider->entityID == 3);
-		REQUIRE(collision1->secondCollider->entityID == 1);
-		REQUIRE(collision1->contacts.size() == 2);
-		for (int i = 0; i < collision1->contacts.size(); i++)
-		{
-			REQUIRE(collision1->contacts[i].penetration - 1.0f < 0.00005f);
-			REQUIRE(glm::dot(collision1->contacts[i].contactNormal, glm::vec3(-1.f,0.f,0.f)) - 1.f < 0.00005f);
-		}
-		REQUIRE(collision1->contacts[0].contactPoint.x == 3.f);
-		REQUIRE(collision1->contacts[0].contactPoint.y == 3.f);
-		REQUIRE(collision1->contacts[0].contactPoint.z == 3.f);
-
-		REQUIRE(collision1->contacts[1].contactPoint.x == 3.f);
-		REQUIRE(collision1->contacts[1].contactPoint.y == 1.f);
-		REQUIRE(collision1->contacts[1].contactPoint.z == 3.f);
-
-		std::shared_ptr<Collision> collision2 = collisions[1];
-		glm::vec3 normal = glm::vec3(0.f, 0.f, 1.f);
-		REQUIRE(collision2->first == 4);
-		REQUIRE(collision2->second == 5);
-		REQUIRE(collision2->firstCollider->entityID == 4);
-		REQUIRE(collision2->secondCollider->entityID == 5);
-		REQUIRE(collision2->contacts.size() == 2);
-		for (int i = 0; i < collision2->contacts.size(); i++)
-		{
-			REQUIRE(collision2->contacts[i].penetration - 1.0f < 0.00005f);
-			REQUIRE(fabs(glm::dot(collision2->contacts[i].contactNormal, normal)) == 1.f);
-		}
 	}
 }

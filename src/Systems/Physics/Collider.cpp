@@ -3,23 +3,28 @@
 
 Collider::Collider( int entityID,
                     glm::vec3 center,
-                    ColliderType colliderType,
-                    DynamicType dynamicType) : \
-                    entityID(entityID),
-                    center(center), 
-                    colliderType(colliderType),
-                    dynamicType(dynamicType),
-                    points(),
-                    pointsOnFaces(),
-                    faces(),
-                    edges(),
+                    std::vector<glm::vec3> points,
+                    std::vector<std::pair<glm::vec3, glm::vec3>> edges,
+                    std::vector<std::pair<glm::vec3, glm::vec3>> faces,
+                    DynamicType  dynamicType) : \
                     row(0),
-                    col(0)
+                    col(0),
+                    center(center),
+                    faces(faces),
+                    edges(edges),
+                    points(points),
+                    entityID(entityID),
+                    dynamicType(dynamicType)
 {
 
 }
 
 Collider::~Collider()
+{
+    
+}
+
+void Collider::Update(glm::vec3 translation)
 {
     
 }
@@ -30,7 +35,7 @@ const std::vector<glm::vec3>& Collider::GetPoints()
     return this->points;
 }
 
-const std::vector<std::pair<glm::vec3, float>>& Collider::GetFaces()
+const std::vector<std::pair<glm::vec3, glm::vec3>>& Collider::GetFaces()
 {
     assert(this->faces.size() > 0);
     return this->faces;
@@ -40,10 +45,4 @@ const std::vector<std::pair<glm::vec3, glm::vec3>>& Collider::GetEdges()
 {
     assert(this->edges.size() > 0);
     return this->edges;
-}
-
-const std::vector<glm::vec3>& Collider::GetPointsOnFaces()
-{
-    assert(this->pointsOnFaces.size() > 0);
-    return this->pointsOnFaces;
 }

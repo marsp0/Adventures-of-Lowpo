@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <vector>
-#include "AABB.hpp"
 #include "Cell.hpp"
 #include "Collider.hpp"
 #include "CollisionDetector.hpp"
