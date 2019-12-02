@@ -1,37 +1,37 @@
 os: linux
 sudo: true
 jobs:
-    include:
-        - stage: Build and Test
-            script: make && make test && ./out/test
-        - stage: Code Coverage
-            script: 
-                - make gcov && ./out/gcov_exe
-                - chmod +x ./scripts/get_code_coverage_reports.sh
-                - cd ./out
-                - ../scripts/get_code_coverage_reports.sh
-                - cd ../
-                - codecov
-    - stage: Documentation Generation
-          script:
-                - chmod +x ./scripts/run_doxygen.sh
-                - mkdir docs
-                - ./scripts/run_doxygen.sh
-          deploy:
-                provider: pages
-                skip_cleanup: true
-                github_token: $GH_TOKEN
-                local_dir: ./docs/html
+  include:
+    - stage: Build and Test
+      script: make && make test && ./out/test
+    - stage: Code Coverage
+      script: 
+        - make gcov && ./out/gcov_exe
+          - chmod +x ./scripts/get_code_coverage_reports.sh
+          - cd ./out
+          - ../scripts/get_code_coverage_reports.sh
+          - cd ../
+          - codecov
+- stage: Documentation Generation
+  script:
+    - chmod +x ./scripts/run_doxygen.sh
+    - mkdir docs
+    - ./scripts/run_doxygen.sh
+  deploy:
+    provider: pages
+    skip_cleanup: true
+    github_token: $GH_TOKEN
+    local_dir: ./docs/html
 compiler: gcc-8
 addons:
-    apt:
-        sources:
-            - ubuntu-toolchain-r-test
-        packages:
-            - gcc-8
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-8
 language: cpp
 notifications: never
 before_install:
-    - sudo pip install codecov
-    - mkdir out
-    - sudo apt-get install -y libglm-dev libglfw3-dev libglew-dev doxygen
+  - sudo pip install codecov
+  - mkdir out
+  - sudo apt-get install -y libglm-dev libglfw3-dev libglew-dev doxygen
