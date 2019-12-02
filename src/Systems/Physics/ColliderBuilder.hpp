@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <glm/glm.hpp>
+#include "Collider.hpp"
 
 struct cFace
 {
@@ -18,10 +19,7 @@ class ColliderBuilder
 {
 	public:
 
-		static void Build(std::vector<glm::vec3> points,
-							std::vector<std::pair<glm::vec3, glm::vec3>>& finalFaces,
-							std::vector<std::pair<glm::vec3, glm::vec3>>& finalEdges,
-							glm::vec3& center);
+		static std::shared_ptr<Collider> Build(int id, DynamicType colliderType, std::vector<glm::vec3> points);
 		static void FindExtremeFaces(	std::vector<std::unique_ptr<cFace>>& faces, 
 										std::vector<glm::vec3>& points,
 										glm::vec3 center);

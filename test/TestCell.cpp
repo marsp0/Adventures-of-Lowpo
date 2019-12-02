@@ -6,9 +6,6 @@
 TEST_CASE("Test Cell")
 {
 	Cell cell(glm::vec3(10.f,10.f,10.f), 5.f, 1, 1);
-	std::vector<std::pair<glm::vec3, glm::vec3>> edges1;
-	std::vector<std::pair<glm::vec3, glm::vec3>> faces1;
-	glm::vec3 center1;
 	std::vector<glm::vec3> points1;
 	points1.push_back(glm::vec3(-1.f, -0.1f, 0.05f));
 	points1.push_back(glm::vec3(4.f, -0.1f, 0.05f));
@@ -19,12 +16,8 @@ TEST_CASE("Test Cell")
 	points1.push_back(glm::vec3(4.f, -0.1f, -0.2f));
 	points1.push_back(glm::vec3(-1.f, 4.f, -0.2f));
 	points1.push_back(glm::vec3(4.f, 4.f, -0.2f));
-	ColliderBuilder::Build(points1, faces1, edges1, center1);
-	std::shared_ptr<Collider> collider1 = std::make_shared<Collider>(1, center1, points1, edges1, faces1, DynamicType::Static);
+	std::shared_ptr<Collider> collider1 = ColliderBuilder::Build(1, DynamicType::Static, points1);
 
-	std::vector<std::pair<glm::vec3, glm::vec3>> edges3;
-	std::vector<std::pair<glm::vec3, glm::vec3>> faces3;
-	glm::vec3 center3;
 	std::vector<glm::vec3> points3;
 	points3.push_back(glm::vec3(3.f, 1.f, 1.f));
 	points3.push_back(glm::vec3(0.9f, -1.f, 1.f));
@@ -35,12 +28,8 @@ TEST_CASE("Test Cell")
 	points3.push_back(glm::vec3(0.9f, -1.f, 0.f));
 	points3.push_back(glm::vec3(2.f, -2.f, 0.f));
 	points3.push_back(glm::vec3(4.f, 0.f, 0.f));
-	ColliderBuilder::Build(points3, faces3, edges3, center3);
-	std::shared_ptr<Collider> collider3 = std::make_shared<Collider>(3, center3, points3, edges3, faces3, DynamicType::Dynamic);
+	std::shared_ptr<Collider> collider3 = ColliderBuilder::Build(3, DynamicType::Dynamic, points3);
 
-	std::vector<std::pair<glm::vec3, glm::vec3>> edges4;
-	std::vector<std::pair<glm::vec3, glm::vec3>> faces4;
-	glm::vec3 center4;
 	std::vector<glm::vec3> points4;
 	points4.push_back(glm::vec3(0.f, 0.f, 0.f));
 	points4.push_back(glm::vec3(2.f, 0.f, 0.f));
@@ -51,9 +40,7 @@ TEST_CASE("Test Cell")
 	points4.push_back(glm::vec3(2.f, 0.f, 2.f));
 	points4.push_back(glm::vec3(2.f, 2.f, 2.f));
 	points4.push_back(glm::vec3(0.f, 2.f, 2.f));
-	
-	ColliderBuilder::Build(points4, faces4, edges4, center4);
-	std::shared_ptr<Collider> collider4 = std::make_shared<Collider>(4, center4, points4, edges4, faces4, DynamicType::Dynamic);
+	std::shared_ptr<Collider> collider4 = ColliderBuilder::Build(4, DynamicType::Dynamic, points4);
 
 	cell.Insert(collider1);
 	cell.Insert(collider3);

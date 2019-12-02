@@ -23,12 +23,7 @@ TEST_CASE("Grid Test")
 	points1.push_back(glm::vec3(1.f, 3.f, 2.f));
 	points1.push_back(glm::vec3(3.f, 3.f, 4.f));
 	points1.push_back(glm::vec3(3.f, 1.f, 4.f));
-	std::vector<std::pair<glm::vec3, glm::vec3>> faces1;
-	std::vector<std::pair<glm::vec3, glm::vec3>> edges1;
-	glm::vec3 center1;
-	ColliderBuilder::Build(points1, faces1, edges1, center1);
-	std::shared_ptr<Collider> collider1 = std::make_shared<Collider>(1, center1, points1, edges1, faces1, DynamicType::Static);
-
+	std::shared_ptr<Collider> collider1 = ColliderBuilder::Build(1, DynamicType::Static, points1);
 
 	std::vector<glm::vec3> points2;
 	points2.push_back(glm::vec3(0.f, 0.f, 10.f));
@@ -40,12 +35,7 @@ TEST_CASE("Grid Test")
 	points2.push_back(glm::vec3(5.f, 0.f, 11.f));
 	points2.push_back(glm::vec3(5.f, 0.f, 21.f));
 	points2.push_back(glm::vec3(0.f, 0.f, 21.f));
-	std::vector<std::pair<glm::vec3, glm::vec3>> faces2;
-	std::vector<std::pair<glm::vec3, glm::vec3>> edges2;
-	glm::vec3 center2;
-	ColliderBuilder::Build(points2, faces2, edges2, center2);
-	std::shared_ptr<Collider> collider2 = std::make_shared<Collider>(2, center2, points2, edges2, faces2, DynamicType::Static);
-
+	std::shared_ptr<Collider> collider2 = ColliderBuilder::Build(2, DynamicType::Static, points2);
 
 	std::vector<glm::vec3> points3;
 	points3.push_back(glm::vec3(2.f, 0.f, 0.f));
@@ -57,11 +47,7 @@ TEST_CASE("Grid Test")
 	points3.push_back(glm::vec3(6.f, 0.f, 4.f));
 	points3.push_back(glm::vec3(6.f, 4.f, 0.f));
 	points3.push_back(glm::vec3(6.f, 4.f, 4.f));
-	std::vector<std::pair<glm::vec3, glm::vec3>> faces3;
-	std::vector<std::pair<glm::vec3, glm::vec3>> edges3;
-	glm::vec3 center3;
-	ColliderBuilder::Build(points3, faces3, edges3, center3);
-	std::shared_ptr<Collider> collider3 = std::make_shared<Collider>(3, center3, points3, edges3, faces3, DynamicType::Dynamic);
+	std::shared_ptr<Collider> collider3 = ColliderBuilder::Build(3, DynamicType::Dynamic, points3);
 
 	std::vector<glm::vec3> points4;
 	points4.push_back(glm::vec3(15.f, 0.f, 0.f));
@@ -73,11 +59,7 @@ TEST_CASE("Grid Test")
 	points4.push_back(glm::vec3(20.f, 5.f, 0.f));
 	points4.push_back(glm::vec3(20.f, 0.f, 5.f));
 	points4.push_back(glm::vec3(20.f, 5.f, 5.f));
-	std::vector<std::pair<glm::vec3, glm::vec3>> faces4;
-	std::vector<std::pair<glm::vec3, glm::vec3>> edges4;
-	glm::vec3 center4;
-	ColliderBuilder::Build(points4, faces4, edges4, center4);
-	std::shared_ptr<Collider> collider4 = std::make_shared<Collider>(4, center4, points4, edges4, faces4, DynamicType::Dynamic);
+	std::shared_ptr<Collider> collider4 = ColliderBuilder::Build(4, DynamicType::Dynamic, points4);
 
 	std::vector<glm::vec3> points5;
 	points5.push_back(glm::vec3(15.f, 1.f, 4.f));
@@ -89,11 +71,7 @@ TEST_CASE("Grid Test")
 	points5.push_back(glm::vec3(20.f, 6.f, 4.f));
 	points5.push_back(glm::vec3(20.f, 1.f, 9.f));
 	points5.push_back(glm::vec3(20.f, 6.f, 9.f));
-	std::vector<std::pair<glm::vec3, glm::vec3>> faces5;
-	std::vector<std::pair<glm::vec3, glm::vec3>> edges5;
-	glm::vec3 center5;
-	ColliderBuilder::Build(points5, faces5, edges5, center5);
-	std::shared_ptr<Collider> collider5 = std::make_shared<Collider>(5, center5, points5, edges5, faces5, DynamicType::Dynamic);
+	std::shared_ptr<Collider> collider5 = ColliderBuilder::Build(5, DynamicType::Dynamic, points5);
 
 	grid.Insert(collider1);
 	grid.Insert(collider2);

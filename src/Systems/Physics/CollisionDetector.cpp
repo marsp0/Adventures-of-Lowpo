@@ -103,14 +103,14 @@ bool CollisionDetector::IsSeparatingAxis(const std::vector<glm::vec3>& pointsA, 
 
 glm::vec3 CollisionDetector::GetContactBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA, const std::pair<glm::vec3, glm::vec3>& edgeB)
 {
-    glm::vec3 d1 = edgeA.second - edgeA.first;
-    glm::vec3 d2 = edgeB.second - edgeB.first;
+    glm::vec3 e1 = edgeA.second - edgeA.first;
+    glm::vec3 e2 = edgeB.second - edgeB.first;
     glm::vec3 r = edgeB.first - edgeA.first;
-    glm::vec3 normal = glm::cross(d1, d2);
-    glm::vec3 normal1 = glm::cross(d1, normal);
-    glm::vec3 normal2 = glm::cross(d2, normal);
-    glm::vec3 p1 = edgeA.first + (glm::dot(r, normal2)/glm::dot(d1, normal2)) * d1;
-    glm::vec3 p2 = edgeB.first + (glm::dot(-r, normal1)/glm::dot(d2, normal1)) * d2;
+    glm::vec3 normal = glm::cross(e1, e2);
+    glm::vec3 normal1 = glm::cross(e1, normal);
+    glm::vec3 normal2 = glm::cross(e2, normal);
+    glm::vec3 p1 = edgeA.first + (glm::dot(r, normal2)/glm::dot(e1, normal2)) * e1;
+    glm::vec3 p2 = edgeB.first + (glm::dot(-r, normal1)/glm::dot(e2, normal1)) * e2;
     return p1 + 0.5f * (p2 - p1);
 }
 
@@ -118,92 +118,86 @@ float CollisionDetector::GetMinDistanceBetweenEdges(const std::pair<glm::vec3, g
 {
     glm::vec3 e1 = edgeA.second - edgeA.first;
     glm::vec3 e2 = edgeB.second - edgeB.first;
-    glm::vec3 w = edgeB.first - edgeA.first;
+    glm::vec3 unitE1 = glm::normalize(e1);
+    glm::vec3 unitE2 = glm::normalize(e2);
+    glm::vec3 w = edgeA.first - edgeB.first;
     float a = glm::dot(e1, e1);
     float b = glm::dot(e1, e2);
     float c = glm::dot(e2, e2);
     float d = glm::dot(e1, w);
     float e = glm::dot(e2, w);
     float D = a*c - b*b;
-    float sc, sN, sD = D;
-    float tc, tN, tD = D;
-    sN = (b*e - c*d);
-    tN = (a*e - b*d);
-    if (sN < 0.0) 
+    float sc, sNominator, sDenominator = D;
+    float tc, tNominator, tDenominator = D;
+    
+    if (D < 0.0005f)
     {
-        sN = 0.0;
-        tN = e;
-        tD = c;
+        sNominator      = 0.f;
+        sDenominator    = 1.f;
+        tNominator      = e;
+        tDenominator    = c;
     }
-    else if (sN > sD) 
+    else
     {
-        sN = sD;
-        tN = e + b;
-        tD = c;
+        sNominator = b*e - c*d;
+        tNominator = a*e - b*d;
+        if (sNominator < 0.f)   // closest point is closer to s=0
+        {
+            sNominator = 0.f;
+            tNominator = e;
+            tDenominator = c;
+        }
+        else if (sNominator > sDenominator)   // closest point is closer to s=1
+        {
+            sNominator = sDenominator;
+            tNominator = e + b;
+            tDenominator = c;
+        }
     }
 
-    if (tN < 0.0) 
+    if (tNominator  < 0.f)
     {
-        tN = 0.0;
-        // recompute sc for this edge
-        if (-d < 0.0)
-            sN = 0.0;
+        tNominator = 0.f;
+        if (-d < 0.f)
+        {
+            sNominator = 0.f;
+        }
         else if (-d > a)
-            sN = sD;
-        else {
-            sN = -d;
-            sD = a;
+        {
+            sNominator = sDenominator;
+        }
+        else
+        {
+            sNominator = -d;
+            sDenominator = a;
         }
     }
-
-    else if (tN > tD) 
+    else if (tNominator > tDenominator)
     {
-        tN = tD;
-        // recompute sc for this edge
-        if ((-d + b) < 0.0)
-            sN = 0;
+        tNominator = tDenominator;
+        if ((-d + b) < 0.f)
+        {
+            sNominator = 0.f;
+        }
         else if ((-d + b) > a)
-            sN = sD;
-        else {
-            sN = (-d +  b);
-            sD = a;
+        {
+            sNominator = sDenominator;
+        }
+        else
+        {
+            sNominator = -d + b;
+            sDenominator = a;
         }
     }
-
-    sc = (abs(sN) < 0.0005f ? 0.0 : sN / sD);
-    tc = (abs(tN) < 0.0005f ? 0.0 : tN / tD);
-
-    // get the difference of the two closest points
-    glm::vec3 dP = w + (sc * e1) - (tc * e2);  // =  S1(sc) - S2(tc)
-    // std::cout << glm::length(dP) << std::endl;
-    return glm::length(dP);
-    // float epsilon = 0.0005f;
-    // glm::vec3 d1 = glm::normalize(edgeA.second - edgeA.first);
-    // glm::vec3 d2 = glm::normalize(edgeB.second - edgeB.first);
-    // glm::vec3 r  = edgeA.first - edgeB.first;
-    // float diff = fabs(glm::dot(d1, d2) - 1.f);
-    // if (diff < epsilon)
-    // {
-    //     // do parallel lines here
-    //     float rMagnitude = glm::length(r);
-    //     float rProjectionMagnitude = glm::dot(r, d2);
-    //     glm::vec3 rProjection = rProjectionMagnitude * d2;
-    //     float shortestDistance = std::sqrt(std::pow(rMagnitude, 2.f) - std::pow(rProjectionMagnitude, 2.f));
-    //     return shortestDistance;
-    // }
-    // // do skew lines here
-    // // https://www.quora.com/How-do-I-find-the-shortest-distance-between-two-skew-lines
-    // glm::vec3 crossProduct = glm::cross(d1, d2);
-    // float shortestDistance = glm::dot(r, crossProduct);
-    // return fabs(shortestDistance);
+    sc = (abs(sNominator) < 0.0005f ? 0.0 : sNominator / sDenominator);
+    tc = (abs(tNominator) < 0.0005f ? 0.0 : tNominator / tDenominator);
+    glm::vec3 result = w + sc * e1 - tc * e2;
+    // dont need actual distance
+    return glm::length2(result);
 }
 
 std::vector<glm::vec3> CollisionDetector::Clip(const std::vector<std::pair<glm::vec3, glm::vec3>>& edges, const std::vector<std::pair<glm::vec3, glm::vec3>>& planes)
 {
-    // Used Sutherland-Hodgman for the clipping
-    // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
-
-    // NOTE : output may contain multiples of a single point.
     std::vector<glm::vec3> output;
     for (int k = 0; k < edges.size(); k++)
     {
@@ -226,9 +220,13 @@ std::vector<glm::vec3> CollisionDetector::Clip(const std::vector<std::pair<glm::
             float dotSecond = glm::dot(plane.first, v2);
             float planeOffset = glm::dot(plane.first, plane.second);
             if (dotFirst > planeOffset)
+            {
                 shouldAddFirst = false;
+            }
             if (dotSecond > planeOffset)
+            {
                 shouldAddSecond = false;
+            }
             if (dotFirst < planeOffset && dotSecond > planeOffset || dotFirst > planeOffset && dotSecond < planeOffset)
             {
                 glm::vec3 intersectionPoint = this->IntersectLinePlane(v1, v2, plane);
@@ -236,7 +234,9 @@ std::vector<glm::vec3> CollisionDetector::Clip(const std::vector<std::pair<glm::
         }
 
         if (shouldAddFirst)
+        {
             output.push_back(v1);
+        }
         if (shouldAddSecond)
             output.push_back(v2);
         float magnitudeSq = glm::length2(intersectionPoint);
@@ -351,12 +351,7 @@ bool CollisionDetector::CheckEdges( SATData& data,
             }
             // we need this as we can have multiple edges with the same penetration depth,
             // but where the actual distance between the edges is different. AABB one such collider
-            printVector(edgesA[i].first);
-            printVector(edgesA[i].second);
-            printVector(edgesB[j].first);
-            printVector(edgesB[j].second);
             float currMinDistance = this->GetMinDistanceBetweenEdges(edgesA[i], edgesB[j]);
-            std::cout << currMinDistance << std::endl;
             if (currPenDepth <= data.minPenDepth && currMinDistance < data.minEdgeDistance)
             // if (currPenDepth <= data.minPenDepth)
             {

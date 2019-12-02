@@ -6,19 +6,19 @@
 
 const float epsilon = 0.005f;
 
-void ColliderBuilder::Build(std::vector<glm::vec3> points,
-							std::vector<std::pair<glm::vec3, glm::vec3>>& finalFaces,
-							std::vector<std::pair<glm::vec3, glm::vec3>>& finalEdges,
-							glm::vec3& center)
+std::shared_ptr<Collider> ColliderBuilder::Build(int id, DynamicType colliderType, std::vector<glm::vec3> points)
 {
 	/**
 	TODO : Good as a starting point, but this is very slow. Optimize! 
 	*/
-
+	std::vector<std::pair<glm::vec3, glm::vec3>> finalFaces;
+	std::vector<std::pair<glm::vec3, glm::vec3>> finalEdges;
+	glm::vec3 center;
 	std::vector<std::unique_ptr<cFace>> faces;
 	center = ColliderBuilder::GetCenter(points);
 	ColliderBuilder::FindExtremeFaces(faces, points, center);
 	ColliderBuilder::MergeFaces(faces, finalFaces, finalEdges);
+	return std::make_shared<Collider>(id, center, points, finalEdges, finalFaces, colliderType);
 }
 
 void ColliderBuilder::FindExtremeFaces(	std::vector<std::unique_ptr<cFace>>& faces,

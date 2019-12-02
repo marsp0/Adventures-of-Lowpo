@@ -38,10 +38,11 @@ TEST_CASE("Test Collider Builder - normal box")
 	expectedNormals.push_back(glm::vec3(0.f, 0.f, 1.f));
 	expectedNormals.push_back(glm::vec3(0.f, 0.f, -1.f));
 
-	std::vector<std::pair<glm::vec3, glm::vec3>> finalFaces;
-	std::vector<std::pair<glm::vec3, glm::vec3>> finalEdges;
-	glm::vec3 center;
-	ColliderBuilder::Build(points, finalFaces, finalEdges, center);
+	std::shared_ptr<Collider> collider = ColliderBuilder::Build(1, DynamicType::Static, points);
+
+	const std::vector<std::pair<glm::vec3, glm::vec3>>& finalFaces = collider->GetFaces();
+	const std::vector<std::pair<glm::vec3, glm::vec3>>& finalEdges = collider->GetEdges();
+
 	// Face check
 	REQUIRE(finalFaces.size() == 6);
 	for (int i = 0; i < expectedNormals.size(); i++)
@@ -101,10 +102,10 @@ TEST_CASE("Test Collider Builder - Deformed Box")
 	expectedNormals.push_back(glm::cross(points[7]- points[6], points[5] - points[6]));
 	expectedNormals.push_back(glm::vec3(0.f, 0.f, -1.f));
 
-	std::vector<std::pair<glm::vec3, glm::vec3>> finalFaces;
-	std::vector<std::pair<glm::vec3, glm::vec3>> finalEdges;
-	glm::vec3 center;
-	ColliderBuilder::Build(points, finalFaces, finalEdges, center);
+	std::shared_ptr<Collider> collider = ColliderBuilder::Build(1, DynamicType::Static, points);
+
+	const std::vector<std::pair<glm::vec3, glm::vec3>>& finalFaces = collider->GetFaces();
+	const std::vector<std::pair<glm::vec3, glm::vec3>>& finalEdges = collider->GetEdges();
 
 	// Face check
 	REQUIRE(finalFaces.size() == 6);
@@ -164,10 +165,11 @@ TEST_CASE("Create box with negative coordinates.")
 	expectedNormals.push_back(glm::vec3(0.f, 0.f, 1.f));
 	expectedNormals.push_back(glm::vec3(0.f, 0.f, -1.f));
 
-	std::vector<std::pair<glm::vec3, glm::vec3>> finalFaces;
-	std::vector<std::pair<glm::vec3, glm::vec3>> finalEdges;
-	glm::vec3 center;
-	ColliderBuilder::Build(points, finalFaces, finalEdges, center);
+	std::shared_ptr<Collider> collider = ColliderBuilder::Build(1, DynamicType::Static, points);
+
+	const std::vector<std::pair<glm::vec3, glm::vec3>>& finalFaces = collider->GetFaces();
+	const std::vector<std::pair<glm::vec3, glm::vec3>>& finalEdges = collider->GetEdges();
+	
 	// Face check
 	REQUIRE(finalFaces.size() == 6);
 	for (int i = 0; i < expectedNormals.size(); i++)
@@ -229,10 +231,10 @@ TEST_CASE("box with 7 faces and 13 edges")
 	expectedNormals.push_back(glm::vec3(0.f, 0.f, -1.f));
 	expectedNormals.push_back(glm::cross(points[5]- points[4], points[7] - points[4]));
 
-	std::vector<std::pair<glm::vec3, glm::vec3>> finalFaces;
-	std::vector<std::pair<glm::vec3, glm::vec3>> finalEdges;
-	glm::vec3 center;
-	ColliderBuilder::Build(points, finalFaces, finalEdges, center);
+	std::shared_ptr<Collider> collider = ColliderBuilder::Build(1, DynamicType::Static, points);
+
+	const std::vector<std::pair<glm::vec3, glm::vec3>>& finalFaces = collider->GetFaces();
+	const std::vector<std::pair<glm::vec3, glm::vec3>>& finalEdges = collider->GetEdges();
 
 	// Face check
 	REQUIRE(finalFaces.size() == 7);
