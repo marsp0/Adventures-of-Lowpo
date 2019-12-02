@@ -4,10 +4,11 @@
 #include <unordered_map>
 
 Grid::Grid(float gridLength, float halfWidth) : \
-            gridLength(gridLength), 
+            gridLength(gridLength),
             cellsInRow(ceilf(gridLength / (2 * halfWidth))), 
             halfWidth(halfWidth),
-            collisionDetector(CollisionDetector())
+            collisionDetector(CollisionDetector()),
+            cells()
 {
     this->cells.resize(this->cellsInRow);
     // cell insertion
