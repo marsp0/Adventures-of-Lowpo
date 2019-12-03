@@ -33,19 +33,19 @@ class CollisionDetector
         bool CheckFaces(SATData& data, 
                         const std::vector<glm::vec3>& pointsA, 
                         const std::vector<glm::vec3>& pointsB,
-                        const std::vector<std::pair<glm::vec3, glm::vec3>>& faces,
+                        const std::vector<ColliderFace>& faces,
                         std::shared_ptr<Collider> first,
                         std::shared_ptr<Collider> second,
                         bool isFaceA);
         bool CheckEdges(SATData& data,
                         const std::vector<glm::vec3>& pointsA,
                         const std::vector<glm::vec3>& pointsB,
-                        const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesA,
-                        const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesB);
+                        const std::vector<std::pair<int, int>>& edgesA,
+                        const std::vector<std::pair<int, int>>& edgesB);
 
         std::vector<glm::vec3> GetCollisionPoints(SATData& data, 
-                                                  const std::vector<std::pair<glm::vec3, glm::vec3>>& edges,
-                                                  const std::vector<std::pair<glm::vec3, glm::vec3>>& faces);
+                                                  const std::vector<std::pair<int, int>>& edges,
+                                                  const std::vector<ColliderFace>& faces);
 
         // Helpers
         /** 
@@ -58,13 +58,13 @@ class CollisionDetector
                                 glm::vec3 direction, 
                                 float& tempPenDepth);
 
-        glm::vec3 GetContactBetweenEdges(   const std::pair<glm::vec3, glm::vec3>& edgeA, 
-                                            const std::pair<glm::vec3, glm::vec3>& edgeB);
+        glm::vec3 GetContactBetweenEdges(   const std::pair<int, int>& edgeA, 
+                                            const std::pair<int, int>& edgeB);
         /**
         GetMinDistanceBetweenEdges - returns the shortest vector between two given edges.
          */
-        float GetMinDistanceBetweenEdges(   const std::pair<glm::vec3, glm::vec3>& edgeA, 
-                                            const std::pair<glm::vec3, glm::vec3>& edgeB);
+        float GetMinDistanceBetweenEdges(   const std::pair<int, int>& edgeA, 
+                                            const std::pair<int, int>& edgeB);
         /** 
         IntersectLinePlane - checks if a given line intersects the given plane and if so returns
         the intersection point.
@@ -76,8 +76,8 @@ class CollisionDetector
         Clips a given list of edges against a plane. Used in collision detection to determine the contact
         points that are sent to the solver.
          */
-        std::vector<glm::vec3> Clip(const std::vector<std::pair<glm::vec3, glm::vec3>>& edges, 
-                                    const std::vector<std::pair<glm::vec3, glm::vec3>>& planes);
+        std::vector<glm::vec3> Clip(const std::vector<std::pair<int, int>>& edges, 
+                                    const std::vector<ColliderFace>& planes);
         bool ContainsPoint(glm::vec3& point, std::vector<glm::vec3>& points);
         /** 
         GetSupport Points returns the the farthest point in the given direction.

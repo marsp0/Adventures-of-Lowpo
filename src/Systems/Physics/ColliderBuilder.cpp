@@ -11,13 +11,13 @@ std::shared_ptr<Collider> ColliderBuilder::Build(int id, DynamicType colliderTyp
 	/**
 	TODO : Good as a starting point, but this is very slow. Optimize! 
 	*/
-	std::vector<std::pair<glm::vec3, glm::vec3>> finalFaces;
-	std::vector<std::pair<glm::vec3, glm::vec3>> finalEdges;
+	std::vector<ColliderFace> finalFaces;
+	std::vector<std::pair<int, int>> finalEdges;
 	glm::vec3 center;
 	std::vector<std::unique_ptr<cFace>> faces;
 	center = ColliderBuilder::GetCenter(points);
 	ColliderBuilder::FindExtremeFaces(faces, points, center);
-	ColliderBuilder::MergeFaces(faces, finalFaces, finalEdges);
+	ColliderBuilder::MergeFaces(faces, finalFaces, finalEdges, points);
 	return std::make_shared<Collider>(id, center, points, finalEdges, finalFaces, colliderType);
 }
 
@@ -31,18 +31,22 @@ void ColliderBuilder::FindExtremeFaces(	std::vector<std::unique_ptr<cFace>>& fac
 		{
 			for (int k = j + 1; k < points.size(); k++)
 			{
-				std::unique_ptr<cFace> face = ColliderBuilder::CreateFace(points[i],points[j],points[k], center);
+				std::unique_ptr<cFace> face = ColliderBuilder::CreateFace(i, j, k, center, points);
+				face->points.insert(i);
+				face->points.insert(j);
+				face->points.insert(k);
 				bool isExtreme = true;
 				for (int x = 0; x < points.size(); x++)
 				{
 					if (x == i || x == j || x == k)
 						continue;
-					
-					glm::vec3 pointToFace = points[x] - face->edges[0].first;
+					glm::vec3 pointOnFace = points[face->edges[0].first];
+					glm::vec3 pointToFace = points[x] - pointOnFace;
+					float pointFaceDot = glm::dot(face->normal, points[x]);
 					if (glm::dot(pointToFace, face->normal) > 0.f)
-					{
 						isExtreme = false;
-					}
+					else if (pointFaceDot >= 0.f && pointFaceDot < epsilon)
+						face->points.insert(x);
 				}
 				if (isExtreme)
 					faces.push_back(std::move(face));
@@ -51,9 +55,10 @@ void ColliderBuilder::FindExtremeFaces(	std::vector<std::unique_ptr<cFace>>& fac
 	}
 }
 
-void ColliderBuilder::MergeFaces(std::vector<std::unique_ptr<cFace>>& faces,
-								std::vector<std::pair<glm::vec3, glm::vec3>>& finalFaces,
-								std::vector<std::pair<glm::vec3, glm::vec3>>& finalEdges)
+void ColliderBuilder::MergeFaces(	std::vector<std::unique_ptr<cFace>>& faces,
+									std::vector<ColliderFace>& finalFaces,
+									std::vector<std::pair<int, int>>& finalEdges,
+									std::vector<glm::vec3>& points)
 {
 	std::unordered_set<int> visitedKeys;
  	for (int i = 0; i < faces.size(); i++)
@@ -67,8 +72,9 @@ void ColliderBuilder::MergeFaces(std::vector<std::unique_ptr<cFace>>& faces,
  		std::vector<cFace*> 							currentFaces{faces[i].get()};
  		// indices of faces that should be market visited.
  		std::vector<int> 								currFaceIndices{i};
- 		std::vector<glm::vec3> 							currentVertices{faces[i]->edges[0].first, faces[i]->edges[1].first, faces[i]->edges[2].first};
- 		std::vector<std::pair<glm::vec3, glm::vec3>> 	currentEdges;
+ 		std::vector<int> 								currentVertices{faces[i]->edges[0].first, faces[i]->edges[1].first, faces[i]->edges[2].first};
+ 		std::vector<std::pair<int, int>> 				currentEdges;
+ 		std::unordered_set<int> 						pointsOnFace;	
 
  		for (int j = i + 1; j < faces.size(); j++)
 		{
@@ -79,6 +85,10 @@ void ColliderBuilder::MergeFaces(std::vector<std::unique_ptr<cFace>>& faces,
 				currentVertices.push_back(faces[j]->edges[0].first);
 				currentVertices.push_back(faces[j]->edges[1].first);
 				currentVertices.push_back(faces[j]->edges[2].first);
+				for (std::unordered_set<int>::iterator x = faces[i]->points.begin(); x != faces[i]->points.end(); x++)
+				{
+					pointsOnFace.insert(*x);
+				}
 			}
 		}
  		
@@ -88,7 +98,7 @@ void ColliderBuilder::MergeFaces(std::vector<std::unique_ptr<cFace>>& faces,
  		{
  			for (int x = 0; x < currentFaces[k]->edges.size(); x++)
  			{
- 				bool isExtreme = ColliderBuilder::IsExtremeEdge(currentVertices, currentFaces[k]->edges[x]);
+ 				bool isExtreme = ColliderBuilder::IsExtremeEdge(currentVertices, currentFaces[k]->edges[x], points);
  				if (isExtreme && !ColliderBuilder::ContainsEdge(currentEdges, currentFaces[k]->edges[x]))
  				{
  					currentEdges.push_back(currentFaces[k]->edges[x]);
@@ -96,7 +106,14 @@ void ColliderBuilder::MergeFaces(std::vector<std::unique_ptr<cFace>>& faces,
  			}
  		}
 
- 		finalFaces.push_back(std::make_pair(currentFaces[0]->normal, currentFaces[0]->edges[0].first));
+ 		ColliderFace finalFace;
+ 		finalFace.normal = currentFaces[0]->normal;
+ 		for (std::unordered_set<int>::iterator k = pointsOnFace.begin(); k != pointsOnFace.end(); k++)
+ 		{
+ 			finalFace.points.push_back(*k);
+ 		}
+ 		finalFaces.push_back(finalFace);
+
  		for (int k = 0; k < currentEdges.size(); k++)
  		{
  			if (!ColliderBuilder::ContainsEdge(finalEdges, currentEdges[k]))
@@ -113,7 +130,7 @@ void ColliderBuilder::MergeFaces(std::vector<std::unique_ptr<cFace>>& faces,
  	}
 }
 
-bool ColliderBuilder::IsExtremeEdge(std::vector<glm::vec3> points, std::pair<glm::vec3, glm::vec3> edge)
+bool ColliderBuilder::IsExtremeEdge(std::vector<int> pointIndices, std::pair<int, int> edge, std::vector<glm::vec3>& points)
 {
 	/*				 / Q
 			 	   / |
@@ -123,20 +140,24 @@ bool ColliderBuilder::IsExtremeEdge(std::vector<glm::vec3> points, std::pair<glm
 					 P
 	*/
 	int index = 0;
-	for (int i = 0; i < points.size(); ++i)
+	glm::vec3 edgeFirst = points[edge.first];
+	glm::vec3 edgeSecond = points[edge.second];
+	for (int i = 0; i < pointIndices.size(); ++i)
 	{
-		if (!glm::all(glm::epsilonEqual(points[i], edge.first, epsilon)) && !glm::all(glm::epsilonEqual(points[i], edge.second, epsilon)))
+		if (pointIndices[i] != edge.first && pointIndices[i] != edge.second)
 		{
 			index = i;
 			break;
 		}
 	}
-	glm::vec3 MQ = points[index] - edge.first;
-	glm::vec3 MN = glm::normalize(edge.second - edge.first);
+	glm::vec3 indexPoint = points[pointIndices[index]];
+	glm::vec3 MQ = indexPoint - edgeFirst;
+	glm::vec3 MN = glm::normalize(edgeSecond - edgeFirst);
 	glm::vec3 PQ = glm::normalize(MQ - glm::dot(MQ, MN) * MN);
-	for (int i = 0; i < points.size(); i++)
+	for (int i = 0; i < pointIndices.size(); i++)
 	{
-		glm::vec3 currDir = glm::normalize(points[i] - edge.first);
+		glm::vec3 currPoint = points[pointIndices[i]];
+		glm::vec3 currDir = glm::normalize(currPoint - edgeFirst);
 		if (glm::dot(currDir, PQ) < 0.f)
 		{
 			return false;
@@ -145,12 +166,12 @@ bool ColliderBuilder::IsExtremeEdge(std::vector<glm::vec3> points, std::pair<glm
 	return true;
 }
 
-bool ColliderBuilder::ContainsEdge(std::vector<std::pair<glm::vec3, glm::vec3>> edges, std::pair<glm::vec3, glm::vec3> edge)
+bool ColliderBuilder::ContainsEdge(std::vector<std::pair<int, int>> edges, std::pair<int, int> edge)
 {
 	for (int i = 0; i < edges.size(); i++)
 	{
-		bool first = glm::all(glm::epsilonEqual(edges[i].first, edge.first, epsilon)) && glm::all(glm::epsilonEqual(edges[i].second, edge.second, epsilon));
-		bool second = glm::all(glm::epsilonEqual(edges[i].first, edge.second, epsilon)) && glm::all(glm::epsilonEqual(edges[i].second, edge.first, epsilon));
+		bool first = edges[i].first == edge.first && edges[i].second == edge.second;
+		bool second = edges[i].first == edge.second && edges[i].second == edge.first;
 		if ( first || second )
 			return true;
 	}
@@ -169,13 +190,10 @@ glm::vec3 ColliderBuilder::GetCenter(std::vector<glm::vec3> points)
 	return center;
 }
 
-std::unique_ptr<cFace> ColliderBuilder::CreateFace(	glm::vec3 v1,
-													glm::vec3 v2,
-													glm::vec3 v3,
-													glm::vec3 center)
+std::unique_ptr<cFace> ColliderBuilder::CreateFace(	int v1, int v2, int v3, glm::vec3 center, std::vector<glm::vec3>& points)
 {
-	glm::vec3 normal = glm::normalize(glm::cross(v2-v1, v3-v1));
-	if (glm::dot(v1-center, normal) < 0.f)
+	glm::vec3 normal = glm::normalize(glm::cross(points[v2]-points[v1], points[v3]-points[v1]));
+	if (glm::dot(points[v1]-center, normal) < 0.f)
 		normal = -normal;
 
 	std::unique_ptr<cFace> face = std::make_unique<cFace>();

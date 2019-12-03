@@ -18,13 +18,13 @@ std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> 
     std::vector<glm::vec3> collisionPoints;
 
     // get edges and faces
-    const std::vector<glm::vec3>& pointsA                       = first->GetPoints();
-    const std::vector<std::pair<glm::vec3, glm::vec3>>& facesA  = first->GetFaces();
-    const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesA  = first->GetEdges();
+    const std::vector<glm::vec3>&           pointsA = first->GetPoints();
+    const std::vector<ColliderFace>&        facesA  = first->GetFaces();
+    const std::vector<std::pair<int, int>>& edgesA  = first->GetEdges();
 
-    const std::vector<glm::vec3>& pointsB                       = second->GetPoints();
-    const std::vector<std::pair<glm::vec3, glm::vec3>>& facesB  = second->GetFaces();
-    const std::vector<std::pair<glm::vec3, glm::vec3>>& edgesB  = second->GetEdges();
+    const std::vector<glm::vec3>&           pointsB = second->GetPoints();
+    const std::vector<ColliderFace>&        facesB  = first->GetFaces();
+    const std::vector<std::pair<int, int>>& edgesB  = first->GetEdges();
 
     SATData data;
     data.indexFaceA = false;
