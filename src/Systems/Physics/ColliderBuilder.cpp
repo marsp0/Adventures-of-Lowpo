@@ -36,16 +36,20 @@ void ColliderBuilder::FindExtremeFaces(	std::vector<std::unique_ptr<cFace>>& fac
 				face->points.insert(j);
 				face->points.insert(k);
 				bool isExtreme = true;
+				float planeOffset = glm::dot(face->normal, points[i]);
+				
 				for (int x = 0; x < points.size(); x++)
 				{
 					if (x == i || x == j || x == k)
 						continue;
 					glm::vec3 pointOnFace = points[face->edges[0].first];
 					glm::vec3 pointToFace = points[x] - pointOnFace;
+
 					float pointFaceDot = glm::dot(face->normal, points[x]);
+					
 					if (glm::dot(pointToFace, face->normal) > 0.f)
 						isExtreme = false;
-					else if (pointFaceDot >= 0.f && pointFaceDot < epsilon)
+					else if (pointFaceDot - planeOffset < epsilon && pointFaceDot - planeOffset >= 0.f)
 						face->points.insert(x);
 				}
 				if (isExtreme)
