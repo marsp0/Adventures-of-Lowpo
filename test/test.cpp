@@ -27,7 +27,10 @@ class GLFWListener: public Catch::TestEventListenerBase
 		EPSILON = 0.0005;
 		glfwSetErrorCallback(error_callback);
 		// glfw init
-	    glfwInit();
+		if( !glfwInit() )
+	    {
+	    	std::cout << "error" << std::endl;
+	    }
 	    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
