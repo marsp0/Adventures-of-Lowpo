@@ -3,8 +3,9 @@ dist: bionic
 jobs:
   include:
     - stage: Build and Test
+      name: "Unit Tests"
       script: make && make test && export DISPLAY=:0 && ./out/test
-    - stage: Code Coverage
+      name: Code Coverage
       script: 
         - make gcov && ./out/gcov_exe
         - chmod +x ./scripts/get_code_coverage_reports.sh
@@ -12,7 +13,7 @@ jobs:
         - ../scripts/get_code_coverage_reports.sh
         - cd ../
         - codecov
-    - stage: Documentation Generation
+      name: Documentation Generation
       script: chmod +x ./scripts/run_doxygen.sh && mkdir docs && ./scripts/run_doxygen.sh
       deploy:
         provider: pages
