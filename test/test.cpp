@@ -28,6 +28,7 @@ class GLFWListener: public Catch::TestEventListenerBase
 	    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	    window = glfwCreateWindow(800, 600, "Adventures of Lowpo", nullptr, nullptr);
 	    glfwMakeContextCurrent(window);
+	    std::cout << window << std::endl;
 	}
 
 	virtual void testRunEnded( Catch::TestRunStats const& testRunStats )
