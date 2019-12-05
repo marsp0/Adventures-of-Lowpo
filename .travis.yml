@@ -1,5 +1,4 @@
 os: linux
-dist: bionic
 jobs:
   include:
     - stage: Build and Test
