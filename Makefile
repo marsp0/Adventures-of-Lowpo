@@ -9,9 +9,8 @@ CXXFLAGS      	:= -std=c++14
 SRCFILES	 	:= $(shell find $(SRCDIR) -name "*.cpp")
 SRCNAMES		:= $(notdir $(SRCFILES))
 OBJFILES 	    := $(SRCNAMES:%.cpp=$(OBJDIR)/%.o)
-LDFLAGS       	:= -lGL -lGLEW -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi
+LDFLAGS       	:= -lGL -lGLEW -lglfw -lX11 -lXi
 space :=
-space +=
 VPATH := $(subst $(space),:,$(shell find . -type d))
 
 # MAIN

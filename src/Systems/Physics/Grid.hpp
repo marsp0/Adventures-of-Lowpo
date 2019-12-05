@@ -50,7 +50,7 @@ class Grid
          */
         int  GetInsertCol(glm::vec3 point);
 
-        const std::vector< std::vector< std::unique_ptr<Cell>>>& GetCells();
+        std::vector< std::vector< Cell > > cells;
 
     private:
 
@@ -58,5 +58,4 @@ class Grid
         float   halfWidth;
         float   gridLength;
         CollisionDetector collisionDetector;
-        std::vector< std::vector< std::unique_ptr<Cell> > > cells;
 };

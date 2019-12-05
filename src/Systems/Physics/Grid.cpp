@@ -3,11 +3,10 @@
 #include <iostream>
 #include <unordered_map>
 
-Grid::Grid(float gridLength, float halfWidth) : \
-            gridLength(gridLength),
-            cellsInRow(ceilf(gridLength / (2 * halfWidth))), 
-            halfWidth(halfWidth),
-            collisionDetector()
+Grid::Grid(float gridLength, float halfWidth) : gridLength(gridLength),
+                                                cellsInRow(ceilf(gridLength / (2 * halfWidth))), 
+                                                halfWidth(halfWidth),
+                                                collisionDetector()
 {
     this->cells.resize(this->cellsInRow);
     // cell insertion
@@ -18,7 +17,7 @@ Grid::Grid(float gridLength, float halfWidth) : \
         {
             float x = col * 2 * halfWidth + halfWidth;
             float z = row * 2 * halfWidth + halfWidth;
-            this->cells[row].push_back(std::make_unique<Cell>(glm::vec3(x, 0.f, z), halfWidth, row, col));
+            this->cells[row].emplace_back(glm::vec3(x, 0.f, z), halfWidth, row, col);
         }
     }
 }
@@ -32,7 +31,7 @@ std::vector<std::shared_ptr<Collision>> Grid::CheckCollisions()
         for (int col = 0; col < this->cells[row].size(); col++)
         {
             std::vector<std::pair<int, int>> eligibleCells = this->GetEligibleCells(row, col);
-            std::vector<std::shared_ptr<Collider>> dynamicCollidersA = this->cells[row][col]->GetDynamicColliders();
+            std::vector<std::shared_ptr<Collider>> dynamicCollidersA = this->cells[row][col].GetDynamicColliders();
             for (int i = 0; i < eligibleCells.size(); i++)
             {
                 int rowB = eligibleCells[i].first;
@@ -52,10 +51,10 @@ std::vector<std::shared_ptr<Collision>> Grid::CheckCollisions()
 std::vector<std::shared_ptr<Collision>> Grid::CheckCells(int rowA, int colA, int rowB, int colB)
 {
     std::vector<std::shared_ptr<Collision>> collisions;
-    std::vector<std::shared_ptr<Collider>> dynamicCollidersA = this->cells[rowA][colA]->GetDynamicColliders();
-    std::vector<std::shared_ptr<Collider>> dynamicCollidersB = this->cells[rowB][colB]->GetDynamicColliders();
-    std::vector<std::shared_ptr<Collider>> staticCollidersA = this->cells[rowA][colA]->GetStaticColliders();
-    std::vector<std::shared_ptr<Collider>> staticCollidersB = this->cells[rowB][colB]->GetStaticColliders();
+    std::vector<std::shared_ptr<Collider>> dynamicCollidersA = this->cells[rowA][colA].GetDynamicColliders();
+    std::vector<std::shared_ptr<Collider>> dynamicCollidersB = this->cells[rowB][colB].GetDynamicColliders();
+    std::vector<std::shared_ptr<Collider>> staticCollidersA = this->cells[rowA][colA].GetStaticColliders();
+    std::vector<std::shared_ptr<Collider>> staticCollidersB = this->cells[rowB][colB].GetStaticColliders();
     for (int i = 0; i < dynamicCollidersA.size(); i++)
     {
         // the starting point of dynamicCollidersB changes based on wether or not we are checking the same cell.
@@ -114,14 +113,14 @@ void Grid::Insert(std::shared_ptr<Collider> object)
 {
     int col = this->GetInsertCol(object->center);
     int row = this->GetInsertRow(object->center);
-    this->cells[row][col]->Insert(object);
+    this->cells[row][col].Insert(object);
 }
 
 void Grid::Remove(std::shared_ptr<Collider> object)
 {
     int row = object->row;
     int col = object->col;
-    this->cells[row][col]->Remove(object);
+    this->cells[row][col].Remove(object);
 }
 
 int Grid::GetInsertCol(glm::vec3 point)
@@ -132,18 +131,18 @@ int Grid::GetInsertCol(glm::vec3 point)
     while (high > low)
     {
         int mid = (high + low) / 2;
-        Cell* midCell = this->cells[0][mid].get();
-        float distance = abs(point.x - midCell->center.x);
+        Cell& midCell = this->cells[0][mid];
+        float distance = abs(point.x - midCell.center.x);
         if (distance < this->halfWidth)
         {
             high = mid;
             break;
         }
-        else if (point.x < midCell->center.x)
+        else if (point.x < midCell.center.x)
         {
             high = mid - 1;
         }
-        else if (point.x > midCell->center.x)
+        else if (point.x > midCell.center.x)
         {
             low = mid + 1;
         }
@@ -158,18 +157,18 @@ int Grid::GetInsertRow(glm::vec3 point)
     while (high > low)
     {
         int mid = (high + low) / 2;
-        Cell* midCell = this->cells[mid][0].get();
-        float distance = abs(point.z - midCell->center.z);
+        Cell& midCell = this->cells[mid][0];
+        float distance = abs(point.z - midCell.center.z);
         if (distance < this->halfWidth)
         {
             high = mid;
             break;
         }
-        else if (point.z < midCell->center.z)
+        else if (point.z < midCell.center.z)
         {
             high = mid - 1;
         }
-        else if (point.z > midCell->center.z)
+        else if (point.z > midCell.center.z)
         {
             low = mid + 1;
         }
@@ -198,9 +197,4 @@ std::vector<std::pair<int, int>> Grid::GetEligibleCells(int cellRow, int cellCol
         }
     }
     return result;
-}
-
-const std::vector< std::vector< std::unique_ptr<Cell>> >& Grid::GetCells()
-{
-    return this->cells;
 }

@@ -8,7 +8,7 @@
 TEST_CASE("Grid Test")
 {
 	Grid grid(200.f, 5.f);
-	const std::vector< std::vector< std::unique_ptr<Cell>> >& cells = grid.GetCells();
+	const std::vector< std::vector<Cell> >& cells = grid.cells;
 
 	REQUIRE(cells.size() == 20);
 	REQUIRE(cells[0].size() == 20);
@@ -81,27 +81,27 @@ TEST_CASE("Grid Test")
 
 	SECTION("Test insertion")
 	{
-		Cell* cell1 = grid.GetCells()[0][0].get();
-		const std::vector<std::shared_ptr<Collider>> dynamicColliders1 = cell1->GetDynamicColliders();
-		const std::vector<std::shared_ptr<Collider>> staticColliders1 = cell1->GetStaticColliders();
+		Cell& cell1 = grid.cells[0][0];
+		const std::vector<std::shared_ptr<Collider>> dynamicColliders1 = cell1.GetDynamicColliders();
+		const std::vector<std::shared_ptr<Collider>> staticColliders1 = cell1.GetStaticColliders();
 		REQUIRE(dynamicColliders1.size() == 1);
 		REQUIRE(staticColliders1.size() == 1);
 
-		Cell* cell2 = grid.GetCells()[1][0].get();
-		const std::vector<std::shared_ptr<Collider>> dynamicColliders2 = cell2->GetDynamicColliders();
-		const std::vector<std::shared_ptr<Collider>> staticColliders2 = cell2->GetStaticColliders();
+		Cell& cell2 = grid.cells[1][0];
+		const std::vector<std::shared_ptr<Collider>> dynamicColliders2 = cell2.GetDynamicColliders();
+		const std::vector<std::shared_ptr<Collider>> staticColliders2 = cell2.GetStaticColliders();
 		REQUIRE(dynamicColliders2.size() == 0);
 		REQUIRE(staticColliders2.size() == 1);
 
-		Cell* cell3 = grid.GetCells()[0][1].get();
-		const std::vector<std::shared_ptr<Collider>> dynamicColliders3 = cell3->GetDynamicColliders();
-		const std::vector<std::shared_ptr<Collider>> staticColliders3 = cell3->GetStaticColliders();
+		Cell& cell3 = grid.cells[0][1];
+		const std::vector<std::shared_ptr<Collider>> dynamicColliders3 = cell3.GetDynamicColliders();
+		const std::vector<std::shared_ptr<Collider>> staticColliders3 = cell3.GetStaticColliders();
 		REQUIRE(dynamicColliders3.size() == 2);
 		REQUIRE(staticColliders3.size() == 0);
 
-		Cell* cell4 = grid.GetCells()[1][1].get();
-		const std::vector<std::shared_ptr<Collider>> dynamicColliders4 = cell4->GetDynamicColliders();
-		const std::vector<std::shared_ptr<Collider>> staticColliders4 = cell4->GetStaticColliders();
+		Cell& cell4 = grid.cells[1][1];
+		const std::vector<std::shared_ptr<Collider>> dynamicColliders4 = cell4.GetDynamicColliders();
+		const std::vector<std::shared_ptr<Collider>> staticColliders4 = cell4.GetStaticColliders();
 		REQUIRE(dynamicColliders4.size() == 0);
 		REQUIRE(staticColliders4.size() == 0);
 
@@ -111,9 +111,9 @@ TEST_CASE("Grid Test")
 	{
 		grid.Remove(collider1);
 		grid.Remove(collider3);
-		Cell* cell1 = grid.GetCells()[0][0].get();
-		const std::vector<std::shared_ptr<Collider>> dynamicColliders1 = cell1->GetDynamicColliders();
-		const std::vector<std::shared_ptr<Collider>> staticColliders1 = cell1->GetStaticColliders();
+		Cell& cell1 = grid.cells[0][0];
+		const std::vector<std::shared_ptr<Collider>> dynamicColliders1 = cell1.GetDynamicColliders();
+		const std::vector<std::shared_ptr<Collider>> staticColliders1 = cell1.GetStaticColliders();
 		REQUIRE(dynamicColliders1.size() == 0);
 		REQUIRE(staticColliders1.size() == 0);
 	}

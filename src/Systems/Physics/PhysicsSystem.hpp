@@ -35,6 +35,6 @@ class PhysicsSystem
 
     private:
 
-        Grid                grid;
+        Grid                grid;\
         std::uint32_t       primaryBitset;
 };

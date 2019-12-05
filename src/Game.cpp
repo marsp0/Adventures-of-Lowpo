@@ -69,14 +69,13 @@ void APIENTRY openglCallbackFunction(GLenum source,
     cout << "---------------------opengl-callback-end--------------" << endl;
 }
 
-Game::Game(int width, int height) :
-    width(width), height(height) , 
-    physicsSystem(70.f, 5.f),
-    // FIX THIS
-    renderingSystem(),
-    currentID(1),
-    messageToSystem(MessageType::MessageTypeEnd),
-    systemToMessage(System::SystemEnd)
+Game::Game(int width, int height) : width(width), 
+                                    height(height) , 
+                                    physicsSystem(70.f, 5.f),
+                                    renderingSystem(),
+                                    currentID(1),
+                                    messageToSystem(MessageType::MessageTypeEnd),
+                                    systemToMessage(System::SystemEnd)
 {
     this->Init();
     // adding shaders after the init as we need to initialize OPENGL before
@@ -264,8 +263,6 @@ void Game::Update(float deltaTime)
 
 void Game::Run()
 {
-    double previous = glfwGetTime();
-    double lag = 0.f;
     float deltaTime = 1.f/60.f;
     while (!glfwWindowShouldClose(window))
     {   
