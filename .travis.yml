@@ -13,12 +13,12 @@ before_install: bash ./scripts/before_install.sh
 jobs:
   include:
     - stage: "Build and Test"
+      script: bash ./scripts/build_and_run_tests.sh
       name: "Unit Tests"
-      script: bash ./scripts/build_and_run_unit_tests.sh
-      name: "Code Coverage"
     - script: bash ./scripts/run_code_coverage.sh
-      name: "Documentation Generation"
+      name: "Code Coverage"
     - script: mkdir docs && bash ./scripts/run_doxygen.sh
+      name: "Documentation Generation"
       deploy:
         provider: pages
         token: $GH_TOKEN
