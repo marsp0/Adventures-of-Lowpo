@@ -12,6 +12,11 @@ GLFWwindow* window;
 
 float EPSILON;
 
+void error_callback(int error, const char* description)
+{
+    fprintf(stderr, "Error: %s\n", description);
+}
+
 class GLFWListener: public Catch::TestEventListenerBase
 {
 	using TestEventListenerBase::TestEventListenerBase;
@@ -20,6 +25,7 @@ class GLFWListener: public Catch::TestEventListenerBase
 	{
 		std::cout << "Starting test run" << std::endl;
 		EPSILON = 0.0005;
+		glfwSetErrorCallback(error_callback);
 		// glfw init
 	    glfwInit();
 	    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
