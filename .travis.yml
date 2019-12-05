@@ -3,7 +3,7 @@ dist: bionic
 jobs:
   include:
     - stage: Build and Test
-      script: make && make test && ./out/test
+      script: make && make test && export DISPLAY=:0 && ./out/test
     - stage: Code Coverage
       script: 
         - make gcov && ./out/gcov_exe
