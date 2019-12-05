@@ -11,10 +11,11 @@ std::shared_ptr<Collider> ColliderBuilder::Build(int id, DynamicType colliderTyp
 	/**
 	TODO : Good as a starting point, but this is very slow. Optimize! 
 	*/
-	std::vector<ColliderFace> finalFaces;
-	std::vector<std::pair<int, int>> finalEdges;
-	glm::vec3 center;
+	glm::vec3 							center;
+	std::vector<ColliderFace> 			finalFaces;
+	std::vector<std::pair<int, int>> 	finalEdges;
 	std::vector<std::unique_ptr<cFace>> faces;
+	
 	center = ColliderBuilder::GetCenter(points);
 	ColliderBuilder::FindExtremeFaces(faces, points, center);
 	ColliderBuilder::MergeFaces(faces, finalFaces, finalEdges, points);

@@ -289,7 +289,17 @@ TEST_CASE("Face points test")
 		bool found = false;
 		for (int j = 0; j < faces.size(); j++)
 		{
-
+			int count = 0;
+			for (int x = 0; x < faces[j].points.size(); x++)
+			{
+				for (int k = 0; k < expectedFacePoints[i].size(); k++)
+				{
+					if (faces[j].points[x] == expectedFacePoints[i][k])
+						count += 1;
+				}
+			}
+			if (count == 4)
+				found = true;
 		}
 		REQUIRE(found == true);
 	}

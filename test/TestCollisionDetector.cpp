@@ -86,94 +86,94 @@ TEST_CASE("CollisionDetector Test")
 	points6.push_back(glm::vec3(1.6f, 2.5f, 1.6f));
 	std::shared_ptr<Collider> collider6 = ColliderBuilder::Build(6, DynamicType::Static, points6);
 	
-	// SECTION("Collider 1/2 - face/vertex")
-	// {
-	// 	std::shared_ptr<Collision> collision1 = detector.Collide(collider1, collider2);
-	// 	REQUIRE(collision1 != nullptr);
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(-1.f, 0.f, 0.f), collision1->contacts[0].contactNormal, detector.tolerance)));
-	// 	REQUIRE(collision1->contacts.size() == 2);
+	SECTION("Collider 1/2 - face/vertex")
+	{
+		std::shared_ptr<Collision> collision1 = detector.Collide(collider1, collider2);
+		REQUIRE(collision1 != nullptr);
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(-1.f, 0.f, 0.f), collision1->contacts[0].contactNormal, detector.tolerance)));
+		REQUIRE(collision1->contacts.size() == 2);
 
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.5f, 1.f, 0.5f), collision1->contacts[0].contactPoint, detector.tolerance)));
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(2.f, 1.f, 2.f), collision1->contacts[1].contactPoint, detector.tolerance)));
-	// }
-	// SECTION("Collider 2/1 - face/vertex")
-	// {
-	// 	std::shared_ptr<Collision> collision1 = detector.Collide(collider2, collider1);
-	// 	REQUIRE(collision1 != nullptr);
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.f, 0.f, 0.f), collision1->contacts[0].contactNormal, detector.tolerance)));
-	// 	REQUIRE(collision1->contacts.size() == 2);
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.5f, 1.f, 0.5f), collision1->contacts[0].contactPoint, detector.tolerance)));
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(2.f, 1.f, 2.f), collision1->contacts[1].contactPoint, detector.tolerance)));
-	// }
-	// SECTION("Collider 1/3 - face/edge")
-	// {
-	// 	std::shared_ptr<Collision> collision2 = detector.Collide(collider1, collider3);
-	// 	REQUIRE(collision2 != nullptr);
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(0.f, -1.f, 0.f), collision2->contacts[0].contactNormal, detector.tolerance)));
-	// 	REQUIRE(collision2->contacts.size() == 2);
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.f, 1.75f, 1.5f), collision2->contacts[1].contactPoint, detector.tolerance)));
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.f, 1.75f, .5f), collision2->contacts[0].contactPoint, detector.tolerance)));
-	// }
-	// SECTION("Collider 3/1 - face/edge")
-	// {
-	// 	std::shared_ptr<Collision> collision2 = detector.Collide(collider3, collider1);
-	// 	REQUIRE(collision2 != nullptr);
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(0.f, 1.f, 0.f), collision2->contacts[0].contactNormal, detector.tolerance)));
-	// 	REQUIRE(collision2->contacts.size() == 2);
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.f, 1.75f, 1.5f), collision2->contacts[1].contactPoint, detector.tolerance)));
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.f, 1.75f, .5f), collision2->contacts[0].contactPoint, detector.tolerance)));
-	// }
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.5f, 1.f, 0.5f), collision1->contacts[0].contactPoint, detector.tolerance)));
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(2.f, 1.f, 2.f), collision1->contacts[1].contactPoint, detector.tolerance)));
+	}
+	SECTION("Collider 2/1 - face/vertex")
+	{
+		std::shared_ptr<Collision> collision1 = detector.Collide(collider2, collider1);
+		REQUIRE(collision1 != nullptr);
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.f, 0.f, 0.f), collision1->contacts[0].contactNormal, detector.tolerance)));
+		REQUIRE(collision1->contacts.size() == 2);
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.5f, 1.f, 0.5f), collision1->contacts[0].contactPoint, detector.tolerance)));
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(2.f, 1.f, 2.f), collision1->contacts[1].contactPoint, detector.tolerance)));
+	}
+	SECTION("Collider 1/3 - face/edge")
+	{
+		std::shared_ptr<Collision> collision2 = detector.Collide(collider1, collider3);
+		REQUIRE(collision2 != nullptr);
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(0.f, -1.f, 0.f), collision2->contacts[0].contactNormal, detector.tolerance)));
+		REQUIRE(collision2->contacts.size() == 2);
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.f, 1.75f, 1.5f), collision2->contacts[1].contactPoint, detector.tolerance)));
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.f, 1.75f, .5f), collision2->contacts[0].contactPoint, detector.tolerance)));
+	}
+	SECTION("Collider 3/1 - face/edge")
+	{
+		std::shared_ptr<Collision> collision2 = detector.Collide(collider3, collider1);
+		REQUIRE(collision2 != nullptr);
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(0.f, 1.f, 0.f), collision2->contacts[0].contactNormal, detector.tolerance)));
+		REQUIRE(collision2->contacts.size() == 2);
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.f, 1.75f, 1.5f), collision2->contacts[1].contactPoint, detector.tolerance)));
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(1.f, 1.75f, .5f), collision2->contacts[0].contactPoint, detector.tolerance)));
+	}
 
-	// SECTION("Collider 1/4 - face/face")
+	SECTION("Collider 1/4 - face/face")
+	{
+		std::shared_ptr<Collision> collision = detector.Collide(collider1, collider4);
+		REQUIRE(collision != nullptr);
+		REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(0.f, -1.f, 0.f), collision->contacts[0].contactNormal, detector.tolerance)));
+		REQUIRE(collision->contacts.size() == 4);
+		std::vector<glm::vec3> expectedPoints;
+		expectedPoints.push_back(glm::vec3(2.f, 2.f, 0.f));
+		expectedPoints.push_back(glm::vec3(0.f, 2.f, 0.f));
+		expectedPoints.push_back(glm::vec3(0.f, 2.f, 2.f));
+		expectedPoints.push_back(glm::vec3(2.f, 2.f, 2.f));
+
+		for (int i = 0; i < expectedPoints.size(); i++)
+		{
+			bool found = false;
+			for (int j = 0; j < collision->contacts.size(); j++)
+			{
+				if (glm::all(glm::epsilonEqual(expectedPoints[i], collision->contacts[j].contactPoint, detector.tolerance)))
+					found = true;
+			}
+			REQUIRE(found == true);
+		}
+	}
+	SECTION("Collider 1/5 - edge/edge")
+	{
+		std::shared_ptr<Collision> collision = detector.Collide(collider1, collider5);
+		REQUIRE(collision != nullptr);
+		REQUIRE(collision->contacts.size() == 1);
+		glm::vec3 expectedNormal = glm::normalize(glm::cross(points1[1] - points1[5], points5[1] - points5[0]));
+		REQUIRE(glm::all(glm::epsilonEqual(-expectedNormal, collision->contacts[0].contactNormal, detector.tolerance)));
+		float penetrationCheck = collision->contacts[0].penetration - 0.174f;
+		REQUIRE(penetrationCheck >= 0.f);
+		REQUIRE(penetrationCheck < 0.005f);
+	}
+	SECTION("Collider 5/1 - edge/edge")
+	{
+		std::shared_ptr<Collision> collision = detector.Collide(collider1, collider5);
+		REQUIRE(collision != nullptr);
+		REQUIRE(collision->contacts.size() == 1);
+		glm::vec3 expectedNormal = glm::normalize(glm::cross(points1[1] - points1[5], points5[1] - points5[0]));
+		REQUIRE(glm::all(glm::epsilonEqual(-expectedNormal, collision->contacts[0].contactNormal, detector.tolerance)));
+		float penetrationCheck = collision->contacts[0].penetration - 0.174f;
+		REQUIRE(penetrationCheck >= 0.f);
+		REQUIRE(penetrationCheck < 0.005f);
+	}
+	// SECTION("Collider 1/6 - big face/small face")
 	// {
-	// 	std::shared_ptr<Collision> collision = detector.Collide(collider1, collider4);
+	// 	// TODO : FIX
+	// 	std::shared_ptr<Collision> collision = detector.Collide(collider1, collider6);
 	// 	REQUIRE(collision != nullptr);
-	// 	REQUIRE(glm::all(glm::epsilonEqual(glm::vec3(0.f, -1.f, 0.f), collision->contacts[0].contactNormal, detector.tolerance)));
 	// 	REQUIRE(collision->contacts.size() == 4);
-	// 	std::vector<glm::vec3> expectedPoints;
-	// 	expectedPoints.push_back(glm::vec3(2.f, 2.f, 0.f));
-	// 	expectedPoints.push_back(glm::vec3(0.f, 2.f, 0.f));
-	// 	expectedPoints.push_back(glm::vec3(0.f, 2.f, 2.f));
-	// 	expectedPoints.push_back(glm::vec3(2.f, 2.f, 2.f));
-
-	// 	for (int i = 0; i < expectedPoints.size(); i++)
-	// 	{
-	// 		bool found = false;
-	// 		for (int j = 0; j < collision->contacts.size(); j++)
-	// 		{
-	// 			if (glm::all(glm::epsilonEqual(expectedPoints[i], collision->contacts[j].contactPoint, detector.tolerance)))
-	// 				found = true;
-	// 		}
-	// 		REQUIRE(found == true);
-	// 	}
 	// }
-	// SECTION("Collider 1/5 - edge/edge")
-	// {
-	// 	std::shared_ptr<Collision> collision = detector.Collide(collider1, collider5);
-	// 	REQUIRE(collision != nullptr);
-	// 	REQUIRE(collision->contacts.size() == 1);
-	// 	glm::vec3 expectedNormal = glm::normalize(glm::cross(points1[1] - points1[5], points5[1] - points5[0]));
-	// 	REQUIRE(glm::all(glm::epsilonEqual(-expectedNormal, collision->contacts[0].contactNormal, detector.tolerance)));
-	// 	float penetrationCheck = collision->contacts[0].penetration - 0.174f;
-	// 	REQUIRE(penetrationCheck >= 0.f);
-	// 	REQUIRE(penetrationCheck < 0.005f);
-	// }
-	// SECTION("Collider 5/1 - edge/edge")
-	// {
-	// 	std::shared_ptr<Collision> collision = detector.Collide(collider1, collider5);
-	// 	REQUIRE(collision != nullptr);
-	// 	REQUIRE(collision->contacts.size() == 1);
-	// 	glm::vec3 expectedNormal = glm::normalize(glm::cross(points1[1] - points1[5], points5[1] - points5[0]));
-	// 	REQUIRE(glm::all(glm::epsilonEqual(-expectedNormal, collision->contacts[0].contactNormal, detector.tolerance)));
-	// 	float penetrationCheck = collision->contacts[0].penetration - 0.174f;
-	// 	REQUIRE(penetrationCheck >= 0.f);
-	// 	REQUIRE(penetrationCheck < 0.005f);
-	// }
-	// // SECTION("Collider 1/6 - big face/small face")
-	// // {
-	// // 	// TODO : FIX
-	// // 	std::shared_ptr<Collision> collision = detector.Collide(collider1, collider6);
-	// // 	REQUIRE(collision != nullptr);
-	// // 	REQUIRE(collision->contacts.size() == 4);
-	// // }
 }
