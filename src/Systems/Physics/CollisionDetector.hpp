@@ -35,9 +35,9 @@ class CollisionDetector
         bool CheckEdges(SATData& data, std::shared_ptr<Collider> first, std::shared_ptr<Collider> second);
 
         /**
-        GetCollisionPoints clips the edges of the first against the faces of the second.
+        the first collider will hold the reference face and the second will hold the incident face.
         */
-        std::vector<glm::vec3> GetCollisionPoints(SATData& data, std::shared_ptr<Collider> first, std::shared_ptr<Collider> second);
+        std::vector<glm::vec3> GetContactPoints(SATData& data, std::shared_ptr<Collider> first, std::shared_ptr<Collider> second);
 
         // Helpers
         /** 
@@ -63,11 +63,8 @@ class CollisionDetector
         Clips a given list of edges against a plane. Used in collision detection to determine the contact
         points that are sent to the solver.
          */
-        std::vector<glm::vec3> Clip(std::shared_ptr<Collider> first, std::shared_ptr<Collider> second, std::vector<ColliderFace>& planes);
+        std::vector<glm::vec3> Clip(std::vector<glm::vec3>& points, std::vector<std::pair<glm::vec3, glm::vec3>>& planes);
 
-        std::vector<ColliderFace> GetAdjacentFaces(SATData& data, const std::vector<ColliderFace>& faces);
-
-        bool ContainsPoint(glm::vec3 point, std::vector<glm::vec3>& points);
         /** 
         GetSupport Points returns the the farthest point in the given direction.
         It is an O(n) operation, but the assumption here is that we wont have massive polyhedras.

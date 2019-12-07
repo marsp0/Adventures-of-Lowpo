@@ -218,9 +218,6 @@ void Game::InitScene(std::string filename, std::vector<std::unique_ptr<Entity>>&
     //     if (it->first == "Player")
     //         type = DynamicType::Dynamic;
     //     float mass = 1.0f;
-    //     if (objectToColliders[it->first].size() > 0)
-    //         std::cout << "setting mass " << std::endl;
-    //         mass = 1.0f;
     //     std::unique_ptr<PhysicsComponent> physicsComponent = std::make_unique<PhysicsComponent>(1.f, translation, rotation, glm::mat3(1.f), type);
     //     // assign colliders to component and insert into grid
     //     physicsComponent->colliders = objectToColliders[it->first];
