@@ -33,9 +33,6 @@ void ColliderBuilder::FindExtremeFaces(	std::vector<std::unique_ptr<cFace>>& fac
 			for (int k = j + 1; k < points.size(); k++)
 			{
 				std::unique_ptr<cFace> face = ColliderBuilder::CreateFace(i, j, k, center, points);
-				face->points.insert(i);
-				face->points.insert(j);
-				face->points.insert(k);
 				bool isExtreme = true;
 				float planeOffset = glm::dot(face->normal, points[i]);
 				
@@ -43,15 +40,12 @@ void ColliderBuilder::FindExtremeFaces(	std::vector<std::unique_ptr<cFace>>& fac
 				{
 					if (x == i || x == j || x == k)
 						continue;
+
 					glm::vec3 pointOnFace = points[face->edges[0].first];
 					glm::vec3 pointToFace = points[x] - pointOnFace;
-
-					float pointFaceDot = glm::dot(face->normal, points[x]);
 					
-					if (glm::dot(pointToFace, face->normal) > 0.f)
+					if (glm::dot(pointToFace, face->normal) > epsilon)
 						isExtreme = false;
-					else if (pointFaceDot - planeOffset < epsilon && pointFaceDot - planeOffset >= 0.f)
-						face->points.insert(x);
 				}
 				if (isExtreme)
 					faces.push_back(std::move(face));
@@ -73,14 +67,12 @@ void ColliderBuilder::MergeFaces(	std::vector<std::unique_ptr<cFace>>& faces,
  		if (isVisited != visitedKeys.end())
  			continue;
 
- 		// list of faces that are part of the final face
  		std::vector<cFace*> 							currentFaces{faces[i].get()};
- 		// indices of faces that should be market visited.
  		std::vector<int> 								currFaceIndices{i};
  		std::vector<int> 								currentVertices{faces[i]->edges[0].first, faces[i]->edges[1].first, faces[i]->edges[2].first};
  		std::vector<std::pair<int, int>> 				currentEdges;
- 		std::unordered_set<int> 						pointsOnFace;	
 
+ 		// get all faces with the same normal
  		for (int j = i + 1; j < faces.size(); j++)
 		{
 			if (glm::all(glm::epsilonEqual(faces[i]->normal, faces[j]->normal, epsilon)))
@@ -90,10 +82,6 @@ void ColliderBuilder::MergeFaces(	std::vector<std::unique_ptr<cFace>>& faces,
 				currentVertices.push_back(faces[j]->edges[0].first);
 				currentVertices.push_back(faces[j]->edges[1].first);
 				currentVertices.push_back(faces[j]->edges[2].first);
-				for (std::unordered_set<int>::iterator x = faces[i]->points.begin(); x != faces[i]->points.end(); x++)
-				{
-					pointsOnFace.insert(*x);
-				}
 			}
 		}
  		
@@ -111,12 +99,32 @@ void ColliderBuilder::MergeFaces(	std::vector<std::unique_ptr<cFace>>& faces,
  			}
  		}
 
+ 		// get ordered points used for clipping
+ 		std::vector<int> orderedFacePoints{currentEdges[0].first, currentEdges[0].second};
+ 		int nextWanted = currentEdges[0].second;
+ 		int currentIndex = 1;
+ 		while (orderedFacePoints.size() < currentEdges.size())
+ 		{
+ 			std::pair<int, int> edge = currentEdges[currentIndex];
+
+ 			if (edge.first == nextWanted)
+			{
+				orderedFacePoints.push_back(edge.second);
+				nextWanted = edge.second;
+			}
+			else if (edge.second == nextWanted)
+			{
+				orderedFacePoints.push_back(edge.first);
+				nextWanted = edge.first;
+			}
+ 			currentIndex++;
+ 			currentIndex = currentIndex % currentEdges.size();
+ 			if (currentIndex == 0) currentIndex = 1;
+ 		}
+
  		ColliderFace finalFace;
  		finalFace.normal = currentFaces[0]->normal;
- 		for (std::unordered_set<int>::iterator k = pointsOnFace.begin(); k != pointsOnFace.end(); k++)
- 		{
- 			finalFace.points.push_back(*k);
- 		}
+ 		finalFace.points = orderedFacePoints;
  		finalFaces.push_back(finalFace);
 
  		for (int k = 0; k < currentEdges.size(); k++)
@@ -161,6 +169,8 @@ bool ColliderBuilder::IsExtremeEdge(std::vector<int> pointIndices, std::pair<int
 	glm::vec3 PQ = glm::normalize(MQ - glm::dot(MQ, MN) * MN);
 	for (int i = 0; i < pointIndices.size(); i++)
 	{
+		if (pointIndices[i] == edge.first || pointIndices[i] == edge.second)
+			continue;
 		glm::vec3 currPoint = points[pointIndices[i]];
 		glm::vec3 currDir = glm::normalize(currPoint - edgeFirst);
 		if (glm::dot(currDir, PQ) < 0.f)

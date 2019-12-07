@@ -304,3 +304,115 @@ TEST_CASE("Face points test")
 		REQUIRE(found == true);
 	}
 }
+
+TEST_CASE("Deformed box produces correct points on faces 1")
+{
+	std::vector<glm::vec3> points;
+	points.push_back(glm::vec3(0.f, 0.f, 0.f)); // 0 A
+	points.push_back(glm::vec3(2.f, 0.f, 0.f)); // 1 B
+	points.push_back(glm::vec3(0.f, 1.f, 0.f)); // 2 C
+	points.push_back(glm::vec3(2.f, 2.f, 0.f)); // 3 D
+	points.push_back(glm::vec3(0.f, 0.f, 0.7f)); // 4 E
+	points.push_back(glm::vec3(2.f, 0.f, 2.f)); // 5 F
+	points.push_back(glm::vec3(2.f, 2.f, 2.f)); // 6 G
+	points.push_back(glm::vec3(0.f, 1.f, 1.f)); // 7 H
+
+	std::shared_ptr<Collider> collider = ColliderBuilder::Build(1, DynamicType::Static, points);
+
+	std::vector<std::vector<int>> expectedFacePoints;
+	expectedFacePoints.push_back(std::vector<int>{1, 3, 6, 5});
+	expectedFacePoints.push_back(std::vector<int>{6, 3, 7, 2});
+	expectedFacePoints.push_back(std::vector<int>{5, 1, 4, 0});
+	expectedFacePoints.push_back(std::vector<int>{1, 3, 0, 2});
+	expectedFacePoints.push_back(std::vector<int>{7, 2, 4, 0});
+	expectedFacePoints.push_back(std::vector<int>{5, 6, 7});
+	expectedFacePoints.push_back(std::vector<int>{4, 5, 7});
+
+	const std::vector<ColliderFace>& faces = collider->GetFaces();
+
+	REQUIRE(expectedFacePoints.size() == faces.size());
+	for (int i = 0; i < expectedFacePoints.size(); i++)
+	{
+		bool found = false;
+		for (int j = 0; j < faces.size(); j++)
+		{
+			int count = 0;
+			for (int x = 0; x < faces[j].points.size(); x++)
+			{
+				for (int k = 0; k < expectedFacePoints[i].size(); k++)
+				{
+					if (faces[j].points[x] == expectedFacePoints[i][k])
+						count += 1;
+				}
+			}
+			if (count == expectedFacePoints[i].size())
+				found = true;
+		}
+		REQUIRE(found == true);
+	}
+}
+
+TEST_CASE("Deformed box produces correct points on faces 2")
+{
+	std::vector<glm::vec3> points;
+	points.push_back(glm::vec3(1.5f, 1.f, 0.5f));	 // 0
+	points.push_back(glm::vec3(3.f, 1.f, 0.f)); 	// 1
+	points.push_back(glm::vec3(3.f, 2.58f, 0.f)); 	// 2
+	points.push_back(glm::vec3(1.5f, 2.58f, 0.5f)); // 3
+	points.push_back(glm::vec3(3.5f, 1.f, 1.5f)); 	// 4
+	points.push_back(glm::vec3(2.f, 2.58f, 2.f)); 	// 5
+	points.push_back(glm::vec3(2.f, 1.f, 2.f)); 	// 6
+	points.push_back(glm::vec3(3.5f, 2.58f, 1.5f)); // 7
+	std::shared_ptr<Collider> collider = ColliderBuilder::Build(1, DynamicType::Static, points);
+
+	std::vector<std::vector<int>> expectedFacePoints;
+	expectedFacePoints.push_back(std::vector<int>{0, 1, 6, 4});
+	expectedFacePoints.push_back(std::vector<int>{1, 2, 7, 4});
+	expectedFacePoints.push_back(std::vector<int>{5, 7, 2, 3});
+	expectedFacePoints.push_back(std::vector<int>{0, 3, 5, 6});
+	expectedFacePoints.push_back(std::vector<int>{4, 5, 6, 7});
+	expectedFacePoints.push_back(std::vector<int>{0, 1, 2, 3});
+
+	const std::vector<ColliderFace>& faces = collider->GetFaces();
+
+	REQUIRE(expectedFacePoints.size() == faces.size());
+	for (int i = 0; i < expectedFacePoints.size(); i++)
+	{
+		bool found = false;
+		for (int j = 0; j < faces.size(); j++)
+		{
+			int count = 0;
+			for (int x = 0; x < faces[j].points.size(); x++)
+			{
+				for (int k = 0; k < expectedFacePoints[i].size(); k++)
+				{
+					if (faces[j].points[x] == expectedFacePoints[i][k])
+						count += 1;
+				}
+			}
+			if (count == expectedFacePoints[i].size())
+				found = true;
+		}
+		REQUIRE(found == true);
+	}
+}
+
+TEST_CASE("Deformed box produces 6 faces and 12 edges")
+{
+	std::vector<glm::vec3> points;
+	points.push_back(glm::vec3(0.72f, -1.29f, 1.5f));
+	points.push_back(glm::vec3(3.f, 1.5f, 1.5f));
+	points.push_back(glm::vec3(2.74f, -2.94f, -0.98f));
+	points.push_back(glm::vec3(5.02f, -.16f, -0.98f));
+	points.push_back(glm::vec3(2.64f, -2.86f, 4.12f));
+	points.push_back(glm::vec3(4.92f, -.07f, 4.12f));
+	points.push_back(glm::vec3(4.66f, -4.51f, 1.64f));
+	points.push_back(glm::vec3(6.94f, -1.72f, 1.64f));
+	std::shared_ptr<Collider> collider = ColliderBuilder::Build(5, DynamicType::Static, points);
+
+	const std::vector<ColliderFace>& faces = collider->GetFaces();
+	const std::vector<std::pair<int, int>>& edges = collider->GetEdges();
+
+	REQUIRE(faces.size() == 6);
+	REQUIRE(edges.size() == 12);
+}

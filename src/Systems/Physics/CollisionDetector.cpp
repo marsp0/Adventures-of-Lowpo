@@ -15,7 +15,7 @@ CollisionDetector::CollisionDetector()
 
 std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> first, std::shared_ptr<Collider> second)
 {
-    std::vector<glm::vec3> collisionPoints;
+    std::vector<glm::vec3> contactPoints;
 
     // get edges and faces
     const std::vector<glm::vec3>&           pointsA = first->GetPoints();
@@ -30,17 +30,13 @@ std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> 
     data.minPenDepth = 10000.f;
     data.minEdgeDistance = 10000.f;
 
-    // checking edges first in case we end up with cross product that represents the normal
-    // of a face. This causes us to have a face collision represented as an edge collision.
-    // Need to fix that, but atm i have no idea how.
-    // For concrete example check GridTest.cpp - collision between plane and box (entityID 1 and 3)
-    if (this->CheckEdges(data, first, second))
-        return nullptr;
-
     if (this->CheckFaces(data, first, second, true))
         return nullptr;
 
     if (this->CheckFaces(data, second, first, false))
+        return nullptr;
+
+    if (this->CheckEdges(data, first, second))
         return nullptr;
 
     if (!data.isFaceCollision)
@@ -50,7 +46,7 @@ std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> 
         std::pair<int, int> e2 = edgesB[data.indexEdgeB];
         std::pair<glm::vec3, glm::vec3> edgeA = std::make_pair(pointsA[e1.first], pointsA[e1.second]);
         std::pair<glm::vec3, glm::vec3> edgeB = std::make_pair(pointsB[e2.first], pointsB[e2.second]);
-        collisionPoints.push_back(this->GetContactBetweenEdges(edgeA, edgeB));
+        contactPoints.push_back(this->GetContactBetweenEdges(edgeA, edgeB));
 
         // adjust the direction of the normal.
         float direction = glm::dot(second->center - first->center, data.collisionAxis);
@@ -61,23 +57,112 @@ std::shared_ptr<Collision> CollisionDetector::Collide(std::shared_ptr<Collider> 
     {
         if (data.isFaceACollision)
         {
-            collisionPoints = this->GetCollisionPoints(data, second, first);
+            contactPoints = this->GetContactPoints(data, first, second);
             data.collisionAxis = -data.collisionAxis;
         }
         else
-        {
-            collisionPoints = this->GetCollisionPoints(data, first, second);
-        }
+            contactPoints = this->GetContactPoints(data, second, first);
     }
+
+    assert(contactPoints.size() != 0);
+
     std::vector<Contact> contacts;
     std::shared_ptr<Collision> collision = std::make_shared<Collision>(first->entityID, first, second->entityID, second, contacts);
-    for (int i = 0; i < collisionPoints.size(); i++)
+    for (int i = 0; i < contactPoints.size(); i++)
     {
-        glm::vec3 point = collisionPoints[i];
+        glm::vec3 point = contactPoints[i];
         Contact contact = Contact(point, data.collisionAxis, data.minPenDepth);
         collision->contacts.push_back(contact);
     }
     return collision;
+}
+
+bool CollisionDetector::CheckFaces(SATData& data, std::shared_ptr<Collider> first, std::shared_ptr<Collider> second, bool isFaceA)
+{
+
+    const std::vector<glm::vec3>& pointsA = first->GetPoints();
+    const std::vector<glm::vec3>& pointsB = second->GetPoints();
+    const std::vector<ColliderFace>& faces = first->GetFaces();
+
+    glm::vec3 centerDir = second->center - first->center;
+
+    float currPenDepth = 0.f;
+    for (int i = 0; i < faces.size(); i++)
+    {
+        if (this->IsSeparatingAxis(faces[i].normal, pointsA, pointsB, currPenDepth))
+        {
+            return true;
+        }
+        float sameDirAsCenters = glm::dot(centerDir, faces[i].normal);
+        if (currPenDepth <= data.minPenDepth && sameDirAsCenters >= 0.f)
+        {
+            data.indexFace = i;
+            data.isFaceACollision = isFaceA;
+            data.isFaceCollision = true;
+            data.collisionAxis = faces[i].normal;
+            data.minPenDepth = currPenDepth;
+        }
+    }
+    return false;
+}
+
+bool CollisionDetector::CheckEdges(SATData& data, std::shared_ptr<Collider> first, std::shared_ptr<Collider> second)
+{
+    const std::vector<glm::vec3>&           pointsA = first->GetPoints();
+    const std::vector<std::pair<int, int>>& edgesA  = first->GetEdges();
+
+    const std::vector<glm::vec3>&           pointsB = second->GetPoints();
+    const std::vector<std::pair<int, int>>& edgesB  = first->GetEdges();
+
+    float faceEdgeTolerance = 0.005f;
+    float currPenDepth = 0.f;
+    for (int i = 0; i < edgesA.size(); i++)
+    {
+        for (int j = 0; j < edgesB.size(); j++)
+        {
+            // take the cross
+            glm::vec3 edgeA = pointsA[edgesA[i].second] - pointsA[edgesA[i].first];
+            glm::vec3 edgeB = pointsB[edgesB[j].second] - pointsB[edgesB[j].first];
+            glm::vec3 possibleCollisionAxis = glm::normalize(glm::cross(edgeA, edgeB));
+            bool isMin = false;
+
+            if (glm::length2(possibleCollisionAxis) < 0.005f)
+                continue;
+
+            // SAT check
+            if (this->IsSeparatingAxis(possibleCollisionAxis, pointsA, pointsB, currPenDepth))
+            {
+                return true;
+            }
+
+            std::pair<glm::vec3, glm::vec3> e1 = std::make_pair(pointsA[edgesA[i].first], pointsA[edgesA[i].second]);
+            std::pair<glm::vec3, glm::vec3> e2 = std::make_pair(pointsB[edgesB[j].first], pointsB[edgesB[j].second]);
+            float currMinDistance = this->GetMinDistanceBetweenEdges(e1, e2);
+            // we want to favor face collisions over edge ones.
+            if (!data.isFaceCollision)
+            {
+                if (currPenDepth <= data.minPenDepth && currMinDistance < data.minEdgeDistance)
+                    isMin = true;
+            }
+            else
+            {
+                if (currPenDepth + faceEdgeTolerance < data.minPenDepth && data.isFaceCollision)
+                    isMin = true;
+            }
+            if (isMin)
+            {
+                data.indexEdgeA = i;
+                data.indexEdgeB = j;
+
+                data.isFaceCollision = false;
+                data.collisionAxis   = possibleCollisionAxis;
+
+                data.minPenDepth     = currPenDepth;
+                data.minEdgeDistance = currMinDistance;
+            }
+        }
+    }
+    return false;
 }
 
 bool CollisionDetector::IsSeparatingAxis(glm::vec3 direction,
@@ -100,6 +185,23 @@ bool CollisionDetector::IsSeparatingAxis(glm::vec3 direction,
     else
         tempPenDepth = first;
     return false;
+}
+
+glm::vec3 CollisionDetector::GetSupportPoint(const std::vector<glm::vec3>& points, glm::vec3 direction)
+{
+    assert(points.size() != 0);
+    float max = glm::dot(direction, points[0]);
+    int index = 0;
+    for (int i = 0; i < points.size(); i++)
+    {
+        float current = glm::dot(direction, points[i]);
+        if (current > max)
+        {
+            max = current;
+            index = i;
+        }
+    }
+    return points[index];
 }
 
 glm::vec3 CollisionDetector::GetContactBetweenEdges(const std::pair<glm::vec3, glm::vec3>& edgeA,
@@ -197,89 +299,91 @@ float CollisionDetector::GetMinDistanceBetweenEdges(const std::pair<glm::vec3, g
     return glm::length2(result);
 }
 
-std::vector<glm::vec3> CollisionDetector::Clip(std::shared_ptr<Collider> first, std::shared_ptr<Collider> second, std::vector<ColliderFace>& planes)
+std::vector<glm::vec3> CollisionDetector::GetContactPoints(SATData& data, std::shared_ptr<Collider> first, std::shared_ptr<Collider> second)
 {
-    const std::vector<glm::vec3>& points = first->GetPoints();
-    const std::vector<std::pair<int, int>>& edges = first->GetEdges();
+    const std::vector<ColliderFace>& incidentFaces = second->GetFaces();
+    const std::vector<glm::vec3>& incidentPoints = second->GetPoints();
 
-    const std::vector<glm::vec3>& facePoints = second->GetPoints();
+    const std::vector<glm::vec3>& referencePoints = first->GetPoints();
 
-    std::vector<glm::vec3> output;
-    for (int k = 0; k < edges.size(); k++)
+    float min = 10000.f;
+    int index = -1;
+    for (int i = 0; i < incidentFaces.size(); i++)
     {
-        glm::vec3 v1 = points[edges[k].first];
-        glm::vec3 v2 = points[edges[k].second];
-
-        bool shouldAddFirst = !this->ContainsPoint(v1, output);
-        bool shouldAddSecond = !this->ContainsPoint(v2, output);
-
-        if (!shouldAddFirst && !shouldAddSecond)
+        float currentMin = glm::dot(data.collisionAxis, incidentFaces[i].normal);
+        if (currentMin < min)
         {
-            continue;
-        }
-
-        glm::vec3 intersectionPoint = glm::vec3(0.f, 0.f, 0.f);
-        for (int j = 0; j < planes.size(); j++)
-        {
-            ColliderFace plane = planes[j];
-            float dotFirst = glm::dot(plane.normal, v1);
-            float dotSecond = glm::dot(plane.normal, v2);
-            float planeOffset = glm::dot(plane.normal, facePoints[plane.points[0]]);
-            if (dotFirst > planeOffset)
-            {
-                shouldAddFirst = false;
-            }
-            if (dotSecond > planeOffset)
-            {
-                shouldAddSecond = false;
-            }
-            if (dotFirst < planeOffset && dotSecond > planeOffset || dotFirst > planeOffset && dotSecond < planeOffset)
-            {
-                std::pair<glm::vec3, glm::vec3> simplePlane = std::make_pair(plane.normal, facePoints[plane.points[0]]);
-                glm::vec3 intersectionPoint = this->IntersectLinePlane(v1, v2, simplePlane);
-            }
-        }
-
-        if (shouldAddFirst)
-        {
-            output.push_back(v1);
-        }
-        if (shouldAddSecond)
-            output.push_back(v2);
-        float magnitudeSq = glm::length2(intersectionPoint);
-        if ((shouldAddFirst || shouldAddSecond) &&  !(shouldAddFirst && shouldAddSecond) && magnitudeSq > 0.f)
-        {
-            output.push_back(intersectionPoint);
-        }
-    }
-    return output;
-}
-
-bool CollisionDetector::ContainsPoint(glm::vec3 point, std::vector<glm::vec3>& points)
-{
-    for (int i = 0; i < points.size(); i++)
-    {
-        if (glm::all(glm::equal(point, points[i])))
-            return true;
-    }
-    return false;
-}
-
-glm::vec3 CollisionDetector::GetSupportPoint(const std::vector<glm::vec3>& points, glm::vec3 direction)
-{
-    assert(points.size() != 0);
-    float max = glm::dot(direction, points[0]);
-    int index = 0;
-    for (int i = 0; i < points.size(); i++)
-    {
-        float current = glm::dot(direction, points[i]);
-        if (current > max)
-        {
-            max = current;
+            min = currentMin;
             index = i;
         }
     }
-    return points[index];
+
+    // create points vector
+    std::vector<glm::vec3> incidentFacePoints;
+    for (int i = 0; i < incidentFaces[index].points.size(); i++)
+    {
+        int pointIndex = incidentFaces[index].points[i];
+        incidentFacePoints.push_back(incidentPoints[pointIndex]);
+    }
+
+    // create faces to clip against
+    std::vector<std::pair<glm::vec3, glm::vec3>> sideFaces;
+    const ColliderFace& referenceFace = first->GetFaces()[data.indexFace];
+    int count = referenceFace.points.size();
+    for (int i = 0; i < referenceFace.points.size(); i++)
+    {
+        int v1 = referenceFace.points[i];
+        int v2 = referenceFace.points[(i + 1) % count];
+        glm::vec3 edge = referencePoints[v2] - referencePoints[v1];
+        glm::vec3 normal = glm::normalize(glm::cross( referenceFace.normal, edge));
+        if (glm::dot(referencePoints[v1] - first->center, normal) < 0.f)
+            normal = -normal;
+        sideFaces.push_back(std::make_pair(normal, referencePoints[v1]));
+    }
+
+    // clip
+    std::vector<glm::vec3> clippedPoints = this->Clip(incidentFacePoints, sideFaces);
+    std::vector<glm::vec3> contactPoints;
+    for (int i = 0; i < clippedPoints.size(); i++)
+    {
+        if ( glm::dot(data.collisionAxis, clippedPoints[i] - sideFaces[0].second) <= 0.f)
+            contactPoints.push_back(clippedPoints[i]);
+    }
+    return contactPoints;
+}
+
+std::vector<glm::vec3> CollisionDetector::Clip(std::vector<glm::vec3>& points, std::vector<std::pair<glm::vec3, glm::vec3>>& planes)
+{
+    // Used Sutherland-Hodgman for the clipping
+    // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
+    std::vector<glm::vec3> output = points;
+    for (int j = 0; j < planes.size(); j++)
+    {
+        std::vector<glm::vec3> input = output;
+        output.clear();
+        std::pair<glm::vec3, glm::vec3> plane = planes[j];
+        float planeOffset = glm::dot(plane.first, plane.second);
+        for (int i = 0; i < input.size(); i++)
+        {
+            // compute intersection points
+            glm::vec3 v1 = input[i];
+            glm::vec3 v2 = input[(i+1) % input.size()];
+            glm::vec3 intersectionPoint = this->IntersectLinePlane(v1, v2, plane);
+            if (glm::dot(plane.first, v2) < planeOffset)
+            {
+                if (glm::dot(plane.first, v1) > planeOffset)
+                {
+                    output.push_back(intersectionPoint);
+                }
+                output.push_back(v2);
+            }
+            else if (glm::dot(plane.first, v1) < planeOffset)
+            {
+                output.push_back(intersectionPoint);
+            }
+        }
+    }
+    return output;
 }
 
 glm::vec3 CollisionDetector::IntersectLinePlane(glm::vec3 a, glm::vec3 b, std::pair<glm::vec3, glm::vec3>& plane)
@@ -294,121 +398,4 @@ glm::vec3 CollisionDetector::IntersectLinePlane(glm::vec3 a, glm::vec3 b, std::p
         result = a + t * ab;
     }
     return result;
-}
-
-bool CollisionDetector::CheckFaces(SATData& data, std::shared_ptr<Collider> first, std::shared_ptr<Collider> second, bool isFaceA)
-{
-
-    const std::vector<glm::vec3>& pointsA = first->GetPoints();
-    const std::vector<glm::vec3>& pointsB = second->GetPoints();
-    const std::vector<ColliderFace>& faces = first->GetFaces();
-
-    glm::vec3 centerDir = second->center - first->center;
-
-    float currPenDepth = 0.f;
-    for (int i = 0; i < faces.size(); i++)
-    {
-        if (this->IsSeparatingAxis(faces[i].normal, pointsA, pointsB, currPenDepth))
-        {
-            return true;
-        }
-        float sameDirAsCenters = glm::dot(centerDir, faces[i].normal);
-        if (currPenDepth <= data.minPenDepth && sameDirAsCenters >= 0.f)
-        {
-            data.indexFace = i;
-            data.isFaceACollision = isFaceA;
-            data.isFaceCollision = true;
-            data.collisionAxis = faces[i].normal;
-            data.minPenDepth = currPenDepth;
-        }
-    }
-    return false;
-}
-
-bool CollisionDetector::CheckEdges(SATData& data, std::shared_ptr<Collider> first, std::shared_ptr<Collider> second)
-{
-
-    const std::vector<glm::vec3>&           pointsA = first->GetPoints();
-    const std::vector<std::pair<int, int>>& edgesA  = first->GetEdges();
-
-    const std::vector<glm::vec3>&           pointsB = second->GetPoints();
-    const std::vector<std::pair<int, int>>& edgesB  = first->GetEdges();
-
-    float currPenDepth = 0.f;
-    for (int i = 0; i < edgesA.size(); i++)
-    {
-        for (int j = 0; j < edgesB.size(); j++)
-        {
-            // take the cross
-            glm::vec3 edgeA = pointsA[edgesA[i].second] - pointsA[edgesA[i].first];
-            glm::vec3 edgeB = pointsB[edgesB[j].second] - pointsB[edgesB[j].first];
-            glm::vec3 possibleCollisionAxis = glm::normalize(glm::cross(edgeA, edgeB));
-
-            if (glm::length2(possibleCollisionAxis) < 0.005f)
-                continue;
-
-            // SAT check
-            if (this->IsSeparatingAxis(possibleCollisionAxis, pointsA, pointsB, currPenDepth))
-            {
-                return true;
-            }
-            // we need this as we can have multiple edges with the same penetration depth,
-            // but where the actual distance between the edges is different. AABB one such collider
-            std::pair<glm::vec3, glm::vec3> e1 = std::make_pair(pointsA[edgesA[i].first], pointsA[edgesA[i].second]);
-            std::pair<glm::vec3, glm::vec3> e2 = std::make_pair(pointsB[edgesB[j].first], pointsB[edgesB[j].second]);
-            float currMinDistance = this->GetMinDistanceBetweenEdges(e1, e2);
-            if (currPenDepth <= data.minPenDepth && currMinDistance < data.minEdgeDistance)
-            {
-                // Add this check to the if above to make sure that we get the correct edge
-                data.indexEdgeA = i;
-                data.indexEdgeB = j;
-
-                data.isFaceCollision = false;
-                data.collisionAxis   = possibleCollisionAxis;
-
-                data.minPenDepth     = currPenDepth;
-                data.minEdgeDistance = currMinDistance;
-            }
-        }
-    }
-    return false;
-}
-
-std::vector<glm::vec3> CollisionDetector::GetCollisionPoints(SATData& data, std::shared_ptr<Collider> first, std::shared_ptr<Collider> second)
-{
-
-    const std::vector<ColliderFace>& faces = second->GetFaces();
-    const std::vector<glm::vec3>& points = second->GetPoints();
-
-    std::vector<glm::vec3> collisionPoints;
-    std::vector<ColliderFace> planes = this->GetAdjacentFaces(data, faces);
-    std::vector<glm::vec3> clippedPoints = this->Clip(first, second, planes);
-
-    for (int i = 0; i < clippedPoints.size(); i++)
-    {
-        int pointOnFaceIndex = faces[data.indexFace].points[0];
-        glm::vec3 pointOnFace = points[pointOnFaceIndex];
-        float dotFaceOne = glm::dot(data.collisionAxis, clippedPoints[i] - pointOnFace);
-        if ( dotFaceOne <= 0.f)
-        {
-            collisionPoints.push_back(clippedPoints[i]);
-        }
-    }
-    return collisionPoints;
-}
-
-std::vector<ColliderFace> CollisionDetector::GetAdjacentFaces(SATData& data, const std::vector<ColliderFace>& faces)
-{
-    // get all 4 planes to clip against
-    // clip the remaining points against the plane of the AABB with the same normal as the axisFase
-    std::vector<ColliderFace> planes;
-    for (int i = 0; i < faces.size(); i++)
-    {
-        glm::vec3 normal = faces[i].normal;
-        if (glm::dot(normal, data.collisionAxis) == 0.0f)
-        {
-            planes.push_back(faces[i]);
-        }
-    }
-    return planes;
 }
