@@ -94,7 +94,7 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::unique_ptr<Entity>>
 
 void PhysicsSystem::Solve(std::vector<std::unique_ptr<Entity>>& entities, std::vector<std::shared_ptr<Collision>>& collisions, std::unordered_map<int, int>& idToIndexMap)
 {
-    float ELASTICITY = 1.f;
+    float ELASTICITY = .1f;
     for (int i = 0; i < collisions.size(); i++)
     {
         std::shared_ptr<Collision> collision = collisions[i];
@@ -137,7 +137,6 @@ void PhysicsSystem::Solve(std::vector<std::unique_ptr<Entity>>& entities, std::v
             glm::vec3 angularPart1 = glm::cross(invInertiaTensorA * glm::cross(rA, normal), rA);
             glm::vec3 angularPart2 = glm::cross(invInertiaTensorB * glm::cross(rB, normal), rB);
             float angularFinal = glm::dot(angularPart1 + angularPart2, normal);
-
             float impulse = nominator / (invMassSum + angularFinal);
             
             if (firstCollider->dynamicType != DynamicType::Static)
