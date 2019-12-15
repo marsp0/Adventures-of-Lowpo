@@ -34,6 +34,10 @@ class PhysicsSystem
 
         void HandleMessages(std::vector<Message>& messages, PhysicsComponent* component);
 
+        /** DEBUG MODE */
+        void DebugDraw( std::vector<std::unique_ptr<Entity>>& entities,
+                        std::vector<std::shared_ptr<Collision>>& collisions);
+
     private:
 
         Grid                grid;\

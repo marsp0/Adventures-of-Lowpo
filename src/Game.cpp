@@ -16,6 +16,9 @@
 #include "Components/PhysicsComponent.hpp"
 #include "Components/RenderingComponent.hpp"
 #include "Components/TransformComponent.hpp"
+#include "Systems/Physics/ColliderBuilder.hpp"
+
+#include "util.hpp"
 
 
 void APIENTRY openglCallbackFunction(GLenum source,
@@ -103,7 +106,7 @@ void Game::InitConfig()
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE); // GLFW_OPENGL_CORE_PROFILE
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     // Create window
     this->window = glfwCreateWindow(this->width, this->height, "Adventures of Lowpo", nullptr, nullptr);
@@ -127,119 +130,112 @@ void Game::InitConfig()
 
 void Game::InitScene(std::string filename, std::vector<std::unique_ptr<Entity>>& entities)
 {
-    // unsigned int textureID = this->renderingSystem.CreateTexture("resources/DiffuseColor_Texture.png");
-    // tinyxml2::XMLDocument document;
-    // // TODO : check for the extension and report error if different from .dae
-    // tinyxml2::XMLError error = document.LoadFile(filename.c_str());
-    // if (error != 0)
-    //     return;
-    // // the document represents the "whole" file so we need to qu
-    // // is always Collada
-    // tinyxml2::XMLElement* collada = document.FirstChildElement("COLLADA");
+    unsigned int textureID = this->renderingSystem.CreateTexture("resources/DiffuseColor_Texture.png");
+    tinyxml2::XMLDocument document;
+    // TODO : check for the extension and report error if different from .dae
+    tinyxml2::XMLError error = document.LoadFile(filename.c_str());
+    if (error != 0)
+        return;
+    // the document represents the "whole" file so we need to qu
+    // is always Collada
+    tinyxml2::XMLElement* collada = document.FirstChildElement("COLLADA");
     
-    // // parse visual scenes for the world transforms.
-    // std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>> instanceGeometries;
-    // tinyxml2::XMLElement* libraryVisualScenes = collada->FirstChildElement("library_visual_scenes");
-    // instanceGeometries = Loader::ParseVisualScenesStatic(libraryVisualScenes);
+    // parse visual scenes for the world transforms.
+    std::unordered_map<std::string, std::shared_ptr<InstanceGeometry>> instanceGeometries;
+    tinyxml2::XMLElement* libraryVisualScenes = collada->FirstChildElement("library_visual_scenes");
+    instanceGeometries = Loader::ParseVisualScenesStatic(libraryVisualScenes);
 
-    // // parse geometries
-    // // one object - > many colliders
-    // std::unordered_map<std::string, std::vector<std::shared_ptr<Collider>> > objectToColliders;
-    // std::unordered_map<std::string, std::shared_ptr<Geometry>> geometry;
-    // tinyxml2::XMLElement* libraryGeometries = collada->FirstChildElement("library_geometries");
-    // geometry = Loader::ParseGeometry(libraryGeometries);
-    // // first iteration to get hitboxes
-    // for (std::unordered_map<std::string, std::shared_ptr<Geometry>>::iterator it = geometry.begin(); it != geometry.end(); it++)
-    // {
-    //     // Three scenarios
-    //     // is hitbox
-    //     // is not hitbox
-    //     // is terrain
-    //     bool isHitbox = it->first.find("_hitbox") != it->first.npos;
-    //     if (isHitbox)
-    //     {
-    //         int hitboxIndex = it->first.find("_hitbox");
-    //         std::string objectName = it->first.substr(0, hitboxIndex);
-    //         // take thhe vertices and make a collider.
-    //         glm::vec3 center = glm::vec3(0.f,0.f,0.f);
-    //         for (int i = 0; i < it->second->vertices.size(); i += 3)
-    //         {
-    //             float x = it->second->vertices[i];
-    //             float y = it->second->vertices[i + 1];
-    //             float z = it->second->vertices[i + 2];
-    //             glm::vec3 point = glm::vec3(x,y,z);
-    //             center += point;
-    //         }
-    //         int numOfPoints = it->second->vertices.size() / 3;
-    //         center /= numOfPoints;
-    //         float x = fabs(center.x - it->second->vertices[0]);
-    //         float y = fabs(center.y - it->second->vertices[1]);
-    //         float z = fabs(center.z - it->second->vertices[2]);
-    //         glm::vec3 axisRadii = glm::vec3( x, y, z);
-    //         glm::vec4 vec4Center = instanceGeometries[it->first]->matrix * glm::vec4(center, 1.0f);
-    //         center.x = vec4Center.x;
-    //         center.y = vec4Center.y;
-    //         center.z = vec4Center.z;
-    //         DynamicType type = DynamicType::Static;
-    //         if (objectName == "Player")
-    //             type = DynamicType::Dynamic;
-    //         std::shared_ptr<AABB> collider = std::make_shared<AABB>(AABB(0, center, ColliderType::BOX, type, axisRadii));
-    //         objectToColliders[objectName].push_back(collider);
-    //     }
-    // }
-    // std::vector<float> bufferData;
-    // glm::mat4 worldTransform;
-    // // second iteration to create game entities
-    // for (std::unordered_map<std::string, std::shared_ptr<Geometry>>::iterator it = geometry.begin(); it != geometry.end(); it++)
-    // {
-    //     bool isHitbox = it->first.find("_hitbox") != it->first.npos;
-    //     if (isHitbox)
-    //         continue;
+    // parse geometries
+    // one object - > many colliders
+    std::unordered_map<std::string, std::vector<std::shared_ptr<Collider>> > objectToColliders;
+    std::unordered_map<std::string, std::shared_ptr<Geometry>> geometry;
+    tinyxml2::XMLElement* libraryGeometries = collada->FirstChildElement("library_geometries");
+    geometry = Loader::ParseGeometry(libraryGeometries);
+    // first iteration to get hitboxes
+    for (std::unordered_map<std::string, std::shared_ptr<Geometry>>::iterator it = geometry.begin(); it != geometry.end(); it++)
+    {
+        // Three scenarios
+        // is hitbox
+        // is not hitbox
+        // is terrain
+        bool isHitbox = it->first.find("_hitbox") != it->first.npos;
+        if (isHitbox)
+        {
+            std::vector<glm::vec3> points;
+            int hitboxIndex = it->first.find("_hitbox");
+            std::string objectName = it->first.substr(0, hitboxIndex);
+            // take thhe vertices and make a collider.
+            for (int i = 0; i < it->second->vertices.size(); i += 3)
+            {
+                float x = it->second->vertices[i];
+                float y = it->second->vertices[i + 1];
+                float z = it->second->vertices[i + 2];
+                glm::vec3 point = glm::vec3(x,y,z);
+                points.push_back(point);
+            }
+            DynamicType type = DynamicType::Static;
+            if (objectName == "player")
+                type = DynamicType::Dynamic;
+            std::shared_ptr<Collider> collider = ColliderBuilder::Build(0, type, points);
+            objectToColliders[objectName].push_back(collider);
+        }
+    }
+    std::vector<float> bufferData;
+    glm::mat4 worldTransform;
+    // second iteration to create game entities
+    for (std::unordered_map<std::string, std::shared_ptr<Geometry>>::iterator it = geometry.begin(); it != geometry.end(); it++)
+    {
+        bool isHitbox = it->first.find("_hitbox") != it->first.npos;
+        if (isHitbox)
+            continue;
 
-    //     std::shared_ptr<Geometry>   current = it->second;
-    //     std::unique_ptr<Entity>     entity = std::make_unique<Entity>(this->CreateEntityID());
+        std::shared_ptr<Geometry>   current = it->second;
+        std::unique_ptr<Entity>     entity = std::make_unique<Entity>(this->CreateEntityID());
 
-    //     bufferData = Loader::BuildBufferData(current);
-    //     worldTransform = instanceGeometries[it->first]->matrix;
-    //     std::pair<unsigned int, unsigned int> buffers = RenderingSystem::BufferData(bufferData.data(), bufferData.size() * sizeof(float), false);
-    //     glm::vec3 scale;
-    //     glm::quat rotation;
-    //     glm::vec3 translation;
-    //     glm::vec3 skew;
-    //     glm::vec4 perspective;
-    //     glm::decompose(worldTransform, scale, rotation, translation, skew, perspective);
-    //     rotation = glm::conjugate(rotation);
-    //     // RenderingComponent
-    //     // we need to have
-    //     // VAO, VBO and Texture loaded.
-    //     std::unique_ptr<RenderingComponent> renderingComponent = std::make_unique<RenderingComponent>(buffers.first, buffers.second, bufferData.size() / 3, textureID, ShaderType::NormalShader);
-    //     // PhysicsComponent
-    //     DynamicType type = DynamicType::Static;
-    //     if (it->first == "Player")
-    //         type = DynamicType::Dynamic;
-    //     float mass = 1.0f;
-    //     std::unique_ptr<PhysicsComponent> physicsComponent = std::make_unique<PhysicsComponent>(1.f, translation, rotation, glm::mat3(1.f), type);
-    //     // assign colliders to component and insert into grid
-    //     physicsComponent->colliders = objectToColliders[it->first];
-    //     for (int k = 0;k < physicsComponent->colliders.size(); k++)
-    //     {
-    //         physicsComponent->colliders[k]->entityID = entity->id;
-    //     }
-    //     this->physicsSystem.Insert(physicsComponent->colliders);
-    //     std::unique_ptr<TransformComponent> transformComponent = std::make_unique<TransformComponent>(translation, rotation);
+        bufferData = Loader::BuildBufferData(current);
+        worldTransform = instanceGeometries[it->first]->matrix;
+        std::pair<unsigned int, unsigned int> buffers = RenderingSystem::BufferData(bufferData.data(), bufferData.size() * sizeof(float), false);
+        glm::vec3 scale;
+        glm::quat rotation;
+        glm::vec3 translation;
+        glm::vec3 skew;
+        glm::vec4 perspective;
+        glm::decompose(worldTransform, scale, rotation, translation, skew, perspective);
+        rotation = glm::conjugate(rotation);
+        // RenderingComponent
+        // we need to have
+        // VAO, VBO and Texture loaded.
+        std::unique_ptr<RenderingComponent> renderingComponent = std::make_unique<RenderingComponent>(buffers.first, buffers.second, bufferData.size() / 3, textureID, ShaderType::NormalShader);
+        // PhysicsComponent
+        DynamicType type = DynamicType::Static;
+        float mass = 1.0f;
+        if (it->first == "player")
+            type = DynamicType::Dynamic;
+        else
+            mass = 1000.f;
+        printVector(translation, "INIT TRANSLATION");
+        std::unique_ptr<PhysicsComponent> physicsComponent = std::make_unique<PhysicsComponent>(1.f, translation, rotation, glm::mat3(1.f), type);
+        // assign colliders to component and insert into grid
+        physicsComponent->colliders = objectToColliders[it->first];
+        for (int k = 0;k < physicsComponent->colliders.size(); k++)
+        {
+            physicsComponent->colliders[k]->entityID = entity->id;
+        }
+        this->physicsSystem.Insert(physicsComponent->colliders);
+        std::unique_ptr<TransformComponent> transformComponent = std::make_unique<TransformComponent>(translation, rotation);
         
-    //     // Entity
-    //     entity->AddComponent(std::move(renderingComponent));
-    //     entity->AddComponent(std::move(physicsComponent));
-    //     entity->AddComponent(std::move(transformComponent));
-    //     if (it->first == "Player")
-    //     {
-    //         this->playerID = entity->id;
-    //         std::unique_ptr<InputComponent> inputComponent = std::make_unique<InputComponent>();
-    //         entity->AddComponent(std::move(inputComponent));
-    //     }
-    //     entities.push_back(std::move(entity));
-    // }
+        // Entity
+        entity->AddComponent(std::move(renderingComponent));
+        entity->AddComponent(std::move(physicsComponent));
+        entity->AddComponent(std::move(transformComponent));
+        if (it->first == "player")
+        {
+            this->playerID = entity->id;
+            std::unique_ptr<InputComponent> inputComponent = std::make_unique<InputComponent>();
+            entity->AddComponent(std::move(inputComponent));
+        }
+        entities.push_back(std::move(entity));
+    }
     // Push back an entity
 }
 

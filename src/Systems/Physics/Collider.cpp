@@ -1,5 +1,6 @@
 #include "Collider.hpp"
 #include "../../Components/PhysicsComponent.hpp"
+#include "../../util.hpp"
 
 Collider::Collider( int entityID,
                     glm::vec3 center,
@@ -26,7 +27,12 @@ Collider::~Collider()
 
 void Collider::Update(glm::vec3 translation)
 {
-    
+    this->center += translation;
+    for (int i = 0; i < this->points.size(); i++)
+    {
+        this->points[i] += translation;
+    }
+    printVector(this->center, "Collider center");
 }
 
 const std::vector<glm::vec3>& Collider::GetPoints()

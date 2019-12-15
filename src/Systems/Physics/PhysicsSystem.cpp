@@ -1,9 +1,12 @@
 #include "PhysicsSystem.hpp"
 #include <iostream>
+#include "../../util.hpp"
 
 #include "../../Components/TransformComponent.hpp"
 #include "../Messaging/MoveData.hpp"
 #include "../Messaging/MouseMoveData.hpp"
+
+#include <GL/glew.h>
 
 PhysicsSystem::PhysicsSystem(float gridLength, float cellHalfWidth) : grid(gridLength, cellHalfWidth)
 {
@@ -41,19 +44,23 @@ void PhysicsSystem::Update(float dt, std::vector<std::unique_ptr<Entity>>& entit
 
             PhysicsComponent* component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
             TransformComponent* transformComponent = entities[i]->GetComponent<TransformComponent>(ComponentType::Transform);
-            // handle messages for the current entity
-            if (idToMessage.find(entities[i]->id) != idToMessage.end())
-                this->HandleMessages(idToMessage[entities[i]->id], component);
 
-            this->Integrate(dt, component);
+            if (component->dynamicType != DynamicType::Static)
+            {
+                // handle messages for the current entity
+                if (idToMessage.find(entities[i]->id) != idToMessage.end())
+                    this->HandleMessages(idToMessage[entities[i]->id], component);
 
-            // Transform Component Update
-            transformComponent->position = component->position;
-            transformComponent->orientation = component->orientation;
+                this->Integrate(dt, component);
 
-            // clear accumulators
-            component->forceAccumulator = glm::vec3(0.f, 0.f, 0.f);
-            component->torqueAccumulator = glm::vec3(0.f, 0.f, 0.f);
+                // Transform Component Update
+                transformComponent->position = component->position;
+                transformComponent->orientation = component->orientation;
+
+                // clear accumulators
+                component->forceAccumulator = glm::vec3(0.f, 0.f, 0.f);
+                component->torqueAccumulator = glm::vec3(0.f, 0.f, 0.f);
+            }
         }
     } 
     // 2. Check for collision
@@ -62,6 +69,8 @@ void PhysicsSystem::Update(float dt, std::vector<std::unique_ptr<Entity>>& entit
     this->Solve(entities, collisions, idToIndexMap);
     // 4. Resolve Interpenetration
     // TO DO
+
+    this->DebugDraw(entities, collisions);
 }
 
 void PhysicsSystem::Integrate(float dt, PhysicsComponent* component)
@@ -81,7 +90,7 @@ void PhysicsSystem::Integrate(float dt, PhysicsComponent* component)
     component->orientation.z += 0.5f * component->orientation.z * component->angularVel.z * dt;
 
     // Colliders Integration
-
+    printVector(component->position, "component position");
     // check if we need to move the object accross grid spaces
     glm::vec3 velocityChange = component->velocity * dt;
     for (int j = 0; j < component->colliders.size(); j++)
@@ -177,11 +186,55 @@ void PhysicsSystem::HandleMessages(std::vector<Message>& messages, PhysicsCompon
                 result += glm::vec3(-1.f,0.f, 0.f);
             else if (moveData->right)
                 result += glm::vec3(1.f,0.f, 0.f);
+            printVector(result, "Setting vel to ");
             component->velocity = result;
         }
         else if (message.type == MessageType::MouseMove)
         {
             std::shared_ptr<MouseMoveData> mouseMoveData = std::static_pointer_cast<MouseMoveData>(message.data);
+        }
+    }
+}
+
+void PhysicsSystem::DebugDraw( std::vector<std::unique_ptr<Entity>>& entities, std::vector<std::shared_ptr<Collision>>& collisions)
+{
+    /*
+    1. iterate over entities and render physics
+    2. iterate over collisions and render contacts + normals
+    */
+
+    for (int i = 0; i < entities.size(); i++)
+    {
+        if (entities[i]->IsEligibleForSystem(this->primaryBitset))
+        {
+            PhysicsComponent* component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
+            for (int j = 0; j < component->colliders.size(); j++)
+            {
+                const std::vector<glm::vec3>& points = component->colliders[j]->GetPoints();
+                const std::vector<std::pair<int, int>>& edges = component->colliders[j]->GetEdges();
+
+                for (int k = 0; k < edges.size(); k++)
+                {
+                    glBegin(GL_LINES);
+                    glColor3f(1.f,0.f,0.f);
+                    glVertex3d(points[edges[k].first].x, points[edges[k].first].y, points[edges[k].first].z);
+                    glVertex3d(points[edges[k].second].x, points[edges[k].second].y, points[edges[k].second].z);
+                    glEnd();
+                }
+            }
+        }
+    }
+    for (int i = 0; i < collisions.size(); i++)
+    {
+        std::shared_ptr<Collision> collision = collisions[i];
+        for (int j = 0; j < collision->contacts.size(); j++)
+        {
+            Contact contact = collision->contacts[j];
+            printVector(contact.contactPoint, "contact point is ");
+            glBegin(GL_POINTS);
+            glColor3f(0.f,1.f,0.f);
+            glVertex3d(contact.contactPoint.x, contact.contactPoint.y, contact.contactPoint.z);
+            glEnd();
         }
     }
 }
