@@ -1,0 +1,16 @@
+digraph "Catch::MessageBuilder"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node2 [label="Catch::MessageBuilder",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node3 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="Catch::MessageStream",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structCatch_1_1MessageStream.html"];
+  Node4 -> Node3 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" m_stream" ,fontname="Helvetica"];
+  Node4 [label="Catch::ReusableStringStream",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCatch_1_1ReusableStringStream.html"];
+  Node5 -> Node2 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" m_info" ,fontname="Helvetica"];
+  Node5 [label="Catch::MessageInfo",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structCatch_1_1MessageInfo.html"];
+  Node6 -> Node5 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" lineInfo" ,fontname="Helvetica"];
+  Node6 [label="Catch::SourceLineInfo",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$structCatch_1_1SourceLineInfo.html"];
+  Node7 -> Node5 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" macroName" ,fontname="Helvetica"];
+  Node7 [label="Catch::StringRef",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$classCatch_1_1StringRef.html"];
+}
