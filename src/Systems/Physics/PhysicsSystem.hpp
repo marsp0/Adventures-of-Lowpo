@@ -17,10 +17,11 @@ class PhysicsSystem
         ~PhysicsSystem();
 
         void Insert(std::vector<std::shared_ptr<Collider>>& colliders);
-        void Update(float deltaTime, 
+        void Update(float dt, 
                     std::vector<std::unique_ptr<Entity>>& entities,
                     std::vector<Message>& messages,
                     std::vector<Message>& globalQueue);
+        void Integrate(float dt, PhysicsComponent* component);
         /**
         Method that iterates over all the collisions and resolves them one by one.
         Impulse based formula is used here. Check

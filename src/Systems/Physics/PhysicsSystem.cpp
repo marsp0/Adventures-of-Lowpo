@@ -23,7 +23,7 @@ void PhysicsSystem::Insert(std::vector<std::shared_ptr<Collider>>& colliders)
     }
 }
 
-void PhysicsSystem::Update(float deltaTime, std::vector<std::unique_ptr<Entity>>& entities, std::vector<Message>& messages, std::vector<Message>& globalQueue)
+void PhysicsSystem::Update(float dt, std::vector<std::unique_ptr<Entity>>& entities, std::vector<Message>& messages, std::vector<Message>& globalQueue)
 {
     // build entity -> messages map
     std::unordered_map<int, std::vector<Message>> idToMessage;
@@ -37,47 +37,19 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::unique_ptr<Entity>>
     {
         if (entities[i]->IsEligibleForSystem(this->primaryBitset))
         {
+            idToIndexMap[entities[i]->id] = i;
+
             PhysicsComponent* component = entities[i]->GetComponent<PhysicsComponent>(ComponentType::Physics);
             TransformComponent* transformComponent = entities[i]->GetComponent<TransformComponent>(ComponentType::Transform);
             // handle messages for the current entity
             if (idToMessage.find(entities[i]->id) != idToMessage.end())
                 this->HandleMessages(idToMessage[entities[i]->id], component);
-            idToIndexMap[entities[i]->id] = i;
 
-            // Physics Component Update
-
-            // acceleration update
-            component->acceleration += component->forceAccumulator * component->inverseMass;
-            component->angularAcc += component->torqueAccumulator * component->invInertiaTensor;
-            // velocity update
-            component->velocity += component->acceleration * deltaTime;
-            component->angularVel += component->angularAcc * deltaTime;
-            // position update
-            component->position += component->velocity * deltaTime;
-            component->orientation.x += 0.5f * component->orientation.x * component->angularVel.x * deltaTime;
-            component->orientation.y += 0.5f * component->orientation.y * component->angularVel.y * deltaTime;
-            component->orientation.z += 0.5f * component->orientation.z * component->angularVel.z * deltaTime;
+            this->Integrate(dt, component);
 
             // Transform Component Update
-
             transformComponent->position = component->position;
             transformComponent->orientation = component->orientation;
-
-            // check if we need to move the object accross grid spaces
-            glm::vec3 velocityChange = component->velocity * deltaTime;
-            for (int j = 0; j < component->colliders.size(); j++)
-            {
-                component->colliders[j]->Update(velocityChange);
-                int newRow = this->grid.GetInsertRow(component->colliders[j]->center);
-                int newCol = this->grid.GetInsertCol(component->colliders[j]->center);
-                int oldRow = component->colliders[j]->row;
-                int oldCol = component->colliders[j]->col;
-                if (oldRow != newRow || oldCol != newCol)
-                {
-                    this->grid.Remove(component->colliders[j]);
-                    this->grid.Insert(component->colliders[j]);
-                }
-            }
 
             // clear accumulators
             component->forceAccumulator = glm::vec3(0.f, 0.f, 0.f);
@@ -90,6 +62,41 @@ void PhysicsSystem::Update(float deltaTime, std::vector<std::unique_ptr<Entity>>
     this->Solve(entities, collisions, idToIndexMap);
     // 4. Resolve Interpenetration
     // TO DO
+}
+
+void PhysicsSystem::Integrate(float dt, PhysicsComponent* component)
+{
+    // Component integration
+
+    // acceleration update
+    component->acceleration += component->forceAccumulator * component->inverseMass;
+    component->angularAcc += component->torqueAccumulator * component->invInertiaTensor;
+    // velocity update
+    component->velocity += component->acceleration * dt;
+    component->angularVel += component->angularAcc * dt;
+    // position update
+    component->position += component->velocity * dt;
+    component->orientation.x += 0.5f * component->orientation.x * component->angularVel.x * dt;
+    component->orientation.y += 0.5f * component->orientation.y * component->angularVel.y * dt;
+    component->orientation.z += 0.5f * component->orientation.z * component->angularVel.z * dt;
+
+    // Colliders Integration
+
+    // check if we need to move the object accross grid spaces
+    glm::vec3 velocityChange = component->velocity * dt;
+    for (int j = 0; j < component->colliders.size(); j++)
+    {
+        component->colliders[j]->Update(velocityChange);
+        int newRow = this->grid.GetInsertRow(component->colliders[j]->center);
+        int newCol = this->grid.GetInsertCol(component->colliders[j]->center);
+        int oldRow = component->colliders[j]->row;
+        int oldCol = component->colliders[j]->col;
+        if (oldRow != newRow || oldCol != newCol)
+        {
+            this->grid.Remove(component->colliders[j]);
+            this->grid.Insert(component->colliders[j]);
+        }
+    }
 }
 
 void PhysicsSystem::Solve(std::vector<std::unique_ptr<Entity>>& entities, std::vector<std::shared_ptr<Collision>>& collisions, std::unordered_map<int, int>& idToIndexMap)
